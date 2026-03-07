@@ -1,0 +1,25 @@
+﻿# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+
+# Build results
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
