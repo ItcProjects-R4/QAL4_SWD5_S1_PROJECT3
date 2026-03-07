@@ -169,11 +169,11 @@ using a Stored Procedure and retrieving data through a SQL View.
 <h2>👥 Team Members</h2>
 
 <ul>
-<li><strong>Shahd</strong> – Database Design</li>
-<li><strong>Mariam</strong> – Database Connection</li>
-<li><strong>Abdelrahman</strong> – C# Development (Student Class)</li>
-<li><strong>Baher</strong> – Menu & User Interface</li>
-<li><strong>Naglaa</strong> – Program Logic</li>
+<li><strong>Shahd</strong></li>
+<li><strong>Mariam</strong></li>
+<li><strong>Abdelrahman</strong></li>
+<li><strong>Baher</strong></li>
+<li><strong>Naglaa</strong></li>
 </ul>
 
 <hr>
