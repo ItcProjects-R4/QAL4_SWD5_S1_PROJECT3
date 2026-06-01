@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using SehhaTech.Infrastructure.Data;
 using SehhaTech.Core.Models;
 using System.ComponentModel.DataAnnotations;
+
 namespace SehhaTech.API.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Reception")]
     [ApiController]
     [Route("api/[controller]")]
     public class ReceptionController : ControllerBase
@@ -18,22 +19,103 @@ namespace SehhaTech.API.Controllers
             _context = context;
         }
 
+        // ✅ COMPLETED: Dashboard now returns today's queue + available doctors
         [HttpGet("dashboard")]
-        public IActionResult GetDashboard()
+        public async Task<IActionResult> GetDashboard()
         {
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
+
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            var queue = await _context.Appointments
+                .Where(a =>
+                    a.TenantId == tenantId &&
+                    a.AppointmentDate >= today &&
+                    a.AppointmentDate < tomorrow &&
+                    a.Status != AppointmentStatus.Cancelled &&
+                    a.Status != AppointmentStatus.Completed &&
+                    a.Status != AppointmentStatus.NoShow)
+                .OrderBy(a => a.AppointmentDate)
+                .Select(a => new
+                {
+                    appointmentId = a.Id,
+                    patient = new
+                    {
+                        id = a.PatientId,
+                        fullName = a.Patient != null ? a.Patient.FullName : null,
+                        phone = a.Patient != null ? a.Patient.Phone : null,
+                        email = a.Patient != null ? a.Patient.Email : null
+                    },
+                    doctor = new
+                    {
+                        id = a.DoctorId,
+                        specialization = a.Doctor != null ? a.Doctor.Specialization : null,
+                        isActive = a.Doctor != null ? a.Doctor.IsActive : false
+                    },
+                    appointmentDate = a.AppointmentDate,
+                    appointmentTime = a.AppointmentDate.ToString("HH:mm"),
+                    duration = a.Duration,
+                    status = a.Status.ToString(),
+                    notes = a.Notes,
+                    waitingMinutes = a.Status == AppointmentStatus.CheckedIn
+                        ? (int)Math.Max(0, (DateTime.Now - a.AppointmentDate).TotalMinutes)
+                        : 0
+                })
+                .ToListAsync();
+
+            var availableDoctors = await _context.Doctors
+                .Where(d => d.TenantId == tenantId && d.IsActive)
+                .OrderBy(d => d.Specialization)
+                .Select(d => new
+                {
+                    id = d.Id,
+                    specialization = d.Specialization,
+                    bio = d.Bio,
+                    profileImageUrl = d.ProfileImageUrl,
+                    isActive = d.IsActive,
+                    user = d.User == null ? null : new
+                    {
+                        id = d.User.Id,
+                        fullName = d.User.FullName,
+                        email = d.User.Email,
+                        profileImageUrl = d.User.ProfileImageUrl
+                    }
+                })
+                .ToListAsync();
+
             return Ok(new
             {
-                message = "Reception dashboard works"
+                success = true,
+                message = "Reception dashboard retrieved successfully",
+                date = today.ToString("yyyy-MM-dd"),
+                queue = new
+                {
+                    count = queue.Count,
+                    data = queue
+                },
+                availableDoctors = new
+                {
+                    count = availableDoctors.Count,
+                    data = availableDoctors
+                }
             });
         }
 
         [HttpGet("patients")]
-        public async Task<IActionResult> GetPatients()
+        public async Task<IActionResult> GetPatients(string? search = null)
         {
-            var tenantId = (int)HttpContext.Items["TenantId"]!; 
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
 
-            var patients = await _context.Patients
-                .Where(p => p.TenantId == tenantId)
+            var query = _context.Patients
+                .Where(p => p.TenantId == tenantId);
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(p =>
+                    p.FullName.Contains(search) ||
+                    p.Phone.Contains(search));
+
+            var patients = await query
                 .OrderByDescending(p => p.CreatedAt)
                 .Select(p => new
                 {
@@ -55,6 +137,7 @@ namespace SehhaTech.API.Controllers
                 data = patients
             });
         }
+
         [HttpGet("patients/{id}")]
         public async Task<IActionResult> GetPatientById(int id)
         {
@@ -67,7 +150,7 @@ namespace SehhaTech.API.Controllers
                 });
             }
 
-            var tenantId = (int)HttpContext.Items["TenantId"]!; 
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
 
             var patient = await _context.Patients
                 .Where(p => p.Id == id && p.TenantId == tenantId)
@@ -99,6 +182,7 @@ namespace SehhaTech.API.Controllers
                 data = patient
             });
         }
+
         [HttpPost("patients")]
         public async Task<IActionResult> AddPatient(CreatePatientRequest request)
         {
@@ -194,10 +278,13 @@ namespace SehhaTech.API.Controllers
                 }
             });
         }
+
         [HttpGet("appointments")]
-        public async Task<IActionResult> GetAppointments(DateTime? from,DateTime? to,
-              int page = 1,
-              int pageSize = 10)
+        public async Task<IActionResult> GetAppointments(
+            DateTime? from,
+            DateTime? to,
+            int page = 1,
+            int pageSize = 10)
         {
             if (page <= 0)
             {
@@ -274,6 +361,7 @@ namespace SehhaTech.API.Controllers
                 data = appointments
             });
         }
+
         [HttpPost("appointments")]
         public async Task<IActionResult> BookAppointment(CreateAppointmentRequest request)
         {
@@ -340,7 +428,7 @@ namespace SehhaTech.API.Controllers
                 });
             }
 
-            var tenantId = (int)HttpContext.Items["TenantId"]!; 
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
 
             var patientExists = await _context.Patients
                 .AnyAsync(p => p.Id == request.PatientId && p.TenantId == tenantId);
@@ -417,6 +505,7 @@ namespace SehhaTech.API.Controllers
                 }
             });
         }
+
         [HttpPut("appointments/{id}/checkin")]
         public async Task<IActionResult> CheckInAppointment(int id)
         {
@@ -429,7 +518,7 @@ namespace SehhaTech.API.Controllers
                 });
             }
 
-            var tenantId = (int)HttpContext.Items["TenantId"]!; 
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
 
             var appointment = await _context.Appointments
                 .FirstOrDefaultAsync(a => a.Id == id && a.TenantId == tenantId);
@@ -461,7 +550,7 @@ namespace SehhaTech.API.Controllers
                 });
             }
 
-            if (appointment.Status == AppointmentStatus.Confirmed)
+            if (appointment.Status == AppointmentStatus.CheckedIn)
             {
                 return Conflict(new
                 {
@@ -470,7 +559,8 @@ namespace SehhaTech.API.Controllers
                 });
             }
 
-            appointment.Status = AppointmentStatus.Confirmed;
+            // ✅ BUG FIX: was AppointmentStatus.Confirmed
+            appointment.Status = AppointmentStatus.CheckedIn;
 
             await _context.SaveChangesAsync();
 
@@ -485,6 +575,7 @@ namespace SehhaTech.API.Controllers
                 }
             });
         }
+
         [HttpGet("queue")]
         public async Task<IActionResult> GetTodayQueue()
         {
@@ -505,7 +596,6 @@ namespace SehhaTech.API.Controllers
                 .Select(a => new
                 {
                     appointmentId = a.Id,
-
                     patient = new
                     {
                         id = a.PatientId,
@@ -513,20 +603,19 @@ namespace SehhaTech.API.Controllers
                         phone = a.Patient != null ? a.Patient.Phone : null,
                         email = a.Patient != null ? a.Patient.Email : null
                     },
-
                     doctor = new
                     {
                         id = a.DoctorId,
                         specialization = a.Doctor != null ? a.Doctor.Specialization : null,
                         isActive = a.Doctor != null ? a.Doctor.IsActive : false
                     },
-
                     appointmentDate = a.AppointmentDate,
                     appointmentTime = a.AppointmentDate.ToString("HH:mm"),
                     duration = a.Duration,
                     status = a.Status.ToString(),
                     notes = a.Notes,
-                    waitingMinutes = a.Status == AppointmentStatus.Confirmed
+                    // ✅ BUG FIX: was AppointmentStatus.Confirmed
+                    waitingMinutes = a.Status == AppointmentStatus.CheckedIn
                         ? (int)Math.Max(0, (DateTime.Now - a.AppointmentDate).TotalMinutes)
                         : 0
                 })
@@ -547,7 +636,7 @@ namespace SehhaTech.API.Controllers
         [HttpGet("doctors/available")]
         public async Task<IActionResult> GetAvailableDoctors()
         {
-            var tenantId = (int)HttpContext.Items["TenantId"]!; // Temporary for Swagger testing only
+            var tenantId = (int)HttpContext.Items["TenantId"]!;
 
             var doctors = await _context.Doctors
                 .Where(d => d.TenantId == tenantId && d.IsActive)
@@ -579,42 +668,6 @@ namespace SehhaTech.API.Controllers
                 data = doctors
             });
         }
-
-
-        //[HttpPost("test-doctor")]
-        //public async Task<IActionResult> AddTestDoctor()
-        //{
-        //    var user = await _context.Users.FirstOrDefaultAsync();
-
-        //    if (user == null)
-        //    {
-        //        return BadRequest(new
-        //        {
-        //            message = "No user found. Please register a user first."
-        //        });
-        //    }
-
-        //    var doctor = new Doctor
-        //    {
-        //        TenantId = user.TenantId ?? 1,
-        //        UserId = user.Id,
-        //        Specialization = "General Medicine",
-        //        Bio = "Test doctor",
-        //        IsActive = true
-        //    };
-
-        //    _context.Doctors.Add(doctor);
-        //    await _context.SaveChangesAsync();
-
-        //    return Ok(new
-        //    {
-        //        message = "Test doctor added successfully",
-        //        doctorId = doctor.Id,
-        //        userId = user.Id,
-        //        tenantId = doctor.TenantId
-        //    });
-        //}
-   
     }
 
 
@@ -639,6 +692,7 @@ namespace SehhaTech.API.Controllers
         [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be Male or Female")]
         public string Gender { get; set; } = string.Empty;
     }
+
     public class CreateAppointmentRequest
     {
         public int PatientId { get; set; }
