@@ -373,14 +373,18 @@ public class DoctorController : ControllerBase
             .ToListAsync();
 
         // Last 3 recent patients
-        var recentPatients = await _context.Appointments
+        var recentPatientIds = await _context.Appointments
             .Where(a =>
                 a.DoctorId == doctor.Id &&
                 a.TenantId == doctor.TenantId)
             .OrderByDescending(a => a.AppointmentDate)
-            .Select(a => a.Patient!)
+            .Select(a => a.PatientId)
             .Distinct()
             .Take(3)
+            .ToListAsync();
+
+        var recentPatients = await _context.Patients
+            .Where(p => recentPatientIds.Contains(p.Id))
             .Select(p => new
             {
                 p.Id,
