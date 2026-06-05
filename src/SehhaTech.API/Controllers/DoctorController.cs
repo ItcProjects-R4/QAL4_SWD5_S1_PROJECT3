@@ -58,14 +58,14 @@ public class DoctorController : ControllerBase
                 doctor.Id,
                 doctor.Specialization,
                 doctor.Bio,
-                doctor.ProfileImageUrl,
+                DoctorProfileImageUrl = doctor.ProfileImageUrl,
                 doctor.IsActive,
                 User = new
                 {
                     Id = doctor.User?.Id,
                     FullName = doctor.User?.FullName,
                     Email = doctor.User?.Email,
-                    ProfileImageUrl = doctor.User?.ProfileImageUrl
+                    UserProfileImageUrl = doctor.User?.ProfileImageUrl
                 }
             }
         });
@@ -182,7 +182,14 @@ public class DoctorController : ControllerBase
                 message = "Appointment not found"
             });
         }
-
+        if (appointment.Status == AppointmentStatus.Completed)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Completed appointments cannot be modified"
+            });
+        }
         if (request.Status != AppointmentStatus.Completed &&
             request.Status != AppointmentStatus.NoShow)
         {
@@ -222,12 +229,18 @@ public class DoctorController : ControllerBase
             });
         }
 
-        var patients = await _context.Appointments
-            .Where(a =>
-                a.DoctorId == doctor.Id &&
-                a.TenantId == doctor.TenantId)
-            .Select(a => a.Patient!)
-            .Distinct()
+        var patientIds = await _context.Appointments
+    .Where(a =>
+        a.DoctorId == doctor.Id &&
+        a.TenantId == doctor.TenantId)
+    .Select(a => a.PatientId)
+    .Distinct()
+    .ToListAsync();
+
+        var patients = await _context.Patients
+            .Where(p =>
+                patientIds.Contains(p.Id) &&
+                p.TenantId == doctor.TenantId)
             .Select(p => new
             {
                 p.Id,
