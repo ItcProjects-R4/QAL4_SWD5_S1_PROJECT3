@@ -1,10 +1,11 @@
 ﻿
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SehhaTech.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using SehhaTech.Core.Models;
-
+using SehhaTech.Infrastructure.Data;
+using SehhaTech.Core.DTOs.Auth;
 
 
 namespace SehhaTech.API.Controllers
@@ -37,12 +38,18 @@ namespace SehhaTech.API.Controllers
                 t.CreatedAt
             }).ToListAsync();
 
-            var growth = await _context.Tenants.GroupBy(t => t.CreatedAt.Month).Select(g => new
+            var growth = await _context.Tenants.
+                GroupBy(t => new
             {
-                Month = g.Key,
-                Count = g.Count()
-            }).ToListAsync();
-
+                t.CreatedAt.Year,
+                t.CreatedAt.Month
+            })
+               .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    Count = g.Count()
+                }).ToListAsync();
 
 
             var status = await _context.Appointments.GroupBy(a => a.Status).Select(g => new
@@ -124,22 +131,44 @@ namespace SehhaTech.API.Controllers
         {
             var tenant = await _context.Tenants.FindAsync(id);
             if (tenant == null)
-                return NotFound("Clinic not found ");
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Clinic not found"
+                });
+
+            var doctors = _context.Doctors.Where(d => d.TenantId == id);
+            var patients = _context.Patients.Where(p => p.TenantId == id);
+            var appointments = _context.Appointments.Where(a => a.TenantId == id);
+
+            _context.Doctors.RemoveRange(doctors);
+            _context.Patients.RemoveRange(patients);
+            _context.Appointments.RemoveRange(appointments);
+
             _context.Tenants.Remove(tenant);
+
             await _context.SaveChangesAsync();
+
             return Ok(new
             {
-                Message = "Clinic Deleted Successfully"
+                success = true,
+                message = "Clinic Deleted Successfully"
             });
         }
         [HttpGet("reports")]
         public async Task<IActionResult> GetReports()
         {
-            var clinicsGrowth = await _context.Tenants.GroupBy(t => t.CreatedAt.Month).Select(g => new
-            {
-                Month = g.Key,
-                Count = g.Count()
-            }).OrderBy(x => x.Month).ToListAsync();
+            var clinicsGrowth = await _context.Tenants
+               .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
+        .Select(g => new
+        {
+            Year = g.Key.Year,
+            Month = g.Key.Month,
+            Count = g.Count()
+        })
+        .OrderBy(x => x.Year)
+        .ThenBy(x => x.Month)
+        .ToListAsync();
             var appointmentStatus = await _context.Appointments.GroupBy(a => a.Status).Select(g => new
             {
                 Status = g.Key,
@@ -162,21 +191,70 @@ namespace SehhaTech.API.Controllers
         }
 
         [HttpGet("settings/profile")]
-        public IActionResult GetProfile()
+        public  async Task <IActionResult> GetProfile()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+            var userIdInt = int.Parse(userId);
+            var user= await _context.Users.Where(u=>u.Id == userIdInt).Select(u=>new
+            {
+                u.Id,
+                u.FullName,
+                u.Email,
+                u.Role
+            }).FirstOrDefaultAsync();
+
+            if (user == null)
+                return NotFound(new
+                {
+                    success = false,
+                    message = "User not found"
+                });
             return Ok(new
             {
-                Message = " Super Admin Profile"
+                success = true,
+                data = user
             });
+           
 
         }
-        [HttpPut("settings/changepassword")]
-        public IActionResult changepassword()
-        {
-            return Ok(new
+        
+            [HttpPut("settings/changepassword")]
+            public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
             {
-                Message = "Password changed successfully"
-            });
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+            var userIdInt = int.Parse(userId);
+
+            var user = await _context.Users.FindAsync(userIdInt);
+
+                if (user == null)
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "User not found"
+                    });
+
+                if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.PasswordHash))
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Old password is wrong"
+                    });
+
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Password changed successfully"
+                });
+            }
         }
     }
-}
