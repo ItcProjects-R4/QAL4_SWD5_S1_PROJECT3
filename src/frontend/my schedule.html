@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MedCore - My Schedule</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#006a60",
+                        "on-secondary": "#ffffff",
+                        "primary": "#0F2544",
+                        "surface-variant": "#dce2f3",
+                        "on-tertiary-container": "#df694b",
+                        "on-tertiary-fixed-variant": "#83260e",
+                        "surface-container-highest": "#dce2f3",
+                        "inverse-on-surface": "#ebf1ff",
+                        "secondary-fixed-dim": "#6fd8c8",
+                        "secondary-container": "#8cf5e4",
+                        "outline-variant": "#c4c6cf",
+                        "on-secondary-fixed-variant": "#005048",
+                        "tertiary-container": "#4d0c00",
+                        "surface-tint": "#4b5f81",
+                        "on-surface-variant": "#44474e",
+                        "surface-container": "#e7eefe",
+                        "outline": "#74777e",
+                        "on-tertiary-fixed": "#3c0700",
+                        "on-surface": "#151c27",
+                        "on-primary-fixed-variant": "#334768",
+                        "on-primary-fixed": "#041b3a",
+                        "primary-fixed-dim": "#b3c7ee",
+                        "on-primary-container": "#798db1",
+                        "tertiary-fixed": "#ffdad2",
+                        "on-error": "#ffffff",
+                        "tertiary": "#270300",
+                        "on-secondary-container": "#007166",
+                        "surface-dim": "#d3daea",
+                        "surface-bright": "#f9f9ff",
+                        "surface-container-low": "#f0f3ff",
+                        "surface": "#f9f9ff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#8cf5e4",
+                        "surface-container-high": "#e2e8f8",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb4a2",
+                        "inverse-primary": "#b3c7ee",
+                        "primary-container": "#011633",
+                        "on-secondary-fixed": "#00201c",
+                        "inverse-surface": "#2a313d",
+                        "on-background": "#151c27",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#d6e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base-unit": "4px",
+                        "md": "16px",
+                        "gutter": "20px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "sans": ["Manrope", "sans-serif"],
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-slate-200 bg-white flex flex-col py-6 px-4 z-50">
+    <div class="mb-10 px-2 flex items-center gap-3">
+
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-white text-xl"
+                  style='font-variation-settings: "FILL" 1;'>
+                medical_services
+            </span>
+        </div>
+
+        <span class="text-xl font-800 tracking-tight text-slate-900">
+            SehhaTech
+        </span>
+
+    </div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-50 transition-colors duration-150 rounded font-medium text-sm" href="dashboard.html" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard" style="">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/5 text-primary font-bold border-l-4 border-primary transition-colors duration-150 rounded-r text-sm" href="my schedule.html" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="calendar_today" style="">calendar_today</span>
+                My Schedule
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:bg-slate-50 transition-colors duration-150 rounded font-medium text-sm" href="patients records.html" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="folder_shared" style="">folder_shared</span>
+                Patient Records
+            </a>
+</nav>
+<div class="mt-auto border-t border-slate-100 pt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:text-error transition-colors duration-150 font-medium text-sm" href="login.html" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="logout" style="">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-64 h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md flex justify-between items-center px-8 z-40">
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+
+</div>
+</div>
+<div class="flex items-center gap-6 ml-4">
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+    <div class="text-right hidden sm:block">
+        <p id="doctorName"
+           class="text-xs font-bold text-slate-900">
+        </p>
+
+        <p id="doctorSpecialization"
+           class="text-[10px] text-slate-400 font-semibold uppercase">
+        </p>
+    </div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-screen bg-background">
+<div class="max-w-7xl mx-auto">
+<header class="mb-10">
+<h2 class="text-3xl font-bold text-primary mb-1" style="">Daily Schedule</h2>
+<p id="scheduleInfo" class="text-slate-500 font-medium">
+    Loading...
+</p>
+</header>
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Appointment List -->
+<div class="col-span-12 lg:col-span-5 space-y-3">
+<div class="flex items-center justify-between px-2 mb-4">
+
+</div>
+<div id="scheduleList" class="space-y-3"></div>
+<!-- Right Column: Patient Summary & Info -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<section class="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
+<div class="p-8 border-b border-slate-100 flex items-start gap-6">
+    <div class="w-24 h-24 rounded bg-slate-100 flex items-center justify-center">
+        <span class="material-symbols-outlined text-slate-400 text-5xl">
+            person
+        </span>
+    </div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+    <h3 id="patientName" class="text-2xl font-bold text-primary"></h3>
+    <p id="patientId"
+       class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+    </p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-50/50 p-8">
+<div class="flex flex-col md:flex-row gap-8">
+<div class="flex-1 space-y-2">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" style="">Scheduled For</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="event" style="">event</span>
+<p id="appointmentDate" class="font-bold text-primary"></p>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" style="">Appointment Time</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="schedule" style="">schedule</span>
+<p id="appointmentTime" class="font-bold text-primary"></p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<button  id="viewPatientBtn" class="w-full bg-primary text-white py-3.5 rounded font-bold text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="person" style="">person</span>
+                                    View Patient Profile
+                                </button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+    <script>
+        let selectedPatientId = null;
+        async function loadSchedule() {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+            const response = await fetch(
+                "https://localhost:7153/api/Doctor/appointments/upcoming",
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+
+            const result = await response.json();
+            const profileResponse = await fetch(
+    "https://localhost:7153/api/Doctor/profile",
+    {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    });
+
+            const profile = await profileResponse.json();
+            document.getElementById("doctorName").innerText =
+                profile.data.user.fullName;
+
+            document.getElementById("doctorSpecialization").innerText =
+                profile.data.specialization;
+
+            console.log(result);
+            const today = new Date();
+            const count = result.data.length;
+
+            document.getElementById("scheduleInfo").innerText =
+                today.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric"
+                }) +
+                " — " +
+                count +
+                (count === 1
+                    ? " Appointment Remaining"
+                    : " Appointments Remaining");
+            const scheduleList = document.getElementById("scheduleList");
+
+            scheduleList.innerHTML = "";
+
+            result.data.forEach(app => {
+
+                const date = new Date(app.appointmentDate);
+
+                const hour = date.getHours();
+                const minutes = date.getMinutes();
+
+                const displayHour = hour % 12 || 12;
+                const ampm = hour >= 12 ? "PM" : "AM";
+
+                scheduleList.innerHTML += `
+           <div
+    onclick='showAppointment(${JSON.stringify(app)})'
+    class="bg-white rounded border border-slate-200 hover:border-slate-300 flex items-center justify-between p-4 transition-all cursor-pointer group">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="flex flex-col items-center justify-center bg-slate-50 text-slate-400 w-14 h-14 rounded">
+
+                        <span class="text-xl font-bold leading-none">
+                            ${displayHour}
+                        </span>
+
+                        <span class="text-[10px] font-bold uppercase">
+                            ${ampm}
+                        </span>
+
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-slate-900">
+                            ${app.patientName}
+                        </h3>
+
+                        <p class="text-sm text-slate-500">
+                            ${app.status}
+                        </p>    
+                    </div>
+
+                </div>
+
+                <span class="material-symbols-outlined">
+                    chevron_right
+                </span>
+
+            </div>
+        `;
+                if (result.data.length > 0) {
+                    showAppointment(result.data[0]);
+                }
+            }
+            );
+        }
+    function showAppointment(app) {
+
+        selectedPatientId = app.patientId;
+
+        document.getElementById("patientName").innerText =
+            app.patientName;
+
+        document.getElementById("patientId").innerText =
+            "PATIENT ID: " + app.patientId;
+
+        const date = new Date(app.appointmentDate);
+
+        document.getElementById("appointmentDate").innerText =
+            date.toLocaleDateString();
+
+        document.getElementById("appointmentTime").innerText =
+            date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+    }
+    function closeModal() {
+        document.getElementById("patientModal")
+            .classList.add("hidden");
+    }
+
+    async function openPatientDetails() {
+
+        if (!selectedPatientId) return;
+
+        const response = await fetch(
+            `https://localhost:7153/api/Doctor/patients/${selectedPatientId}`,
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+        const result = await response.json();
+       
+        document.getElementById("patientDetails").innerHTML = `
+        <p><strong>Name:</strong> ${result.data.fullName}</p>
+        <p><strong>Phone:</strong> ${result.data.phone}</p>
+        <p><strong>Email:</strong> ${result.data.email}</p>
+        <p><strong>Gender:</strong> ${result.data.gender}</p>
+        <p><strong>Medical History:</strong> ${result.data.medicalHistory}</p>
+    `;
+
+        document.getElementById("patientModal")
+            .classList.remove("hidden");
+
+        document.getElementById("patientModal")
+            .classList.add("flex");
+    }
+
+        loadSchedule();
+        document
+            .getElementById("viewPatientBtn")
+            .addEventListener("click", openPatientDetails);
+</script>
+    <div id="patientModal"
+     class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+    <div class="bg-white rounded-xl p-6 w-[500px] max-w-[90%]">
+
+        <div class="flex justify-between mb-4">
+            <h2 class="text-xl font-bold">
+                Patient Details
+            </h2>
+
+            <button onclick="closeModal()">
+                ✕
+            </button>
+        </div>
+
+        <div id="patientDetails">
+            Loading...
+        </div>
+
+    </div>
+
+</div>
+</body></html>
