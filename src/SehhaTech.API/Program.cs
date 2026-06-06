@@ -5,6 +5,9 @@ using System.Text;
 using SehhaTech.Infrastructure.Data;
 using SehhaTech.Core.Interfaces;
 using SehhaTech.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
+using SehhaTech.Core.Models;
+using BCrypt.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
