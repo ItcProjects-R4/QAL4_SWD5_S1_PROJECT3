@@ -406,4 +406,39 @@ public class DoctorController : ControllerBase
             }
         });
     }
+
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile(UpdateDoctorProfileRequest request)
+    {
+        var doctor = await GetCurrentDoctorAsync();
+
+        if (doctor == null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Doctor not found"
+            });
+        }
+
+        if (request.Bio != null)
+            doctor.Bio = request.Bio;
+
+        if (request.ProfileImageUrl != null)
+            doctor.ProfileImageUrl = request.ProfileImageUrl;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Profile updated successfully",
+            data = new
+            {
+                doctor.Id,
+                doctor.Bio,
+                doctor.ProfileImageUrl
+            }
+        });
+    }
 }
