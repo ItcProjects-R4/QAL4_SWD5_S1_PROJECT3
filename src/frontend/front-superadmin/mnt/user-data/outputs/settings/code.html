@@ -1,0 +1,215 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Settings - Smart Clinics Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+tailwind.config={darkMode:"class",theme:{extend:{colors:{
+  "tertiary-fixed":"#fcdeb5","surface-tint":"#565e74","surface-container-high":"#eae7e9",
+  "on-secondary-fixed-variant":"#444749","tertiary-container":"#271901","on-primary":"#ffffff",
+  "surface-container-low":"#f6f3f5","surface-variant":"#e4e2e4","error":"#ba1a1a",
+  "on-secondary-container":"#626567","secondary":"#5c5f61","on-background":"#1b1b1d",
+  "secondary-fixed":"#e0e3e5","on-primary-container":"#7c839b","on-secondary":"#ffffff",
+  "on-error":"#ffffff","outline":"#76777d","surface-dim":"#dcd9db","tertiary":"#000000",
+  "on-tertiary-fixed-variant":"#574425","primary":"#000000","on-tertiary-fixed":"#271901",
+  "primary-fixed-dim":"#bec6e0","surface-container":"#f0edef","surface-container-lowest":"#ffffff",
+  "primary-fixed":"#dae2fd","secondary-container":"#e0e3e5","surface":"#fcf8fa",
+  "on-surface-variant":"#45464d","background":"#fcf8fa","on-error-container":"#93000a",
+  "secondary-fixed-dim":"#c4c7c9","inverse-surface":"#303032","on-primary-fixed-variant":"#3f465c",
+  "on-surface":"#1b1b1d","inverse-on-surface":"#f3f0f2","outline-variant":"#c6c6cd",
+  "error-container":"#ffdad6","on-secondary-fixed":"#191c1e","primary-container":"#131b2e",
+  "on-tertiary-container":"#98805d","on-primary-fixed":"#131b2e","tertiary-fixed-dim":"#dec29a",
+  "surface-container-highest":"#e4e2e4","surface-bright":"#fcf8fa","on-tertiary":"#ffffff","inverse-primary":"#bec6e0"
+},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+fontFamily:{"h1":["Inter"],"label-sm":["Inter"],"h3":["Inter"],"body-md":["Inter"],"h2":["Inter"],"body-lg":["Inter"]},
+fontSize:{
+  "h1":["30px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],
+  "label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"600"}],
+  "h3":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+  "body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+  "h2":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],
+  "body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}]
+}}}}
+</script>
+<style>
+  .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+  body{background-color:#fcf8fa;}
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<!-- Sidebar -->
+<aside class="bg-slate-900 font-sans text-sm font-medium w-[280px] h-screen fixed left-0 top-0 overflow-y-auto border-r border-slate-800 flex flex-col z-50">
+  <div class="px-6 py-8">
+    <h1 class="text-xl font-bold text-white tracking-tight">Smart Clinics</h1>
+    <p class="text-slate-500 text-xs mt-1">Super Admin</p>
+  </div>
+  <nav class="flex-1 space-y-1">
+    <a class="text-slate-400 hover:text-slate-100 flex items-center px-6 py-3 hover:bg-slate-800" href="../dashboard/code.html">
+      <span class="material-symbols-outlined mr-3">dashboard</span>Dashboard
+    </a>
+    <a class="text-slate-400 hover:text-slate-100 flex items-center px-6 py-3 hover:bg-slate-800" href="../clinics_management/code.html">
+      <span class="material-symbols-outlined mr-3">medical_services</span>Clinics Management
+    </a>
+    <a class="text-slate-400 hover:text-slate-100 flex items-center px-6 py-3 hover:bg-slate-800" href="../reports/code.html">
+      <span class="material-symbols-outlined mr-3">analytics</span>Reports
+    </a>
+    <a class="bg-white/10 text-white border-l-4 border-emerald-500 flex items-center px-6 py-3" href="code.html">
+      <span class="material-symbols-outlined mr-3">settings</span>Settings
+    </a>
+  </nav>
+  <div class="p-6 mt-auto border-t border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-sm">SA</div>
+      <div class="overflow-hidden">
+        <p class="text-white font-medium truncate" data-sidebar="name">Super Admin</p>
+        <p class="text-slate-500 text-xs truncate">Super Admin</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Top Nav -->
+<header class="bg-white h-16 w-full sticky top-0 z-40 border-b border-slate-200 shadow-sm ml-[280px] max-w-[calc(100%-280px)] flex items-center justify-between px-6">
+  <div class="flex items-center gap-4">
+    <button class="hover:bg-slate-50 rounded-lg p-2"><span class="material-symbols-outlined">notifications</span></button>
+    <button class="hover:bg-slate-50 rounded-lg p-2"><span class="material-symbols-outlined">help_outline</span></button>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="ml-[280px] p-[24px] bg-background min-h-[calc(100vh-64px)]">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-8">
+      <h2 class="font-h1 text-h1 text-on-surface">System Settings</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant">Configure your medical network's global parameters and security protocols.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Profile & Security -->
+      <div class="lg:col-span-4 space-y-6">
+
+        <!-- Profile Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-2xl mb-4">SA</div>
+            <h3 class="font-h3 text-h3 text-on-surface" data-profile="name">—</h3>
+            <p class="font-label-sm text-label-sm text-on-primary-container uppercase mb-4" data-profile="role">—</p>
+            <div class="w-full space-y-3 text-left">
+              <div>
+                <label class="font-label-sm text-label-sm text-outline block mb-1">Email Address</label>
+                <p class="font-body-md text-body-md text-on-surface" data-profile="email">—</p>
+              </div>
+              <div>
+                <label class="font-label-sm text-label-sm text-outline block mb-1">Role</label>
+                <p class="font-body-md text-body-md text-on-surface">Super Administrator</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+          <h3 class="font-h3 text-h3 text-on-surface mb-4">Security</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">Current Password</label>
+              <input data-input="old-password" type="password" placeholder="••••••••"
+                class="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all">
+            </div>
+            <div>
+              <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">New Password</label>
+              <input data-input="new-password" type="password" placeholder="Min. 6 characters"
+                class="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container outline-none transition-all">
+            </div>
+            <button data-action="change-password"
+              class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+              Update Password
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: System Controls -->
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+          <div class="p-6 border-b border-outline-variant bg-slate-50/50">
+            <h3 class="font-h2 text-h2 text-on-surface">System Status &amp; Toggles</h3>
+          </div>
+          <div class="divide-y divide-outline-variant">
+            <!-- Maintenance Mode -->
+            <div class="p-6 flex items-center justify-between hover:bg-slate-50/50">
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-lg bg-error-container/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-error">engineering</span>
+                </div>
+                <div>
+                  <p class="font-body-lg text-body-lg text-on-surface font-semibold">Maintenance Mode</p>
+                  <p class="font-body-md text-body-md text-on-surface-variant">Prevent users from logging in during system updates.</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input class="sr-only peer" type="checkbox">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-error"></div>
+              </label>
+            </div>
+            <!-- Notifications -->
+            <div class="p-6 flex items-center justify-between hover:bg-slate-50/50">
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-lg bg-primary-fixed/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-on-primary-fixed-variant">notifications_active</span>
+                </div>
+                <div>
+                  <p class="font-body-lg text-body-lg text-on-surface font-semibold">System-Wide Notifications</p>
+                  <p class="font-body-md text-body-md text-on-surface-variant">Enable alert banners for all active clinic administrators.</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input checked class="sr-only peer" type="checkbox">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+            <!-- Audit Logging -->
+            <div class="p-6 flex items-center justify-between hover:bg-slate-50/50">
+              <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-lg bg-tertiary-fixed-dim/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-on-tertiary-fixed-variant">list_alt</span>
+                </div>
+                <div>
+                  <p class="font-body-lg text-body-lg text-on-surface font-semibold">Detailed Audit Logging</p>
+                  <p class="font-body-md text-body-md text-on-surface-variant">Record all database read/write actions for compliance.</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input checked class="sr-only peer" type="checkbox">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="bg-error-container/5 border border-error/20 rounded-xl p-6">
+          <div class="flex items-start gap-4">
+            <div class="bg-error/10 p-2 rounded-lg">
+              <span class="material-symbols-outlined text-error">warning</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-body-lg text-body-lg text-error font-bold mb-1">Danger Zone</h3>
+              <p class="font-body-md text-body-md text-on-surface-variant mb-4">Actions here are irreversible and will affect the entire network.</p>
+              <div class="flex flex-wrap gap-3">
+                <button class="bg-white border border-error/30 text-error px-4 py-2 rounded-lg hover:bg-error/5 transition-all text-sm font-semibold">Flush System Cache</button>
+                <button class="bg-error text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all text-sm font-semibold">Factory Reset Network</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../settings.js"></script>
+</body></html>
