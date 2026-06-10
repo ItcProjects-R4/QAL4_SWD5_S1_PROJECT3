@@ -5,10 +5,10 @@
 //    PUT /api/SuperAdmin/settings/changepassword
 // ==========================================
 
-const API_BASE = 'https://localhost:7000/api';
+const API_BASE = 'http://localhost:5099/api';
 
 function getToken() {
-  return localStorage.getItem('token');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
 }
 
 // ---- Load Profile ----
@@ -18,7 +18,7 @@ async function loadProfile() {
       headers: { 'Authorization': `Bearer ${getToken()}` }
     });
 
-    if (res.status === 401) { window.location.href = '../login/index.html'; return; }
+      if (res.status === 401) { window.location.href = '../../index.html'; return; }
     if (!res.ok) throw new Error('Failed to load profile');
 
     const json = await res.json();
