@@ -3,11 +3,11 @@
 //  Endpoint: GET /api/SuperAdmin/dashboard
 // ==========================================
 
-const API_BASE = 'https://localhost:7000/api'; // غير الـ URL ده لو الـ backend على port تاني
+const API_BASE = 'http://localhost:5099/api'; // غير الـ URL ده لو الـ backend على port تاني
 
 // ---- Token Helper ----
 function getToken() {
-  return localStorage.getItem('token');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
 }
 
 // ---- Fetch Dashboard Data ----
@@ -22,8 +22,8 @@ async function loadDashboard() {
     });
 
     if (res.status === 401) {
-      window.location.href = '../login/index.html';
-      return;
+        window.location.href = '../../login.html';
+        return;
     }
 
     if (!res.ok) throw new Error('Failed to load dashboard');

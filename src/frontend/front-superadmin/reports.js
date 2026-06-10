@@ -3,10 +3,10 @@
 //  Endpoint: GET /api/SuperAdmin/reports
 // ==========================================
 
-const API_BASE = 'https://localhost:7000/api';
+const API_BASE = 'http://localhost:5099/api';
 
 function getToken() {
-  return localStorage.getItem('token');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
 }
 
 // ---- Fetch Reports ----
@@ -16,7 +16,7 @@ async function loadReports() {
       headers: { 'Authorization': `Bearer ${getToken()}` }
     });
 
-    if (res.status === 401) { window.location.href = '../login/index.html'; return; }
+      if (res.status === 401) { window.location.href = '../../index.html'; return; }
     if (!res.ok) throw new Error('Failed to load reports');
 
     const data = await res.json();
