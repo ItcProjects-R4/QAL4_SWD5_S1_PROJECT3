@@ -189,21 +189,42 @@ async function toggleClinic(id, btn) {
 }
 
 // ---- Delete Clinic ----
-async function deleteClinic(id, name) {
-  if (!confirm(`Are you sure you want to delete "${name}"?\nThis will delete all doctors, patients, and appointments.`)) return;
+// ---- Delete Clinic ----
+let pendingDeleteId = null;
+
+function deleteClinic(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('delete-clinic-name').textContent = `"${name}"`;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+function cancelDelete() {
+  pendingDeleteId = null;
+  document.getElementById('delete-modal').classList.add('hidden');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  document.getElementById('delete-modal').classList.add('hidden');
 
   try {
-    const res = await fetch(`${API_BASE}/SuperAdmin/tenants/${id}`, {
+    const res = await fetch(`${API_BASE}/SuperAdmin/tenants/${pendingDeleteId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     if (!res.ok) throw new Error('Delete failed');
-    showToast(`"${name}" deleted successfully`, 'success');
+    showToast('Clinic deleted successfully', 'success');
     await loadClinics();
   } catch (err) {
     showToast('Failed to delete clinic', 'error');
+  } finally {
+    pendingDeleteId = null;
   }
 }
+
+window.cancelDelete = cancelDelete;
+window.confirmDelete = confirmDelete;
+window.deleteClinic = deleteClinic;
 
 // ---- Filter / Search ----
 function setupFilters() {
