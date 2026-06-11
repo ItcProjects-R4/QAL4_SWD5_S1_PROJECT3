@@ -211,6 +211,21 @@ fontSize:{
   </div>
 </div>
 <script>
+  // ---- Auth Guard ----
+  function checkAuth() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      window.location.replace('../../login.html');
+    }
+  }
+
+  // بيشتغل حتى لو الصفحة اتحملت من الـ cache
+  window.addEventListener('pageshow', function(e) {
+    checkAuth();
+  });
+
+  checkAuth();
+
   function logout() {
     document.getElementById('logout-modal').classList.remove('hidden');
   }
@@ -218,10 +233,12 @@ fontSize:{
     document.getElementById('logout-modal').classList.add('hidden');
   }
   function confirmLogout() {
-    localStorage.removeItem('token');
-    window.location.href = '../login/index.html';
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.replace('../../login.html');
   }
 </script>
+
 
 <script src="../reports.js"></script>
 </body></html>
