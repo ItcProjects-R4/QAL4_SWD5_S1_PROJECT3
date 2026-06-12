@@ -114,7 +114,7 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"background":"#f8fafc",
                 <p id="sidebarSpec" class="text-[10px] text-slate-400 font-semibold uppercase truncate"></p>
             </div>
         </div>
-        
+
     </div>
 
 
@@ -188,10 +188,9 @@ tailwind.config={darkMode:"class",theme:{extend:{colors:{"background":"#f8fafc",
             <div id="patientDetails" class="space-y-3">Loading...</div>
         </div>
     </div>
-    
 
+    <script src="./config.js"></script>
     <script>
-        const API = "http://localhost:5099";
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         let selectedPatientId = null;
 
