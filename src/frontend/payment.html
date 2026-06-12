@@ -214,9 +214,8 @@
         </div>
     </footer>
 
+    <script src="./config.js"></script>
     <script>
-        const API_BASE = "http://localhost:5099";
-
         const tenantId = sessionStorage.getItem("tenantId");
         const token    = sessionStorage.getItem("token");
         if (!tenantId || !token) window.location.href = "register.html";
