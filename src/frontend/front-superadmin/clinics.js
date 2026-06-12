@@ -7,7 +7,7 @@
 //    DELETE /api/SuperAdmin/tenants/{id}
 // ==========================================
 
-const API_BASE = 'http://localhost:5099/api';
+const API_BASE = 'http://localhost:5099/api'; 
 
 function getToken() {
     return localStorage.getItem('token') || sessionStorage.getItem('token');
