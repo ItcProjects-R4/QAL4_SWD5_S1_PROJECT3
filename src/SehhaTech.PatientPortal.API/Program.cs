@@ -17,7 +17,9 @@ builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<PortalJwtService>();
 builder.Services.AddScoped<PortalAuthService>();
-
+builder.Services.AddScoped<ClinicSearchService>();
+builder.Services.AddScoped<SlotService>();
+builder.Services.AddScoped<BookingService>();
 // JWT - Patient Portal
 var patientJwt = builder.Configuration.GetSection("PatientJWT");
 var secretKey = patientJwt["Secret"]!;
@@ -56,6 +58,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
