@@ -78,4 +78,119 @@ public class PortalAuthService
         var tokenPair = _jwtService.GenerateTokenPair(user);
         return (true, "OTP verified successfully.", tokenPair);
     }
+
+    public async Task<(bool Success, string Message, PortalAuthResponse? Data)> LoginAsync(
+    LoginPortalUserRequest request)
+    {
+        var user = await _db.PortalUsers.FirstOrDefaultAsync(u => u.Phone == request.Phone);
+
+        if (user == null)
+            return (false, "Invalid phone or password.", null);
+
+        // تحقق من الـ lockout
+        if (user.IsBlocked && user.BlockedUntil > DateTime.UtcNow)
+            return (false, $"Account locked. Try again after {user.BlockedUntil:HH:mm} UTC.", null);
+
+        // لو الـ block انتهى، reset
+        if (user.IsBlocked && user.BlockedUntil <= DateTime.UtcNow)
+        {
+            user.IsBlocked = false;
+            user.FailedLoginAttempts = 0;
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        {
+            user.FailedLoginAttempts++;
+            if (user.FailedLoginAttempts >= 5)
+            {
+                user.IsBlocked = true;
+                user.BlockedUntil = DateTime.UtcNow.AddMinutes(30);
+            }
+            await _db.SaveChangesAsync();
+            return (false, "Invalid phone or password.", null);
+        }
+
+        if (!user.IsPhoneVerified)
+            return (false, "Phone number not verified. Please verify your OTP first.", null);
+
+        // reset failed attempts on success
+        user.FailedLoginAttempts = 0;
+        user.IsBlocked = false;
+        await _db.SaveChangesAsync();
+
+        var tokenPair = _jwtService.GenerateTokenPair(user);
+        return (true, "Login successful.", tokenPair);
+    }
+
+    public async Task<(bool Success, string Message)> ResendOtpAsync(string phone, OTPPurpose purpose, string ipAddress)
+    {
+        var user = await _db.PortalUsers.FirstOrDefaultAsync(u => u.Phone == phone);
+        if (user == null)
+            return (false, "Phone number not found.");
+
+        var otpRecord = await _otpService.CreateOtpAsync(phone, purpose, ipAddress);
+        await _smsService.SendOtpAsync(phone, otpRecord.CodeHash);
+
+        return (true, "OTP resent successfully.");
+    }
+
+    public async Task<(bool Success, string Message, PortalAuthResponse? Data)> RefreshAsync(string refreshToken)
+    {
+        var stored = await _db.RefreshTokens
+            .Include(r => r.PortalUser)
+            .FirstOrDefaultAsync(r => r.Token == refreshToken && !r.IsRevoked);
+
+        if (stored == null || stored.ExpiresAt < DateTime.UtcNow)
+            return (false, "Invalid or expired refresh token.", null);
+
+        // Burn the old token
+        stored.IsRevoked = true;
+        await _db.SaveChangesAsync();
+
+        // Generate new pair
+        var tokenPair = _jwtService.GenerateTokenPair(stored.PortalUser);
+        return (true, "Token refreshed successfully.", tokenPair);
+    }
+
+    public async Task<(bool Success, string Message)> LogoutAsync(string refreshToken)
+    {
+        var stored = await _db.RefreshTokens
+            .FirstOrDefaultAsync(r => r.Token == refreshToken && !r.IsRevoked);
+
+        if (stored == null)
+            return (false, "Invalid refresh token.");
+
+        stored.IsRevoked = true;
+        await _db.SaveChangesAsync();
+
+        return (true, "Logged out successfully.");
+    }
+
+    public async Task<(bool Success, string Message)> RequestPasswordResetAsync(string phone, string ipAddress)
+    {
+        var user = await _db.PortalUsers.FirstOrDefaultAsync(u => u.Phone == phone);
+        if (user == null)
+            return (false, "Phone number not found.");
+
+        var otpRecord = await _otpService.CreateOtpAsync(phone, OTPPurpose.ResetPassword, ipAddress);
+        await _smsService.SendOtpAsync(phone, otpRecord.CodeHash);
+
+        return (true, "OTP sent to your phone.");
+    }
+
+    public async Task<(bool Success, string Message)> ConfirmPasswordResetAsync(ResetPasswordRequest request)
+    {
+        var valid = await _otpService.VerifyOtpAsync(request.Phone, request.Code, OTPPurpose.ResetPassword);
+        if (!valid)
+            return (false, "Invalid or expired OTP.");
+
+        var user = await _db.PortalUsers.FirstOrDefaultAsync(u => u.Phone == request.Phone);
+        if (user == null)
+            return (false, "User not found.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _db.SaveChangesAsync();
+
+        return (true, "Password reset successfully.");
+    }
 }
