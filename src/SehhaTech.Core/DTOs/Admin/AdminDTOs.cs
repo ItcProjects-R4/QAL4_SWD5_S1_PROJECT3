@@ -35,7 +35,6 @@
         public string FullName { get; set; } = string.Empty;
         public string Specialization { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? Phone { get; set; }
         public string? ProfileImageUrl { get; set; }
         public bool IsActive { get; set; }
     }
@@ -45,7 +44,6 @@
         public string FullName { get; set; } = string.Empty;
         public string Specialization { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? Phone { get; set; }
         public string? ProfileImageUrl { get; set; }
     }
 
@@ -55,7 +53,6 @@
         public int Id { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? Phone { get; set; }
         public string? ProfileImageUrl { get; set; }
         public bool IsActive { get; set; }
     }
@@ -64,7 +61,6 @@
     {
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? Phone { get; set; }
         public string? ProfileImageUrl { get; set; }
     }
 
@@ -75,7 +71,6 @@
         public string ClinicName { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? Address { get; set; }
-        public string? LogoUrl { get; set; }
         public DateTime SubscriptionStart { get; set; }
         public DateTime SubscriptionEnd { get; set; }
         public bool IsSubscriptionActive { get; set; }
@@ -86,6 +81,5 @@
         public string ClinicName { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? Address { get; set; }
-        public string? LogoUrl { get; set; }
     }
 }
