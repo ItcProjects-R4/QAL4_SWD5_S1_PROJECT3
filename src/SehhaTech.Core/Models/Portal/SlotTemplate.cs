@@ -1,4 +1,6 @@
-﻿namespace SehhaTech.Core.Models.Portal;
+﻿using SehhaTech.Core.Models;
+
+namespace SehhaTech.Core.Models.Portal;
 
 public class SlotTemplate
 {
@@ -11,4 +13,7 @@ public class SlotTemplate
     public int SlotDurationMinutes { get; set; }
     public int MaxPatientsPerSlot { get; set; } = 1;
     public bool IsActive { get; set; } = true;
+
+    // Navigation
+    public Doctor Doctor { get; set; } = null!;
 }
