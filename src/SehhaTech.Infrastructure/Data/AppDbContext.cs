@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SehhaTech.Core.Models;
+using SehhaTech.Core.Models.Portal;
+using SehhaTech.Core.Models.Portal;
 
 namespace SehhaTech.Infrastructure.Data
 {
@@ -7,13 +9,20 @@ namespace SehhaTech.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // Tables
+        // Staff Tables
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<PortalRefreshToken> RefreshTokens { get; set; }
+
+        // Portal Tables
+        public DbSet<PortalUser> PortalUsers { get; set; }
+        public DbSet<OTPRecord> OTPRecords { get; set; }
+        public DbSet<SlotTemplate> SlotTemplates { get; set; }
+        public DbSet<PatientBooking> PatientBookings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -87,6 +96,7 @@ namespace SehhaTech.Infrastructure.Data
             {
                 entity.HasKey(a => a.Id);
                 entity.Property(a => a.Status).HasConversion<string>();
+                entity.Property(a => a.Source).HasConversion<string>();
 
                 entity.HasOne(a => a.Tenant)
                       .WithMany()
@@ -103,8 +113,58 @@ namespace SehhaTech.Infrastructure.Data
                       .HasForeignKey(a => a.DoctorId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // PortalUser
+            modelBuilder.Entity<PortalUser>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.Phone).IsRequired().HasMaxLength(20);
+                entity.HasIndex(p => p.Phone).IsUnique();
+                entity.Property(p => p.FullName).IsRequired().HasMaxLength(200);
+                entity.Property(p => p.Level).HasConversion<string>();
+            });
+
+            // OTPRecord
+            modelBuilder.Entity<OTPRecord>(entity =>
+            {
+                entity.HasKey(o => o.Id);
+                entity.Property(o => o.Phone).IsRequired().HasMaxLength(20);
+                entity.Property(o => o.Purpose).HasConversion<string>();
+            });
+
+            // SlotTemplate
+            modelBuilder.Entity<SlotTemplate>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+            });
+
+            // PatientBooking
+            modelBuilder.Entity<PatientBooking>(entity =>
+            {
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.Status).HasConversion<string>();
+                entity.HasIndex(b => b.IdempotencyKey).IsUnique();
+
+                // Unique constraint - منع double booking
+                entity.HasIndex(b => new { b.DoctorId, b.SlotDate, b.SlotTime, b.TenantId })
+                      .IsUnique()
+                      .HasFilter("[Status] != 'Cancelled'");
+
+                entity.HasOne(b => b.PortalUser)
+                      .WithMany(u => u.Bookings)
+                      .HasForeignKey(b => b.PortalUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<PortalRefreshToken>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.HasIndex(r => r.Token).IsUnique();
+                entity.HasOne(r => r.PortalUser)
+                      .WithMany()
+                      .HasForeignKey(r => r.PortalUserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
-
     }
-
 }
