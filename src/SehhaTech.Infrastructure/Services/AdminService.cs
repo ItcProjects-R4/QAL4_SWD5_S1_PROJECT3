@@ -3,7 +3,6 @@ using SehhaTech.Core.DTOs.Admin;
 using SehhaTech.Core.Interfaces;
 using SehhaTech.Infrastructure.Data;
 using SehhaTech.Core.Models;
-using BCrypt.Net;
 
 namespace SehhaTech.Infrastructure.Services
 {
@@ -22,39 +21,41 @@ namespace SehhaTech.Infrastructure.Services
             var today = DateTime.Today;
 
             var totalDoctors = await _db.Users
-                .CountAsync(u => u.TenantId == tenantId && u.Role == "Doctor" && u.IsActive);
+                .CountAsync(u => u.TenantId == tenantId && u.Role == UserRole.Doctor && u.IsActive);
 
             var totalReceptionists = await _db.Users
-                .CountAsync(u => u.TenantId == tenantId && u.Role == "Reception" && u.IsActive);
+                .CountAsync(u => u.TenantId == tenantId && u.Role == UserRole.Reception && u.IsActive);
 
             var todayAppointments = await _db.Appointments
-                .CountAsync(a => a.TenantId == tenantId && a.ScheduledAt.Date == today);
+                .CountAsync(a => a.TenantId == tenantId && a.AppointmentDate.Date == today);
 
             var upcoming = await _db.Appointments
                 .Include(a => a.Patient)
-                .Include(a => a.Doctor).ThenInclude(d => d.User)
-                .Where(a => a.TenantId == tenantId && a.ScheduledAt >= DateTime.Now && a.Status == "Scheduled")
-                .OrderBy(a => a.ScheduledAt)
+                .Include(a => a.Doctor).ThenInclude(d => d!.User)
+                .Where(a => a.TenantId == tenantId
+                         && a.AppointmentDate >= DateTime.Now
+                         && a.Status == AppointmentStatus.Scheduled)
+                .OrderBy(a => a.AppointmentDate)
                 .Take(5)
                 .Select(a => new UpcomingAppointmentDto
                 {
                     Id = a.Id,
-                    PatientName = a.Patient.FullName,
-                    DoctorName = a.Doctor.User.FullName,
-                    ScheduledAt = a.ScheduledAt,
-                    Status = a.Status
+                    PatientName = a.Patient!.FullName,
+                    DoctorName = a.Doctor!.User!.FullName,
+                    ScheduledAt = a.AppointmentDate,
+                    Status = a.Status.ToString()
                 })
                 .ToListAsync();
 
             var recentRegistrations = await _db.Users
-                .Where(u => u.TenantId == tenantId && u.Role != "ClinicAdmin")
+                .Where(u => u.TenantId == tenantId && u.Role != UserRole.ClinicAdmin)
                 .OrderByDescending(u => u.CreatedAt)
                 .Take(5)
                 .Select(u => new RecentRegistrationDto
                 {
                     Id = u.Id,
                     FullName = u.FullName,
-                    Role = u.Role,
+                    Role = u.Role.ToString(),
                     ProfileImageUrl = u.ProfileImageUrl,
                     CreatedAt = u.CreatedAt
                 })
@@ -79,18 +80,17 @@ namespace SehhaTech.Infrastructure.Services
                 .Select(d => new DoctorListItemDto
                 {
                     Id = d.Id,
-                    FullName = d.User.FullName,
+                    FullName = d.User!.FullName,
                     Specialization = d.Specialization,
                     Email = d.User.Email,
-                    ProfileImageUrl = d.User.ProfileImageUrl,
-                    IsActive = d.User.IsActive
+                    ProfileImageUrl = d.ProfileImageUrl,
+                    IsActive = d.IsActive
                 })
                 .ToListAsync();
         }
 
         public async Task<DoctorListItemDto> AddDoctorAsync(int tenantId, AddDoctorDto dto)
         {
-            // Check email not already used
             var emailExists = await _db.Users.AnyAsync(u => u.Email == dto.Email);
             if (emailExists)
                 throw new InvalidOperationException("البريد الإلكتروني مستخدم بالفعل");
@@ -101,7 +101,7 @@ namespace SehhaTech.Infrastructure.Services
                 Email = dto.Email,
                 ProfileImageUrl = dto.ProfileImageUrl,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("SehhaTech@123"),
-                Role = "Doctor",
+                Role = UserRole.Doctor,
                 TenantId = tenantId,
                 MustResetPassword = true,
                 IsActive = true,
@@ -115,7 +115,9 @@ namespace SehhaTech.Infrastructure.Services
             {
                 UserId = user.Id,
                 TenantId = tenantId,
-                Specialization = dto.Specialization
+                Specialization = dto.Specialization,
+                ProfileImageUrl = dto.ProfileImageUrl,
+                IsActive = true
             };
 
             _db.Doctors.Add(doctor);
@@ -127,8 +129,8 @@ namespace SehhaTech.Infrastructure.Services
                 FullName = user.FullName,
                 Specialization = doctor.Specialization,
                 Email = user.Email,
-                ProfileImageUrl = user.ProfileImageUrl,
-                IsActive = user.IsActive
+                ProfileImageUrl = doctor.ProfileImageUrl,
+                IsActive = doctor.IsActive
             };
         }
 
@@ -139,18 +141,19 @@ namespace SehhaTech.Infrastructure.Services
                 .FirstOrDefaultAsync(d => d.Id == doctorId && d.TenantId == tenantId)
                 ?? throw new KeyNotFoundException("الدكتور مش موجود");
 
-            _db.Users.Remove(doctor.User);  // cascade removes doctor too
+            if (doctor.User != null)
+                _db.Users.Remove(doctor.User);
+
             await _db.SaveChangesAsync();
         }
 
         public async Task ToggleDoctorStatusAsync(int tenantId, int doctorId)
         {
             var doctor = await _db.Doctors
-                .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == doctorId && d.TenantId == tenantId)
                 ?? throw new KeyNotFoundException("الدكتور مش موجود");
 
-            doctor.User.IsActive = !doctor.User.IsActive;
+            doctor.IsActive = !doctor.IsActive;
             await _db.SaveChangesAsync();
         }
 
@@ -158,13 +161,12 @@ namespace SehhaTech.Infrastructure.Services
         public async Task<List<ReceptionistListItemDto>> GetReceptionistsAsync(int tenantId)
         {
             return await _db.Users
-                .Where(u => u.TenantId == tenantId && u.Role == "Reception")
+                .Where(u => u.TenantId == tenantId && u.Role == UserRole.Reception)
                 .Select(u => new ReceptionistListItemDto
                 {
                     Id = u.Id,
                     FullName = u.FullName,
                     Email = u.Email,
-                    Phone = u.Phone,
                     ProfileImageUrl = u.ProfileImageUrl,
                     IsActive = u.IsActive
                 })
@@ -181,10 +183,9 @@ namespace SehhaTech.Infrastructure.Services
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                Phone = dto.Phone,
                 ProfileImageUrl = dto.ProfileImageUrl,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("SehhaTech@123"),
-                Role = "Reception",
+                Role = UserRole.Reception,
                 TenantId = tenantId,
                 MustResetPassword = true,
                 IsActive = true,
@@ -199,7 +200,6 @@ namespace SehhaTech.Infrastructure.Services
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
-                Phone = user.Phone,
                 ProfileImageUrl = user.ProfileImageUrl,
                 IsActive = user.IsActive
             };
@@ -208,7 +208,9 @@ namespace SehhaTech.Infrastructure.Services
         public async Task DeleteReceptionistAsync(int tenantId, int receptionistId)
         {
             var user = await _db.Users
-                .FirstOrDefaultAsync(u => u.Id == receptionistId && u.TenantId == tenantId && u.Role == "Reception")
+                .FirstOrDefaultAsync(u => u.Id == receptionistId
+                                       && u.TenantId == tenantId
+                                       && u.Role == UserRole.Reception)
                 ?? throw new KeyNotFoundException("الموظف مش موجود");
 
             _db.Users.Remove(user);
@@ -229,10 +231,9 @@ namespace SehhaTech.Infrastructure.Services
                 ClinicName = tenant.Name,
                 Phone = tenant.Phone,
                 Address = tenant.Address,
-                LogoUrl = tenant.LogoUrl,
                 SubscriptionStart = tenant.Subscription?.StartDate ?? DateTime.MinValue,
                 SubscriptionEnd = tenant.Subscription?.EndDate ?? DateTime.MinValue,
-                IsSubscriptionActive = tenant.Subscription?.IsActive ?? false
+                IsSubscriptionActive = tenant.Subscription?.Status == SubscriptionStatus.Active
             };
         }
 
@@ -242,9 +243,8 @@ namespace SehhaTech.Infrastructure.Services
                 ?? throw new KeyNotFoundException("العيادة مش موجودة");
 
             tenant.Name = dto.ClinicName;
-            tenant.Phone = dto.Phone;
-            tenant.Address = dto.Address;
-            tenant.LogoUrl = dto.LogoUrl;
+            tenant.Phone = dto.Phone ?? tenant.Phone;
+            tenant.Address = dto.Address ?? tenant.Address;
 
             await _db.SaveChangesAsync();
         }
