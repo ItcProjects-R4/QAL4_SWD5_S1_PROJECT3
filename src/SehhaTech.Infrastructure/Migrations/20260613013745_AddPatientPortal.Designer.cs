@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SehhaTech.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SehhaTech.Infrastructure.Data;
 namespace SehhaTech.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613013745_AddPatientPortal")]
+    partial class AddPatientPortal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,40 +255,6 @@ namespace SehhaTech.Infrastructure.Migrations
                         .HasFilter("[Status] != 'Cancelled'");
 
                     b.ToTable("PatientBookings");
-                });
-
-            modelBuilder.Entity("SehhaTech.Core.Models.Portal.PortalRefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PortalUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PortalUserId");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.PortalUser", b =>
@@ -584,17 +553,6 @@ namespace SehhaTech.Infrastructure.Migrations
                         .WithMany("Bookings")
                         .HasForeignKey("PortalUserId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PortalUser");
-                });
-
-            modelBuilder.Entity("SehhaTech.Core.Models.Portal.PortalRefreshToken", b =>
-                {
-                    b.HasOne("SehhaTech.Core.Models.Portal.PortalUser", "PortalUser")
-                        .WithMany()
-                        .HasForeignKey("PortalUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("PortalUser");
