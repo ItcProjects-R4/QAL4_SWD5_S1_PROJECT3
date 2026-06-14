@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Patient Registration - SehhaTech</title>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Animated Background Gradient */
+        .bg-animated-gradient {
+            background: linear-gradient(-45deg, #f8f9ff, #eaf1ff, #d1e4ff, #e6eeff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Medical Crosses (Background Flair) */
+        .floating-shape {
+            position: absolute;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+            .floating-shape:nth-child(1) {
+                top: 10%;
+                left: 10%;
+                font-size: 120px;
+                animation-delay: 0s;
+            }
+
+            .floating-shape:nth-child(2) {
+                top: 70%;
+                left: 85%;
+                font-size: 160px;
+                animation-delay: -5s;
+            }
+
+            .floating-shape:nth-child(3) {
+                top: 40%;
+                left: 80%;
+                font-size: 80px;
+                animation-delay: -10s;
+            }
+
+            .floating-shape:nth-child(4) {
+                top: 80%;
+                left: 15%;
+                font-size: 100px;
+                animation-delay: -15s;
+            }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -50px) rotate(10deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+        }
+    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#233144",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#626567",
+                        "tertiary-fixed": "#dde3eb",
+                        "primary-fixed": "#d1e4ff",
+                        "background": "#f8f9ff",
+                        "on-surface-variant": "#414750",
+                        "on-primary-container": "#f5f8ff",
+                        "secondary": "#5c5f61",
+                        "on-secondary-fixed-variant": "#444749",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#6c7279",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "outline-variant": "#c1c7d2",
+                        "on-primary-fixed": "#001d36",
+                        "primary-fixed-dim": "#9ecaff",
+                        "on-tertiary-fixed-variant": "#41474e",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#191c1e",
+                        "surface-container": "#e6eeff",
+                        "secondary-fixed-dim": "#c4c7c9",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#e0e3e5",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed": "#161c22",
+                        "inverse-primary": "#9ecaff",
+                        "surface": "#f8f9ff",
+                        "tertiary-fixed-dim": "#c1c7cf",
+                        "on-background": "#0d1c2e",
+                        "on-primary-fixed-variant": "#00497c",
+                        "secondary-container": "#e0e3e5",
+                        "on-surface": "#0d1c2e",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#dce9ff",
+                        "primary": "#005c9b",
+                        "surface-container-highest": "#d5e3fc",
+                        "primary-container": "#2e75b6",
+                        "tertiary": "#535a60",
+                        "surface-variant": "#d5e3fc",
+                        "on-tertiary-container": "#f3f8ff",
+                        "on-error": "#ffffff",
+                        "outline": "#717781",
+                        "surface-tint": "#0b61a1",
+                        "surface-dim": "#ccdbf3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-desktop": "32px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "lg": "40px",
+                        "xl": "64px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-animated-gradient min-h-screen flex flex-col font-sans relative overflow-x-hidden z-0">
+    <!-- Background Flair -->
+    <span class="material-symbols-outlined floating-shape text-primary" data-icon="add">add</span>
+    <span class="material-symbols-outlined floating-shape text-primary" data-icon="add">add</span>
+    <span class="material-symbols-outlined floating-shape text-primary" data-icon="add">add</span>
+    <span class="material-symbols-outlined floating-shape text-primary" data-icon="add">add</span>
+    <!-- TopNavBar (Transactional mode: Navigation suppressed, only brand and trailing actions) -->
+    <header class="bg-surface/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-10 animate-fade-in-up" style="animation-delay: 0s;">
+        <div class="flex justify-between items-center w-full px-margin-desktop max-w-7xl mx-auto h-16">
+            <div class="flex items-center gap-sm transition-transform duration-300 hover:scale-105 cursor-pointer">
+                <span class="material-symbols-outlined text-primary text-[28px]" data-icon="monitor_heart" data-weight="fill" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+                <span class="font-headline-md text-headline-md font-bold text-primary">SehhaTech</span>
+            </div>
+            <div class="flex items-center gap-sm text-on-surface-variant">
+                <button aria-label="help" class="p-xs hover:text-primary-container hover:bg-surface-container transition-all duration-200 cursor-pointer active:scale-95 rounded-full">
+                    <span class="material-symbols-outlined" data-icon="help">help</span>
+                </button>
+                <button aria-label="language" class="p-xs hover:text-primary-container hover:bg-surface-container transition-all duration-200 cursor-pointer active:scale-95 rounded-full">
+                    <span class="material-symbols-outlined" data-icon="language">language</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop relative z-10">
+        <!-- Registration Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl w-full max-w-md p-md md:p-lg shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgb(46,117,182,0.12)] transition-shadow duration-500 animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="text-center mb-md animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h1 class="font-headline-md text-headline-md text-on-surface mb-xs">Create Account</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant">Join SehhaTech to manage your healthcare journey securely.</p>
+            </div>
+            <form action="#" class="flex flex-col gap-sm" method="POST">
+                <!-- Full Name Field -->
+                <div class="flex flex-col gap-xs animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <label class="font-label-md text-label-md text-on-surface" for="fullName">Full Name <span class="text-error">*</span></label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none transition-colors duration-300 group-focus-within:text-primary-container">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="person">person</span>
+                        </div>
+                        <input aria-describedby="fullName-error" aria-invalid="true" class="w-full pl-xl pr-sm py-[12px] bg-surface-container-lowest border border-outline-variant rounded-DEFAULT font-body-md text-body-md text-on-surface transition-all duration-300 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/30 hover:border-outline" id="fullName" name="fullName" placeholder="John Doe" type="text" />
+                    </div>
+                </div>
+                <p class="font-label-sm text-label-sm text-error hidden" id="fullName-error"></p>
+                <!-- Phone Number Field -->
+                <div class="flex flex-col gap-xs animate-fade-in-up" style="animation-delay: 0.4s;">
+                    <label class="font-label-md text-label-md text-on-surface" for="phone">Phone Number <span class="text-error">*</span></label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none transition-colors duration-300">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="phone">phone</span>
+                        </div>
+                        <input aria-describedby="phone-error" aria-invalid="true" class="w-full pl-xl pr-sm py-[12px] bg-surface-container-lowest border border-outline-variant rounded-DEFAULT font-body-md text-body-md text-on-surface transition-all duration-300 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/30 hover:border-outline" id="phone" name="phone" placeholder="01xxxxxxxxx" type="tel" />
+                    </div>
+                </div>
+                <p class="font-label-sm text-label-sm text-error hidden" id="phone-error"></p>
+                <!-- Email Field -->
+                <div class="flex flex-col gap-xs animate-fade-in-up" style="animation-delay: 0.5s;">
+                    <label class="font-label-md text-label-md text-on-surface flex justify-between" for="email">
+                        Email Address <span class="text-outline font-normal">Optional</span>
+                    </label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none transition-colors duration-300">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="mail">mail</span>
+                        </div>
+                        <input class="w-full pl-xl pr-sm py-[12px] bg-surface-container-lowest border border-outline-variant rounded-DEFAULT font-body-md text-body-md text-on-surface transition-all duration-300 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/30 hover:border-outline" id="email" name="email" placeholder="you@example.com" type="email" />
+                    </div>
+                </div>
+                <!-- Password Field -->
+                <div class="flex flex-col gap-xs animate-fade-in-up" style="animation-delay: 0.6s;">
+                    <label class="font-label-md text-label-md text-on-surface" for="password">Password <span class="text-error">*</span></label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none transition-colors duration-300">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="lock">lock</span>
+                        </div>
+                        <input aria-describedby="password-error" aria-invalid="true" class="w-full pl-xl pr-xl py-[12px] bg-surface-container-lowest border border-outline-variant rounded-DEFAULT font-body-md text-body-md text-on-surface transition-all duration-300 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/30 hover:border-outline" id="password" name="password" placeholder="••••••••" type="password" />
+                        <button aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-primary-container transition-colors duration-200 focus:outline-none" type="button">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="visibility">visibility</span>
+                        </button>
+                    </div>
+                </div>
+                <p class="font-label-sm text-label-sm text-error hidden" id="password-error"></p>
+                <!-- Confirm Password Field -->
+                <div class="flex flex-col gap-xs mb-sm animate-fade-in-up" style="animation-delay: 0.7s;">
+                    <label class="font-label-md text-label-md text-on-surface" for="confirmPassword">Confirm Password <span class="text-error">*</span></label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none transition-colors duration-300">
+                            <span class="material-symbols-outlined text-outline group-focus-within:text-primary-container" data-icon="lock">lock</span>
+                        </div>
+                        <input aria-describedby="confirmPassword-error" aria-invalid="true" class="w-full pl-xl pr-sm py-[12px] bg-surface-container-lowest border border-outline-variant rounded-DEFAULT font-body-md text-body-md text-on-surface transition-all duration-300 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/30 hover:border-outline" id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" />
+                    </div>
+                </div>
+                <p class="font-label-sm text-label-sm text-error hidden" id="confirmPassword-error"></p>
+                <!-- Submit Button -->
+                <button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-[12px] px-md rounded-lg hover:bg-primary transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 active:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 animate-fade-in-up" style="animation-delay: 0.8s;" type="submit">
+                    Create Account
+                </button>
+            </form>
+            <div class="mt-md text-center animate-fade-in-up" style="animation-delay: 0.9s;">
+                <p class="font-body-md text-body-md text-on-surface-variant">
+                    Already have an account?
+                    <a class="font-label-md text-label-md text-primary-container hover:text-primary hover:underline hover:underline-offset-4 transition-all duration-300" href="#">Login</a>
+                </p>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-surface/80 backdrop-blur-md border-t border-outline-variant w-full py-md px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-base relative z-10 animate-fade-in-up" style="animation-delay: 0.3s;">
+        <div class="flex items-center gap-xs">
+            <span class="font-headline-sm text-[20px] font-bold text-on-surface">SehhaTech</span>
+            <span class="font-label-md text-label-md text-secondary ml-sm">© 2024 SehhaTech Medical Systems. All rights reserved.</span>
+        </div>
+        <nav class="flex flex-wrap justify-center gap-sm md:gap-md font-label-md text-label-md">
+            <a class="text-secondary hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Privacy Policy</a>
+            <a class="text-secondary hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Terms of Service</a>
+            <a class="text-secondary hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Contact Support</a>
+            <a class="text-secondary hover:text-primary transition-colors duration-200 cursor-pointer" href="#">Patient Rights</a>
+        </nav>
+    </footer>
+
+    <script>
+  const rules = {
+    fullName: {
+      validate: v => v.trim().length > 0,
+      message: 'Full name is required'
+    },
+    phone: {
+      validate: v => /^(01[0125][0-9]{8})$/.test(v.trim()),
+      message: 'Invalid Egyptian phone number'
+    },
+    password: {
+      validate: v => v.length >= 8,
+      message: 'Password must be at least 8 characters'
+    },
+    confirmPassword: {
+      validate: v => v === document.getElementById('password').value,
+      message: 'Passwords do not match'
+    }
+  };
+
+  Object.keys(rules).forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.addEventListener('blur', () => {
+      if (!rules[id].validate(input.value)) {
+        showError(id, rules[id].message);
+      } else {
+        clearError(id);
+      }
+    });
+
+    input.addEventListener('input', () => {
+      if (input.classList.contains('border-error')) {
+        if (rules[id].validate(input.value)) clearError(id);
+      }
+    });
+  });
+
+  function showError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + '-error');
+    field.classList.add('border-error');
+    field.classList.remove('border-outline-variant');
+    if (error) { error.textContent = message; error.classList.remove('hidden'); }
+  }
+
+  function clearError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + '-error');
+    field.classList.remove('border-error');
+    field.classList.add('border-outline-variant');
+    if (error) { error.textContent = ''; error.classList.add('hidden'); }
+  }
+
+  // Password show/hide
+  const toggleBtn = document.querySelector('button[aria-label="Toggle password visibility"]');
+  const passwordInput = document.getElementById('password');
+  toggleBtn.addEventListener('click', () => {
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    toggleBtn.querySelector('span').textContent = isPassword ? 'visibility_off' : 'visibility';
+  });
+    </script>
+
+</body>
+</html>
