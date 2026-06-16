@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SehhaTech | Admin Panel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#002045",
+        "primary-container": "#1a365d",
+        "on-primary": "#ffffff",
+        "on-primary-container": "#86a0cd",
+        "secondary": "#006a6a",
+        "secondary-container": "#90efef",
+        "on-secondary": "#ffffff",
+        "on-secondary-container": "#006e6e",
+        "tertiary-fixed": "#afefdf",
+        "on-tertiary-fixed-variant": "#045044",
+        "surface": "#f7fafc",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#f1f4f6",
+        "surface-container": "#ebeef0",
+        "surface-container-high": "#e5e9eb",
+        "surface-container-highest": "#e0e3e5",
+        "on-surface": "#181c1e",
+        "on-surface-variant": "#43474e",
+        "outline": "#74777f",
+        "outline-variant": "#c4c6cf",
+        "error": "#ba1a1a",
+        "error-container": "#ffdad6",
+        "on-error-container": "#93000a",
+      },
+      fontFamily: {
+        headline: ["Manrope"],
+        body: ["Inter"],
+        label: ["Inter"],
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  h1,h2,h3,.font-headline { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .toast { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 999; transform: translateX(120%); transition: transform 0.3s ease; }
+  .toast.show { transform: translateX(0); }
+  ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #e0e3e5; border-radius: 10px; }
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- ═══════════════════════ TOAST ═══════════════════════ -->
+<div id="toast" class="toast">
+  <div id="toastBox" class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-sm font-semibold">
+    <span id="toastIcon" class="material-symbols-outlined text-lg"></span>
+    <span id="toastMsg"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LOGIN PAGE ═══════════════════════ -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary-container">
+  <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-white filled text-2xl">medical_services</span>
+      </div>
+      <div>
+        <div class="font-extrabold text-blue-900 font-headline text-xl">SehhaTech</div>
+        <div class="text-xs text-slate-500 tracking-wide">Clinic Management System</div>
+      </div>
+    </div>
+    <h2 class="text-2xl font-bold text-primary font-headline mb-1">Welcome back</h2>
+    <p class="text-on-surface-variant text-sm mb-8">Sign in to your admin account</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Email</label>
+        <input id="loginEmail" type="email" placeholder="baher@sehhatech.com"
+          class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Password</label>
+        <input id="loginPassword" type="password" placeholder="••••••••"
+          class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <button onclick="doLogin()" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-container transition-colors mt-2">
+        Sign In
+      </button>
+      <div id="loginError" class="text-error text-sm text-center hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ RESET PASSWORD PAGE ═══════════════════════ -->
+<div id="resetPage" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary-container hidden">
+  <div class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="material-symbols-outlined text-primary text-3xl filled">lock_reset</span>
+      <h2 class="text-2xl font-bold text-primary font-headline">Reset Password</h2>
+    </div>
+    <p class="text-on-surface-variant text-sm mb-6">This is your first login. Please set a new password to continue.</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">New Password</label>
+        <input id="newPassword" type="password" placeholder="Enter new password"
+          class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Confirm Password</label>
+        <input id="confirmPassword" type="password" placeholder="Confirm new password"
+          class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <button onclick="doReset()" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-container transition-colors">
+        Set New Password
+      </button>
+      <div id="resetError" class="text-error text-sm text-center hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN APP ═══════════════════════ -->
+<div id="mainApp" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 gap-2 z-50 shadow-sm">
+    <div class="px-6 mb-6 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-white filled">medical_services</span>
+      </div>
+      <div>
+        <div class="font-extrabold text-blue-900 font-headline leading-tight text-sm" id="sidebarClinicName">SehhaTech</div>
+        <div class="text-xs text-slate-500 tracking-wide">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 space-y-1">
+      <a onclick="showPage('dashboard')" class="nav-link cursor-pointer flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all duration-200" data-page="dashboard">
+        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+      </a>
+      <a onclick="showPage('doctors')" class="nav-link cursor-pointer flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all duration-200" data-page="doctors">
+        <span class="material-symbols-outlined">groups</span><span>Doctors</span>
+      </a>
+      <a onclick="showPage('receptionists')" class="nav-link cursor-pointer flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all duration-200" data-page="receptionists">
+        <span class="material-symbols-outlined">support_agent</span><span>Receptionists</span>
+      </a>
+      <a onclick="showPage('settings')" class="nav-link cursor-pointer flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all duration-200" data-page="settings">
+        <span class="material-symbols-outlined">settings</span><span>Settings</span>
+      </a>
+    </nav>
+    <div class="px-4 pt-4 border-t border-slate-200 space-y-1">
+      <a onclick="doLogout()" class="cursor-pointer flex items-center px-4 py-2 gap-3 text-error text-sm font-semibold hover:bg-error-container rounded-lg transition-colors">
+        <span class="material-symbols-outlined">logout</span><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="ml-64 min-h-screen">
+    <!-- Top Bar -->
+    <header class="fixed top-0 right-0 left-64 z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 shadow-sm">
+      <h2 id="pageTitle" class="text-xl font-bold text-blue-900 font-headline">Dashboard</h2>
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white text-xs font-bold" id="userAvatar">A</div>
+        <span class="text-sm font-semibold text-on-surface" id="userName">Admin</span>
+      </div>
+    </header>
+
+    <main class="pt-20 pb-12 px-8">
+
+      <!-- ══ DASHBOARD PAGE ══ -->
+      <div id="page-dashboard" class="page active">
+        <div class="mb-8">
+          <h1 class="text-3xl font-extrabold text-on-surface font-headline">Clinic Dashboard</h1>
+          <p class="text-on-surface-variant mt-1">Welcome back, Admin. Here's what's happening today.</p>
+        </div>
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-6 mb-8">
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-4 group hover:bg-primary transition-all duration-300 cursor-default">
+            <div class="flex justify-between items-start">
+              <div class="p-2 rounded-lg bg-blue-50 group-hover:bg-white/10">
+                <span class="material-symbols-outlined text-blue-600 group-hover:text-white">medical_information</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold font-headline text-on-surface group-hover:text-white" id="stat-doctors">—</div>
+              <div class="text-sm font-medium text-on-surface-variant group-hover:text-white/70">Total Doctors</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-4 group hover:bg-secondary transition-all duration-300 cursor-default">
+            <div class="flex justify-between items-start">
+              <div class="p-2 rounded-lg bg-teal-50 group-hover:bg-white/10">
+                <span class="material-symbols-outlined text-secondary group-hover:text-white">support_agent</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold font-headline text-on-surface group-hover:text-white" id="stat-receptionists">—</div>
+              <div class="text-sm font-medium text-on-surface-variant group-hover:text-white/70">Total Receptionists</div>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col gap-4 group hover:bg-on-tertiary-fixed-variant transition-all duration-300 cursor-default">
+            <div class="flex justify-between items-start">
+              <div class="p-2 rounded-lg bg-green-50 group-hover:bg-white/10">
+                <span class="material-symbols-outlined text-green-600 group-hover:text-white">calendar_today</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-3xl font-extrabold font-headline text-on-surface group-hover:text-white" id="stat-appointments">—</div>
+              <div class="text-sm font-medium text-on-surface-variant group-hover:text-white/70">Today's Appointments</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+          <!-- Activity Chart -->
+          <div class="col-span-7 bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="font-bold text-primary font-headline mb-4">Activity — Last 7 Days</h3>
+            <canvas id="activityChart" height="160"></canvas>
+          </div>
+          <!-- Recent Registrations -->
+          <div class="col-span-5 bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="font-bold text-primary font-headline mb-4">Recent Patients</h3>
+            <div id="recentPatients" class="space-y-3"></div>
+          </div>
+          <!-- Upcoming Queue -->
+          <div class="col-span-12 bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="font-bold text-primary font-headline mb-4">Upcoming Appointments Queue</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b border-surface-container-high">
+                    <th class="pb-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Patient</th>
+                    <th class="pb-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Doctor</th>
+                    <th class="pb-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Date</th>
+                    <th class="pb-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Time</th>
+                    <th class="pb-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="upcomingQueue" class="divide-y divide-surface-container-low"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DOCTORS PAGE ══ -->
+      <div id="page-doctors" class="page">
+        <div class="flex justify-between items-end mb-8">
+          <div>
+            <h1 class="text-3xl font-extrabold text-primary font-headline">Doctors Directory</h1>
+            <p class="text-on-surface-variant text-sm mt-1">Manage specialist profiles and clinical availability.</p>
+          </div>
+          <button onclick="openModal('addDoctorModal')" class="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-container transition-colors shadow-lg">
+            <span class="material-symbols-outlined text-lg">person_add</span>Add New Doctor
+          </button>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-surface-container-high">
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Doctor</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Specialization</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="doctorsTable" class="divide-y divide-surface-container-low">
+                <tr><td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RECEPTIONISTS PAGE ══ -->
+      <div id="page-receptionists" class="page">
+        <div class="flex justify-between items-end mb-8">
+          <div>
+            <h1 class="text-3xl font-extrabold text-primary font-headline">Receptionists</h1>
+            <p class="text-on-surface-variant text-sm mt-1">Manage reception staff and their access.</p>
+          </div>
+          <button onclick="openModal('addReceptionistModal')" class="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-container transition-colors shadow-lg">
+            <span class="material-symbols-outlined text-lg">person_add</span>Add Receptionist
+          </button>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-surface-container-high">
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Name</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Contact</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="receptionistsTable" class="divide-y divide-surface-container-low">
+                <tr><td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS PAGE ══ -->
+      <div id="page-settings" class="page">
+        <div class="mb-8">
+          <h1 class="text-3xl font-extrabold text-primary font-headline">Clinic Settings</h1>
+          <p class="text-on-surface-variant text-sm mt-1">Manage your clinic profile and subscription.</p>
+        </div>
+        <div class="grid grid-cols-12 gap-6">
+          <div class="col-span-8 bg-surface-container-lowest rounded-xl shadow-sm p-8">
+            <h3 class="font-bold text-primary font-headline mb-6">Clinic Profile</h3>
+            <div class="grid grid-cols-2 gap-5">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Clinic Name</label>
+                <input id="settingName" type="text" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phone</label>
+                <input id="settingPhone" type="tel" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+              </div>
+              <div class="col-span-2 space-y-2">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Address</label>
+                <textarea id="settingAddress" rows="3" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary resize-none"></textarea>
+              </div>
+              <div class="col-span-2 space-y-2">
+                <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider">Logo URL</label>
+                <input id="settingLogo" type="url" placeholder="https://..." class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+              </div>
+            </div>
+            <button onclick="saveSettings()" class="mt-6 px-6 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-container transition-colors">
+              Save Changes
+            </button>
+          </div>
+          <div class="col-span-4 bg-gradient-to-br from-primary to-primary-container rounded-xl shadow-xl p-8 text-white">
+            <h3 class="font-bold font-headline text-lg mb-4">Subscription</h3>
+            <div class="bg-white/10 rounded-xl p-5 space-y-3 text-sm">
+              <div class="flex justify-between">
+                <span class="opacity-70">Plan</span>
+                <span class="font-bold" id="subPlan">—</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-70">Expires</span>
+                <span class="font-bold" id="subExpiry">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MODALS ═══════════════════════ -->
+
+<!-- Add Doctor Modal -->
+<div id="addDoctorModal" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h2 class="text-xl font-extrabold text-primary font-headline">Add New Doctor</h2>
+        <p class="text-xs text-on-surface-variant mt-1">Register a new medical professional to the clinic.</p>
+      </div>
+      <button onclick="closeModal('addDoctorModal')" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Full Name</label>
+        <input id="docName" type="text" placeholder="Dr. Jane Cooper"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Specialization</label>
+        <input id="docSpec" type="text" placeholder="e.g. Cardiology"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Email</label>
+        <input id="docEmail" type="email" placeholder="doctor@clinic.com"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Phone</label>
+        <input id="docPhone" type="tel" placeholder="+20 1xx xxx xxxx"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Photo URL <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
+        <input id="docPhoto" type="url" placeholder="https://..."
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div id="docError" class="text-error text-sm hidden"></div>
+      <button onclick="submitAddDoctor()" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-container transition-colors mt-2">
+        Add Doctor
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Receptionist Modal -->
+<div id="addReceptionistModal" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h2 class="text-xl font-extrabold text-primary font-headline">Add New Receptionist</h2>
+        <p class="text-xs text-on-surface-variant mt-1">Register a new reception staff member.</p>
+      </div>
+      <button onclick="closeModal('addReceptionistModal')" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Full Name</label>
+        <input id="recName" type="text" placeholder="Full Name"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Email</label>
+        <input id="recEmail" type="email" placeholder="receptionist@clinic.com"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Phone</label>
+        <input id="recPhone" type="tel" placeholder="+20 1xx xxx xxxx"
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Photo URL <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
+        <input id="recPhoto" type="url" placeholder="https://..."
+          class="w-full bg-surface-container-low border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary"/>
+      </div>
+      <div id="recError" class="text-error text-sm hidden"></div>
+      <button onclick="submitAddReceptionist()" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-container transition-colors mt-2">
+        Add Receptionist
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirmDeleteModal" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 text-center">
+    <div class="w-14 h-14 bg-error-container rounded-full flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined text-error text-2xl">delete</span>
+    </div>
+    <h2 class="text-xl font-bold text-on-surface font-headline mb-2">Confirm Delete</h2>
+    <p class="text-on-surface-variant text-sm mb-6" id="deleteConfirmMsg">Are you sure you want to remove this record?</p>
+    <div class="flex gap-3">
+      <button onclick="closeModal('confirmDeleteModal')" class="flex-1 py-3 rounded-lg border border-outline-variant text-on-surface font-semibold text-sm hover:bg-surface-container-low transition-colors">Cancel</button>
+      <button onclick="confirmDelete()" class="flex-1 py-3 rounded-lg bg-error text-white font-bold text-sm hover:opacity-90 transition-opacity">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+const API_BASE = 'https://localhost:7001/api'; // ← غيّر البورت لو مختلف
+
+let token = localStorage.getItem('sehha_token') || '';
+let currentPage = 'dashboard';
+let deleteTarget = null; // { type: 'doctor'|'receptionist', id }
+let activityChartInstance = null;
+
+// ═══════════════════════════════════════════
+// API HELPER
+// ═══════════════════════════════════════════
+async function api(method, path, body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw { status: res.status, data };
+  return data;
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  const box = document.getElementById('toastBox');
+  const icon = document.getElementById('toastIcon');
+  const msgEl = document.getElementById('toastMsg');
+  box.className = `flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-sm font-semibold ${type === 'success' ? 'bg-white text-on-surface border border-tertiary-fixed' : 'bg-error-container text-error'}`;
+  icon.textContent = type === 'success' ? 'check_circle' : 'error';
+  msgEl.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+const pageTitles = { dashboard: 'Dashboard', doctors: 'Doctors Directory', receptionists: 'Receptionists', settings: 'Clinic Settings' };
+
+function showPage(name) {
+  currentPage = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    const active = l.dataset.page === name;
+    l.className = `nav-link cursor-pointer flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all duration-200 ${active ? 'bg-blue-100/50 text-blue-900 font-semibold' : 'text-slate-600 hover:bg-slate-200/50 hover:text-blue-800'}`;
+  });
+  document.getElementById('pageTitle').textContent = pageTitles[name] || name;
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'doctors') loadDoctors();
+  else if (name === 'receptionists') loadReceptionists();
+  else if (name === 'settings') loadSettings();
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function parseJwt(t) {
+  try { return JSON.parse(atob(t.split('.')[1])); } catch { return {}; }
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.add('hidden');
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    token = data.token;
+    localStorage.setItem('sehha_token', token);
+    const claims = parseJwt(token);
+    if (data.mustResetPassword || claims.MustResetPassword === 'True') {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('resetPage').classList.remove('hidden');
+    } else {
+      bootApp(claims);
+    }
+  } catch (e) {
+    errEl.textContent = e.data?.message || 'Invalid credentials. Please try again.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+async function doReset() {
+  const np = document.getElementById('newPassword').value;
+  const cp = document.getElementById('confirmPassword').value;
+  const errEl = document.getElementById('resetError');
+  errEl.classList.add('hidden');
+  if (np !== cp) { errEl.textContent = 'Passwords do not match.'; errEl.classList.remove('hidden'); return; }
+  if (np.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.remove('hidden'); return; }
+  try {
+    await api('POST', '/auth/reset-password', { newPassword: np, confirmPassword: cp });
+    toast('Password reset successfully!');
+    document.getElementById('resetPage').classList.add('hidden');
+    const claims = parseJwt(token);
+    bootApp(claims);
+  } catch (e) {
+    errEl.textContent = e.data?.message || 'Reset failed. Please try again.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+function bootApp(claims) {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('resetPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  const name = claims.FullName || claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 'Admin';
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  showPage('dashboard');
+}
+
+function doLogout() {
+  token = '';
+  localStorage.removeItem('sehha_token');
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const d = await api('GET', '/admin/dashboard');
+    document.getElementById('stat-doctors').textContent = d.totalDoctors ?? '—';
+    document.getElementById('stat-receptionists').textContent = d.totalReceptionists ?? '—';
+    document.getElementById('stat-appointments').textContent = d.todaysAppointments ?? '—';
+
+    // Activity Chart
+    const chartData = d.activityChart || [];
+    const labels = chartData.map(x => x.date || x.Date).sort();
+    const values = labels.map(l => {
+      const entry = chartData.find(x => (x.date || x.Date) === l);
+      return entry ? (entry.count || entry.Count) : 0;
+    });
+    if (activityChartInstance) activityChartInstance.destroy();
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    activityChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Appointments',
+          data: values,
+          backgroundColor: '#1a365d',
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } }
+      }
+    });
+
+    // Recent Patients
+    const recContainer = document.getElementById('recentPatients');
+    recContainer.innerHTML = '';
+    (d.recentRegistrations || []).forEach(p => {
+      recContainer.innerHTML += `
+        <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+          <div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">${(p.fullName||p.FullName||'?').charAt(0)}</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm text-on-surface truncate">${p.fullName||p.FullName}</p>
+            <p class="text-xs text-on-surface-variant truncate">${p.phone||p.Phone||''}</p>
+          </div>
+        </div>`;
+    });
+
+    // Upcoming Queue
+    const queueBody = document.getElementById('upcomingQueue');
+    queueBody.innerHTML = '';
+    (d.upcomingAppointmentsQueue || []).forEach(a => {
+      const status = a.status || a.Status || 'Scheduled';
+      const statusColor = status === 'Completed' ? 'text-green-700 bg-green-50' : status === 'NoShow' ? 'text-error bg-error-container' : 'text-blue-700 bg-blue-50';
+      queueBody.innerHTML += `
+        <tr class="hover:bg-surface-container-low transition-colors">
+          <td class="px-4 py-3 text-sm font-medium">${a.patientName||a.PatientName||'—'}</td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant">${a.doctorName||a.DoctorName||'—'}</td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant">${a.date||a.Date||'—'}</td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant">${a.time||a.Time||'—'}</td>
+          <td class="px-4 py-3"><span class="text-xs font-bold px-2 py-1 rounded-full ${statusColor}">${status}</span></td>
+        </tr>`;
+    });
+    if (!d.upcomingAppointmentsQueue?.length) {
+      queueBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-on-surface-variant text-sm">No upcoming appointments</td></tr>';
+    }
+  } catch (e) {
+    console.error('Dashboard error:', e);
+    toast('Failed to load dashboard data', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════
+// DOCTORS
+// ═══════════════════════════════════════════
+async function loadDoctors() {
+  const tbody = document.getElementById('doctorsTable');
+  tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">Loading...</td></tr>';
+  try {
+    const doctors = await api('GET', '/admin/doctors');
+    tbody.innerHTML = '';
+    if (!doctors.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-on-surface-variant">No doctors yet. Add your first doctor!</td></tr>';
+      return;
+    }
+    doctors.forEach(d => {
+      const isActive = d.isActive ?? d.IsActive;
+      tbody.innerHTML += `
+        <tr class="hover:bg-surface-container-low transition-colors">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                ${d.photoUrl || d.PhotoUrl ? `<img src="${d.photoUrl||d.PhotoUrl}" class="w-full h-full object-cover" alt="${d.fullName||d.FullName}"/>` : (d.fullName||d.FullName||'?').charAt(0)}
+              </div>
+              <div>
+                <p class="font-bold text-primary text-sm">${d.fullName||d.FullName}</p>
+                <p class="text-xs text-on-surface-variant">${d.email||d.Email}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-sm text-on-surface">${d.specialization||d.Specialization||'—'}</td>
+          <td class="px-6 py-4 text-xs text-on-surface-variant">${d.phone||d.Phone||'—'}</td>
+          <td class="px-6 py-4">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase ${isActive ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant' : 'bg-error-container text-error'}">
+              <div class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-600' : 'bg-error'}"></div>
+              ${isActive ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+              <button onclick="toggleDoctor('${d.id||d.Id}')" title="${isActive ? 'Deactivate' : 'Activate'}"
+                class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-lg">${isActive ? 'toggle_on' : 'toggle_off'}</span>
+              </button>
+              <button onclick="askDelete('doctor','${d.id||d.Id}','${(d.fullName||d.FullName||'').replace(/'/g, "\\'")}' )"
+                class="p-2 hover:bg-error-container hover:text-error rounded-lg text-on-surface-variant transition-colors">
+                <span class="material-symbols-outlined text-lg">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    });
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-error">Failed to load doctors.</td></tr>';
+  }
+}
+
+async function submitAddDoctor() {
+  const errEl = document.getElementById('docError');
+  errEl.classList.add('hidden');
+  const body = {
+    name: document.getElementById('docName').value.trim(),
+    specialization: document.getElementById('docSpec').value.trim(),
+    email: document.getElementById('docEmail').value.trim(),
+    phone: document.getElementById('docPhone').value.trim(),
+    photoUrl: document.getElementById('docPhoto').value.trim() || null,
+  };
+  if (!body.name || !body.specialization || !body.email || !body.phone) {
+    errEl.textContent = 'Please fill all required fields.'; errEl.classList.remove('hidden'); return;
+  }
+  try {
+    await api('POST', '/admin/doctors', body);
+    closeModal('addDoctorModal');
+    ['docName','docSpec','docEmail','docPhone','docPhoto'].forEach(id => document.getElementById(id).value = '');
+    toast('Doctor added successfully!');
+    loadDoctors();
+  } catch (e) {
+    errEl.textContent = e.data?.message || 'Failed to add doctor.'; errEl.classList.remove('hidden');
+  }
+}
+
+async function toggleDoctor(id) {
+  try {
+    await api('PUT', `/admin/doctors/${id}/toggle`);
+    toast('Doctor status updated.');
+    loadDoctors();
+  } catch { toast('Failed to update status.', 'error'); }
+}
+
+// ═══════════════════════════════════════════
+// RECEPTIONISTS
+// ═══════════════════════════════════════════
+async function loadReceptionists() {
+  const tbody = document.getElementById('receptionistsTable');
+  tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">Loading...</td></tr>';
+  try {
+    const recs = await api('GET', '/admin/receptionists');
+    tbody.innerHTML = '';
+    if (!recs.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-on-surface-variant">No receptionists yet.</td></tr>';
+      return;
+    }
+    recs.forEach(r => {
+      const isActive = r.isActive ?? r.IsActive;
+      tbody.innerHTML += `
+        <tr class="hover:bg-surface-container-low transition-colors">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                ${r.photoUrl||r.PhotoUrl ? `<img src="${r.photoUrl||r.PhotoUrl}" class="w-full h-full object-cover"/>` : (r.fullName||r.FullName||'?').charAt(0)}
+              </div>
+              <div>
+                <p class="font-bold text-primary text-sm">${r.fullName||r.FullName}</p>
+                <p class="text-xs text-on-surface-variant">${r.email||r.Email}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-xs text-on-surface-variant">${r.phone||r.Phone||'—'}</td>
+          <td class="px-6 py-4">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase ${isActive ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant' : 'bg-error-container text-error'}">
+              <div class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-600' : 'bg-error'}"></div>
+              ${isActive ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <button onclick="askDelete('receptionist','${r.id||r.Id}','${(r.fullName||r.FullName||'').replace(/'/g, "\\'")}' )"
+              class="p-2 hover:bg-error-container hover:text-error rounded-lg text-on-surface-variant transition-colors">
+              <span class="material-symbols-outlined text-lg">delete</span>
+            </button>
+          </td>
+        </tr>`;
+    });
+  } catch {
+    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-10 text-center text-error">Failed to load receptionists.</td></tr>';
+  }
+}
+
+async function submitAddReceptionist() {
+  const errEl = document.getElementById('recError');
+  errEl.classList.add('hidden');
+  const body = {
+    name: document.getElementById('recName').value.trim(),
+    email: document.getElementById('recEmail').value.trim(),
+    phone: document.getElementById('recPhone').value.trim(),
+    photoUrl: document.getElementById('recPhoto').value.trim() || null,
+  };
+  if (!body.name || !body.email || !body.phone) {
+    errEl.textContent = 'Please fill all required fields.'; errEl.classList.remove('hidden'); return;
+  }
+  try {
+    await api('POST', '/admin/receptionists', body);
+    closeModal('addReceptionistModal');
+    ['recName','recEmail','recPhone','recPhoto'].forEach(id => document.getElementById(id).value = '');
+    toast('Receptionist added successfully!');
+    loadReceptionists();
+  } catch (e) {
+    errEl.textContent = e.data?.message || 'Failed to add receptionist.'; errEl.classList.remove('hidden');
+  }
+}
+
+// ═══════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════
+function askDelete(type, id, name) {
+  deleteTarget = { type, id };
+  document.getElementById('deleteConfirmMsg').textContent = `Are you sure you want to remove "${name}"? This action cannot be undone.`;
+  openModal('confirmDeleteModal');
+}
+
+async function confirmDelete() {
+  if (!deleteTarget) return;
+  const { type, id } = deleteTarget;
+  try {
+    await api('DELETE', `/admin/${type === 'doctor' ? 'doctors' : 'receptionists'}/${id}`);
+    closeModal('confirmDeleteModal');
+    toast(`${type === 'doctor' ? 'Doctor' : 'Receptionist'} removed successfully.`);
+    if (type === 'doctor') loadDoctors();
+    else loadReceptionists();
+  } catch (e) {
+    closeModal('confirmDeleteModal');
+    toast(e.data?.message || 'Delete failed.', 'error');
+  }
+  deleteTarget = null;
+}
+
+// ═══════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════
+async function loadSettings() {
+  try {
+    const s = await api('GET', '/admin/settings');
+    document.getElementById('settingName').value = s.name || s.Name || '';
+    document.getElementById('settingPhone').value = s.phone || s.Phone || '';
+    document.getElementById('settingAddress').value = s.address || s.Address || '';
+    document.getElementById('settingLogo').value = s.logoUrl || s.LogoUrl || '';
+    document.getElementById('subPlan').textContent = s.subscriptionPlan || s.SubscriptionPlan || 'Standard';
+    const expiry = s.subscriptionExpiry || s.SubscriptionExpiry;
+    document.getElementById('subExpiry').textContent = expiry ? new Date(expiry).toLocaleDateString('en-GB') : '—';
+    document.getElementById('sidebarClinicName').textContent = s.name || s.Name || 'SehhaTech';
+  } catch { toast('Failed to load settings.', 'error'); }
+}
+
+async function saveSettings() {
+  const body = {
+    name: document.getElementById('settingName').value.trim() || null,
+    phone: document.getElementById('settingPhone').value.trim() || null,
+    address: document.getElementById('settingAddress').value.trim() || null,
+    logoUrl: document.getElementById('settingLogo').value.trim() || null,
+  };
+  try {
+    await api('PUT', '/admin/settings', body);
+    toast('Settings saved successfully!');
+    document.getElementById('sidebarClinicName').textContent = body.name || 'SehhaTech';
+  } catch (e) {
+    toast(e.data?.message || 'Failed to save settings.', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  if (token) {
+    const claims = parseJwt(token);
+    const exp = claims.exp ? claims.exp * 1000 : 0;
+    if (exp && Date.now() > exp) {
+      doLogout();
+    } else {
+      bootApp(claims);
+    }
+  }
+});
+</script>
+</body>
+</html>
