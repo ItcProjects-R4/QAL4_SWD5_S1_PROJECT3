@@ -68,6 +68,10 @@ namespace SehhaTech.API.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (Exception ex)  // ← أضف ده
+            {
+                return StatusCode(500, new { message = "حصل خطأ أثناء الحذف", detail = ex.Message });
+            }
         }
 
         /// <summary>PUT /api/admin/doctors/{id}/toggle</summary>
