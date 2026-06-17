@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Reception Payments - SmartClinic</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            background: "#f8f9ff",
+            primary: "#004ac6",
+            "primary-container": "#2563eb",
+            "on-surface": "#0b1c30",
+            surface: "#f8f9ff",
+            secondary: "#006a61",
+            error: "#ba1a1a"
+          },
+          fontFamily: {
+            manrope: ["Manrope", "sans-serif"],
+            inter: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background-color: #f8f9ff;
+      color: #0b1c30;
+    }
+
+    h1, h2, h3, .font-manrope {
+      font-family: Manrope, sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #paymobModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #paymobModal.open {
+      display: flex;
+    }
+
+    #paymobModal iframe {
+      width: 100%;
+      max-width: 540px;
+      height: 650px;
+      border-radius: 12px;
+      border: none;
+      background: white;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-background overflow-x-hidden">
+
+  <!-- Mobile Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black/40 z-[60] hidden lg:hidden"></div>
+
+  <!-- Mobile Sidebar -->
+  <aside id="mobileSidebar" class="fixed left-0 top-0 h-screen w-[260px] bg-white border-r border-slate-200 flex flex-col py-6 z-[70] -translate-x-full transition-transform duration-300 lg:hidden">
+    <div class="px-6 mb-8 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-white">clinical_notes</span>
+        </div>
+        <div>
+          <h2 class="text-lg font-extrabold tracking-tight text-blue-600 font-manrope">SmartClinic</h2>
+          <p class="font-manrope text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Reception Portal</p>
+        </div>
+      </div>
+
+      <button id="closeMenu" class="p-2 rounded-lg hover:bg-slate-100">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <nav class="flex-1 space-y-1">
+      <a id="mobileNavDashboard" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-dashboard.html">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-manrope text-sm">Dashboard</span>
+      </a>
+
+      <a id="mobileNavPatients" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-patient-management.html">
+        <span class="material-symbols-outlined">group</span>
+        <span class="font-manrope text-sm">Patients</span>
+      </a>
+
+      <a id="mobileNavAppointments" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-appointments.html">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span class="font-manrope text-sm">Appointments</span>
+      </a>
+
+      <a id="mobileNavPayments" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="payment.html">
+        <span class="material-symbols-outlined">payments</span>
+        <span class="font-manrope text-sm">Payments</span>
+      </a>
+
+      <div class="pt-4 mt-4 border-t border-slate-100">
+        <a class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="#" onclick="logout()">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="font-manrope text-sm">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="px-6 mt-auto">
+      <button onclick="openManualPaymentModal()" class="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20">
+        <span class="material-symbols-outlined text-sm">add_card</span>
+        New Payment
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex min-h-screen w-full">
+
+    <!-- Desktop Sidebar -->
+    <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[260px] border-r border-slate-200 bg-white flex-col py-6 z-50">
+      <div class="px-6 mb-10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-white">clinical_notes</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold tracking-tight text-blue-600 font-manrope">SmartClinic</h2>
+            <p class="font-manrope text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Reception Portal</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="flex-1 space-y-1">
+        <a id="navDashboard" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-dashboard.html">
+          <span class="material-symbols-outlined">dashboard</span>
+          <span class="font-manrope text-sm">Dashboard</span>
+        </a>
+
+        <a id="navPatients" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-patient-management.html">
+          <span class="material-symbols-outlined">group</span>
+          <span class="font-manrope text-sm">Patients</span>
+        </a>
+
+        <a id="navAppointments" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="reception-appointments.html">
+          <span class="material-symbols-outlined">calendar_month</span>
+          <span class="font-manrope text-sm">Appointments</span>
+        </a>
+
+        <a id="navPayments" class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="payment.html">
+          <span class="material-symbols-outlined">payments</span>
+          <span class="font-manrope text-sm">Payments</span>
+        </a>
+
+        <div class="pt-4 mt-4 border-t border-slate-100">
+          <a class="flex items-center gap-3 px-6 py-3 text-slate-600 hover:bg-slate-50" href="#" onclick="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="font-manrope text-sm">Logout</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="px-6 mt-auto">
+        <button onclick="openManualPaymentModal()" class="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20">
+          <span class="material-symbols-outlined text-sm">add_card</span>
+          New Payment
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="w-full lg:ml-[260px] flex-1 min-w-0 bg-background">
+
+      <!-- Top Navbar -->
+      <header class="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 min-h-16 px-4 lg:px-8 py-4">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 w-full">
+            <div class="flex items-center gap-3">
+              <button id="openMenu" class="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-600">
+                <span class="material-symbols-outlined">menu</span>
+              </button>
+
+              <div>
+                <h1 class="text-xl font-bold text-blue-600 font-manrope whitespace-nowrap">Payments</h1>
+                <p class="text-xs text-slate-400 font-semibold">Reception Payment Queue</p>
+              </div>
+            </div>
+
+            <div class="relative w-full xl:max-w-md">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+              <input id="searchInput" class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600" placeholder="Search patient, invoice, service..." type="text" />
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full xl:w-auto">
+            <button onclick="loadPayments()" class="px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-lg">refresh</span>
+              Refresh
+            </button>
+
+            <button onclick="openManualPaymentModal()" class="px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-container inline-flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-lg">add_card</span>
+              New Payment
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-4 lg:p-8 max-w-[1440px] mx-auto space-y-6">
+
+        <!-- Page Header -->
+        <section class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
+          <div>
+            <h2 class="text-3xl font-bold text-slate-900 tracking-tight font-manrope">Payment Queue</h2>
+            <p id="paymentSubtitle" class="text-slate-500 font-medium mt-1">
+              Loading payment records...
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full xl:w-auto">
+            <label>
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">From</span>
+              <input id="fromDate" type="date" class="mt-1 w-full rounded-lg border-slate-200 bg-white text-sm focus:ring-primary focus:border-primary" />
+            </label>
+
+            <label>
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">To</span>
+              <input id="toDate" type="date" class="mt-1 w-full rounded-lg border-slate-200 bg-white text-sm focus:ring-primary focus:border-primary" />
+            </label>
+
+            <label>
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
+              <select id="statusFilter" class="mt-1 w-full rounded-lg border-slate-200 bg-white text-sm focus:ring-primary focus:border-primary">
+                <option value="">All</option>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Partial">Partial</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <!-- KPI Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <p class="text-sm text-slate-500">Total Invoices</p>
+            <h2 id="kpiTotalInvoices" class="text-3xl font-black mt-2">0</h2>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <p class="text-sm text-slate-500">Paid</p>
+            <h2 id="kpiPaid" class="text-3xl font-black mt-2 text-emerald-600">0 EGP</h2>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <p class="text-sm text-slate-500">Unpaid</p>
+            <h2 id="kpiUnpaid" class="text-3xl font-black mt-2 text-red-600">0 EGP</h2>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <p class="text-sm text-slate-500">Partial</p>
+            <h2 id="kpiPartial" class="text-3xl font-black mt-2 text-amber-600">0 EGP</h2>
+          </div>
+        </section>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+
+          <!-- Payment Queue Table -->
+          <section class="xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-5 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Patient Payments</h3>
+                <p id="tableInfo" class="text-xs text-slate-500 mt-1">Loading entries...</p>
+              </div>
+
+              <button onclick="loadPayments()" class="text-xs text-blue-600 font-bold bg-blue-50 px-3 py-2 rounded-lg w-fit inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">sync</span>
+                Live Refresh
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[860px] text-left">
+                <thead>
+                  <tr class="bg-slate-50/80">
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Patient</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Service</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Amount</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Paid</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Remaining</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody id="paymentsTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="7" class="px-6 py-10 text-center text-slate-500">Loading payments...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="px-5 sm:px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p class="text-xs text-slate-500">
+                Page <span id="pageText">1</span>
+              </p>
+
+              <div class="flex items-center gap-2">
+                <button onclick="previousPage()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-white">Previous</button>
+                <button onclick="nextPage()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-white">Next</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Panel -->
+          <aside class="xl:col-span-4 space-y-6">
+
+            <!-- Quick Payment Card -->
+            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-primary">
+              <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">payments</span>
+                Quick Payment
+              </h3>
+
+              <div class="space-y-3">
+                <label>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Invoice</span>
+                  <select id="quickInvoice" class="w-full bg-slate-50 border-slate-200 rounded-lg text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    <option value="">Select unpaid invoice</option>
+                  </select>
+                </label>
+
+                <label>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Method</span>
+                  <select id="quickMethod" class="w-full bg-slate-50 border-slate-200 rounded-lg text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                    <option value="Online">Online</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                  </select>
+                </label>
+
+                <button onclick="paySelectedInvoice()" class="w-full mt-2 py-3 bg-slate-900 text-white rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-sm">payment</span>
+                  Pay Selected Invoice
+                </button>
+              </div>
+            </section>
+
+            <!-- Summary -->
+            <section class="bg-slate-900 p-6 rounded-xl shadow-xl">
+              <h3 class="text-white font-bold mb-4 text-sm uppercase tracking-widest flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-400 text-lg">monitoring</span>
+                Payment Summary
+              </h3>
+
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400 text-sm">Today Paid</span>
+                  <span id="summaryPaid" class="text-emerald-400 font-bold">0 EGP</span>
+                </div>
+
+                <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                  <div id="paidProgress" class="bg-emerald-500 h-full w-[0%] transition-all"></div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400 text-sm">Pending Amount</span>
+                  <span id="summaryPending" class="text-amber-400 font-bold">0 EGP</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Notes -->
+            <section class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 class="font-bold text-slate-900 mb-4">Page Notes</h3>
+              <div class="space-y-3 text-sm text-slate-500">
+                <p class="flex items-start gap-2">
+                  <span class="material-symbols-outlined text-primary text-lg">info</span>
+                  This page expects backend endpoints for patient invoices/payments.
+                </p>
+                <p class="flex items-start gap-2">
+                  <span class="material-symbols-outlined text-primary text-lg">settings</span>
+                  If your endpoint names are different, edit only the API_ENDPOINTS object in JavaScript.
+                </p>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+
+  <!-- Manual Payment Modal -->
+  <div id="manualPaymentModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-[100] p-4">
+    <div class="bg-white rounded-2xl w-full max-w-xl p-6 shadow-2xl">
+      <div class="flex justify-between items-start mb-5">
+        <div>
+          <h3 class="text-xl font-extrabold">Create New Payment</h3>
+          <p class="text-sm text-slate-500">Create an invoice for an existing patient</p>
+        </div>
+        <button onclick="closeManualPaymentModal()" class="text-slate-400 hover:text-slate-900 text-xl">✕</button>
+      </div>
+
+      <form onsubmit="submitManualPayment(event)" class="space-y-4">
+        <label>
+          <span class="text-sm font-bold text-slate-600">Patient</span>
+          <select id="manualPatientId" required class="mt-1 w-full rounded-xl border-slate-300">
+            <option value="">Loading patients...</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="text-sm font-bold text-slate-600">Service Name</span>
+          <input id="manualServiceName" required value="Appointment Visit" class="mt-1 w-full rounded-xl border-slate-300" />
+        </label>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label>
+            <span class="text-sm font-bold text-slate-600">Total Amount</span>
+            <input id="manualTotalAmount" required type="number" min="1" step="0.01" value="500" class="mt-1 w-full rounded-xl border-slate-300" />
+          </label>
+
+          <label>
+            <span class="text-sm font-bold text-slate-600">Paid Amount</span>
+            <input id="manualPaidAmount" type="number" min="0" step="0.01" value="0" class="mt-1 w-full rounded-xl border-slate-300" />
+          </label>
+        </div>
+
+        <label>
+          <span class="text-sm font-bold text-slate-600">Notes</span>
+          <textarea id="manualPaymentNotes" placeholder="Optional invoice notes" class="mt-1 w-full rounded-xl border-slate-300">Manual invoice from reception page</textarea>
+        </label>
+
+        <button id="submitManualPaymentBtn" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-container transition-all">
+          Create Payment Invoice
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-[100] p-4">
+    <div class="bg-white rounded-2xl w-full max-w-xl p-6 shadow-2xl">
+      <div class="flex justify-between items-start mb-5">
+        <div>
+          <h3 class="text-xl font-extrabold">Pay Invoice</h3>
+          <p id="paymentModalSubtitle" class="text-sm text-slate-500">Invoice details</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-900 text-xl">✕</button>
+      </div>
+
+      <form onsubmit="submitPayment(event)" class="space-y-4">
+        <input id="modalInvoiceId" type="hidden" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label>
+            <span class="text-sm font-bold text-slate-600">Amount Due</span>
+            <input id="modalAmountDue" disabled class="mt-1 w-full rounded-xl border-slate-300 bg-slate-50 text-slate-500" />
+          </label>
+
+          <label>
+            <span class="text-sm font-bold text-slate-600">Pay Amount</span>
+            <input id="modalPayAmount" required type="number" min="1" step="0.01" class="mt-1 w-full rounded-xl border-slate-300" />
+          </label>
+        </div>
+
+        <label>
+          <span class="text-sm font-bold text-slate-600">Payment Method</span>
+          <select id="modalPaymentMethod" required class="mt-1 w-full rounded-xl border-slate-300">
+            <option value="Online">Online Payment</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="text-sm font-bold text-slate-600">Notes</span>
+          <textarea id="modalPaymentNotes" placeholder="Optional payment notes" class="mt-1 w-full rounded-xl border-slate-300"></textarea>
+        </label>
+
+        <button id="submitPaymentBtn" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-container transition-all">
+          Confirm Payment
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Paymob Modal -->
+  <div id="paymobModal">
+    <div class="relative w-full max-w-[540px]">
+      <button onclick="closePaymob()" class="absolute -top-4 -right-4 bg-white border-none rounded-full w-9 h-9 text-xl cursor-pointer shadow-lg z-10 flex items-center justify-center">
+        ✕
+      </button>
+      <iframe id="paymobIframe" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-bold"></div>
+
+  <script src="./config.js"></script>
+
+  <script>
+    const RECEPTION_API_BASE = `${API_BASE}/api`;
+
+    const API_ENDPOINTS = {
+      // Expected response: { success, count, data: [invoice/payment rows], totalPages?, totalCount? }
+      payments: "/Reception/payments",
+
+      // Expected response: { success, iframeUrl?, message? }
+      initiatePayment: (invoiceId) => `/Reception/payments/${invoiceId}/pay`,
+
+      // Expected response: { success, message? }
+      markCashPayment: (invoiceId) => `/Reception/payments/${invoiceId}/cash`,
+
+      // Optional fallback only if payments endpoint is not ready yet
+      patients: "/Reception/patients",
+      appointments: "/Reception/appointments"
+    };
+
+    let payments = [];
+    let patients = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    const pageSize = 10;
+
+    const els = {
+      searchInput: document.getElementById("searchInput"),
+      fromDate: document.getElementById("fromDate"),
+      toDate: document.getElementById("toDate"),
+      statusFilter: document.getElementById("statusFilter"),
+      tableBody: document.getElementById("paymentsTableBody"),
+      tableInfo: document.getElementById("tableInfo"),
+      pageText: document.getElementById("pageText"),
+      paymentSubtitle: document.getElementById("paymentSubtitle"),
+      kpiTotalInvoices: document.getElementById("kpiTotalInvoices"),
+      kpiPaid: document.getElementById("kpiPaid"),
+      kpiUnpaid: document.getElementById("kpiUnpaid"),
+      kpiPartial: document.getElementById("kpiPartial"),
+      summaryPaid: document.getElementById("summaryPaid"),
+      summaryPending: document.getElementById("summaryPending"),
+      paidProgress: document.getElementById("paidProgress"),
+      quickInvoice: document.getElementById("quickInvoice")
+    };
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getToken() {
+      return (
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken") ||
+        localStorage.getItem("jwt") ||
+        sessionStorage.getItem("jwt")
+      );
+    }
+
+    function logout() {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    function authHeaders() {
+      const token = getToken();
+
+      return {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      };
+    }
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+
+      toast.textContent = message;
+      toast.className =
+        "toast show px-5 py-3 rounded-xl shadow-2xl text-sm font-bold " +
+        (type === "error" ? "bg-red-600 text-white" : "bg-slate-900 text-white");
+
+      setTimeout(() => {
+        toast.className = toast.className.replace(" show", "");
+      }, 3000);
+    }
+
+    function handleUnauthorized(status) {
+      if (status === 401 || status === 403) {
+        showToast("Login again with a Reception account.", "error");
+        setTimeout(logout, 900);
+        return true;
+      }
+
+      return false;
+    }
+
+    async function readResponse(res) {
+      const text = await res.text();
+
+      try {
+        return text ? JSON.parse(text) : {};
+      } catch {
+        return { message: text || "Request failed" };
+      }
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(`${RECEPTION_API_BASE}${path}`, {
+        method: "GET",
+        headers: authHeaders()
+      });
+
+      if (handleUnauthorized(res.status)) return null;
+
+      const data = await readResponse(res);
+      if (!res.ok) throw data;
+
+      return data;
+    }
+
+    async function apiPost(path, body = {}) {
+      const res = await fetch(`${RECEPTION_API_BASE}${path}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(body)
+      });
+
+      if (handleUnauthorized(res.status)) return null;
+
+      const data = await readResponse(res);
+      if (!res.ok) throw data;
+
+      return data;
+    }
+
+    async function loadPayments() {
+      if (!getToken()) {
+        showToast("Please login first.", "error");
+        setTimeout(() => window.location.href = "login.html", 800);
+        return;
+      }
+
+      setLoading();
+
+      try {
+        const params = new URLSearchParams();
+
+        if (els.fromDate.value) params.append("from", els.fromDate.value);
+        if (els.toDate.value) params.append("to", els.toDate.value);
+        if (els.statusFilter.value) params.append("status", els.statusFilter.value);
+
+        params.append("page", currentPage);
+        params.append("pageSize", pageSize);
+
+        const data = await apiGet(`${API_ENDPOINTS.payments}?${params.toString()}`);
+
+        if (!data) return;
+
+        payments = normalizePaymentRows(data.data || []);
+        totalPages = data.totalPages || 1;
+
+        renderPayments();
+        renderStats(data.totalCount);
+
+      } catch (err) {
+        console.error("Payments endpoint failed:", err);
+
+        els.tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-6 py-10 text-center text-red-500">
+              Failed to load payments. Make sure backend has GET ${API_ENDPOINTS.payments}.
+            </td>
+          </tr>
+        `;
+
+        showToast(extractError(err), "error");
+      }
+    }
+
+    function setLoading() {
+      els.tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-6 py-10 text-center text-slate-500">
+            Loading payments...
+          </td>
+        </tr>
+      `;
+    }
+
+    function normalizePaymentRows(rows) {
+      return rows.map(row => {
+        const amount = Number(row.amount ?? row.totalAmount ?? row.invoiceAmount ?? 0);
+        const paidAmount = Number(row.paidAmount ?? row.paid ?? 0);
+        const remainingAmount = Number(row.remainingAmount ?? Math.max(amount - paidAmount, 0));
+
+        let status = row.status ?? row.paymentStatus;
+
+        if (!status) {
+          if (remainingAmount <= 0) status = "Paid";
+          else if (paidAmount > 0) status = "Partial";
+          else status = "Unpaid";
+        }
+
+        return {
+          id: row.id ?? row.invoiceId ?? row.paymentId,
+          patientId: row.patientId,
+          patientName: row.patientName ?? row.patient?.fullName ?? "Unknown Patient",
+          patientPhone: row.patientPhone ?? row.patient?.phone ?? "--",
+          serviceName: row.serviceName ?? row.service ?? row.notes ?? "Clinic Service",
+          invoiceNumber: row.invoiceNumber ?? row.code ?? `INV-${row.id ?? row.invoiceId ?? "-"}`,
+          amount,
+          paidAmount,
+          remainingAmount,
+          status,
+          createdAt: row.createdAt ?? row.date ?? row.appointmentDate,
+          paymentMethod: row.paymentMethod ?? "--"
+        };
+      });
+    }
+
+    function renderPayments() {
+      const search = els.searchInput.value.trim().toLowerCase();
+
+      let rows = [...payments];
+
+      if (search) {
+        rows = rows.filter(row =>
+          String(row.patientName).toLowerCase().includes(search) ||
+          String(row.patientPhone).toLowerCase().includes(search) ||
+          String(row.serviceName).toLowerCase().includes(search) ||
+          String(row.invoiceNumber).toLowerCase().includes(search) ||
+          String(row.status).toLowerCase().includes(search)
+        );
+      }
+
+      if (!rows.length) {
+        els.tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-6 py-10 text-center text-slate-500">
+              No payment records found.
+            </td>
+          </tr>
+        `;
+
+        els.tableInfo.textContent = "Showing 0 payments";
+        renderQuickInvoiceOptions();
+        return;
+      }
+
+      els.tableBody.innerHTML = rows.map(row => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold">
+                ${escapeHtml(getInitials(row.patientName))}
+              </div>
+
+              <div>
+                <p class="text-sm font-bold text-slate-900">${escapeHtml(row.patientName)}</p>
+                <p class="text-xs text-slate-400">${escapeHtml(row.patientPhone)} • ${escapeHtml(row.invoiceNumber)}</p>
+              </div>
+            </div>
+          </td>
+
+          <td class="px-6 py-4">
+            <p class="text-sm font-semibold text-slate-700">${escapeHtml(row.serviceName)}</p>
+            <p class="text-xs text-slate-400">${escapeHtml(formatDate(row.createdAt))}</p>
+          </td>
+
+          <td class="px-6 py-4 text-sm font-bold text-slate-900">
+            ${money(row.amount)}
+          </td>
+
+          <td class="px-6 py-4 text-sm font-bold text-emerald-600">
+            ${money(row.paidAmount)}
+          </td>
+
+          <td class="px-6 py-4 text-sm font-bold text-red-600">
+            ${money(row.remainingAmount)}
+          </td>
+
+          <td class="px-6 py-4">
+            ${statusBadge(row.status)}
+          </td>
+
+          <td class="px-6 py-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              ${
+                row.status === "Paid"
+                  ? `<button disabled class="px-4 py-2 rounded-lg bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed">Paid</button>`
+                  : `<button onclick="openPaymentModal('${row.id}')" class="px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-container">Pay</button>`
+              }
+
+              <button onclick="viewInvoice('${row.id}')" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <span class="material-symbols-outlined text-lg">visibility</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      els.tableInfo.textContent = `Showing ${rows.length} payments`;
+      renderQuickInvoiceOptions();
+    }
+
+    function renderStats(totalCount) {
+      const totalInvoices = totalCount ?? payments.length;
+      const paid = payments.reduce((sum, item) => sum + Number(item.paidAmount || 0), 0);
+      const unpaid = payments.reduce((sum, item) => sum + Number(item.remainingAmount || 0), 0);
+      const partial = payments
+        .filter(item => item.status === "Partial")
+        .reduce((sum, item) => sum + Number(item.remainingAmount || 0), 0);
+
+      const totalAmount = payments.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const paidPercentage = totalAmount > 0 ? Math.round((paid / totalAmount) * 100) : 0;
+
+      els.kpiTotalInvoices.textContent = totalInvoices;
+      els.kpiPaid.textContent = money(paid);
+      els.kpiUnpaid.textContent = money(unpaid);
+      els.kpiPartial.textContent = money(partial);
+
+      els.summaryPaid.textContent = money(paid);
+      els.summaryPending.textContent = money(unpaid);
+      els.paidProgress.style.width = `${Math.min(100, paidPercentage)}%`;
+
+      els.pageText.textContent = `${currentPage} / ${totalPages}`;
+      els.paymentSubtitle.textContent = `${formatLongDate(els.fromDate.value)} • ${totalInvoices} invoices loaded`;
+    }
+
+    function renderQuickInvoiceOptions() {
+      const unpaidRows = payments.filter(row => row.status !== "Paid");
+
+      els.quickInvoice.innerHTML = `<option value="">Select unpaid invoice</option>` +
+        unpaidRows.map(row => `
+          <option value="${row.id}">
+            ${escapeHtml(row.patientName)} - ${money(row.remainingAmount)}
+          </option>
+        `).join("");
+    }
+
+    function openPaymentModal(invoiceId) {
+      const invoice = payments.find(row => String(row.id) === String(invoiceId));
+
+      if (!invoice) {
+        showToast("Invoice not found.", "error");
+        return;
+      }
+
+      document.getElementById("modalInvoiceId").value = invoice.id;
+      document.getElementById("modalAmountDue").value = money(invoice.remainingAmount);
+      document.getElementById("modalPayAmount").value = invoice.remainingAmount;
+      document.getElementById("paymentModalSubtitle").textContent =
+        `${invoice.patientName} • ${invoice.invoiceNumber}`;
+
+      document.getElementById("paymentModal").classList.remove("hidden");
+      document.getElementById("paymentModal").classList.add("flex");
+    }
+
+    function closePaymentModal() {
+      document.getElementById("paymentModal").classList.add("hidden");
+      document.getElementById("paymentModal").classList.remove("flex");
+    }
+
+
+    function mapPaymentMethod(method) {
+      const map = {
+        Cash: 1,
+        Card: 2,
+        Online: 3
+      };
+
+      return map[method] || 1;
+    }
+
+    async function loadPatientsForManualPayment() {
+      const patientSelect = document.getElementById("manualPatientId");
+      patientSelect.innerHTML = `<option value="">Loading patients...</option>`;
+
+      try {
+        const data = await apiGet(API_ENDPOINTS.patients);
+        if (!data) return;
+
+        patients = data.data || [];
+
+        if (!patients.length) {
+          patientSelect.innerHTML = `<option value="">No patients found. Add a patient first.</option>`;
+          return;
+        }
+
+        patientSelect.innerHTML = `<option value="">Select patient</option>` +
+          patients.map(patient => `
+            <option value="${patient.id ?? patient.Id}">
+              ${escapeHtml(patient.fullName ?? patient.FullName ?? "Unknown Patient")} - ${escapeHtml(patient.phone ?? patient.Phone ?? "")}
+            </option>
+          `).join("");
+
+      } catch (err) {
+        console.error(err);
+        patientSelect.innerHTML = `<option value="">Failed to load patients</option>`;
+        showToast(extractError(err), "error");
+      }
+    }
+
+    async function openManualPaymentModal() {
+      if (!getToken()) {
+        showToast("Please login first.", "error");
+        setTimeout(() => window.location.href = "login.html", 800);
+        return;
+      }
+
+      document.getElementById("manualPaymentModal").classList.remove("hidden");
+      document.getElementById("manualPaymentModal").classList.add("flex");
+      await loadPatientsForManualPayment();
+    }
+
+    function closeManualPaymentModal() {
+      document.getElementById("manualPaymentModal").classList.add("hidden");
+      document.getElementById("manualPaymentModal").classList.remove("flex");
+    }
+
+    async function submitManualPayment(e) {
+      e.preventDefault();
+
+      const patientId = Number(document.getElementById("manualPatientId").value);
+      const serviceName = document.getElementById("manualServiceName").value.trim();
+      const totalAmount = Number(document.getElementById("manualTotalAmount").value);
+      const paidAmount = Number(document.getElementById("manualPaidAmount").value || 0);
+      const notes = document.getElementById("manualPaymentNotes").value.trim();
+      const submitBtn = document.getElementById("submitManualPaymentBtn");
+
+      if (!patientId || !serviceName || totalAmount <= 0) {
+        showToast("Please enter valid invoice data.", "error");
+        return;
+      }
+
+      if (paidAmount < 0 || paidAmount > totalAmount) {
+        showToast("Paid amount must be between 0 and total amount.", "error");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating invoice...";
+
+      try {
+        const result = await apiPost(API_ENDPOINTS.payments, {
+          patientId,
+          serviceName,
+          totalAmount,
+          paidAmount,
+          notes
+        });
+
+        if (!result) return;
+
+        showToast(result.message || "Payment invoice created successfully.");
+        closeManualPaymentModal();
+        currentPage = 1;
+        await loadPayments();
+
+      } catch (err) {
+        console.error(err);
+        showToast(extractError(err), "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create Payment Invoice";
+      }
+    }
+
+    async function submitPayment(e) {
+      e.preventDefault();
+
+      const invoiceId = document.getElementById("modalInvoiceId").value;
+      const method = document.getElementById("modalPaymentMethod").value;
+      const amount = Number(document.getElementById("modalPayAmount").value);
+      const notes = document.getElementById("modalPaymentNotes").value.trim();
+
+      if (!invoiceId || amount <= 0) {
+        showToast("Invalid payment data.", "error");
+        return;
+      }
+
+      if (method === "Online") {
+        await startOnlinePayment(invoiceId, amount, notes);
+      } else {
+        await markCashOrCardPayment(invoiceId, amount, method, notes);
+      }
+    }
+
+    async function paySelectedInvoice() {
+      const invoiceId = els.quickInvoice.value;
+      const method = document.getElementById("quickMethod").value;
+
+      if (!invoiceId) {
+        showToast("Select invoice first.", "error");
+        return;
+      }
+
+      const invoice = payments.find(row => String(row.id) === String(invoiceId));
+      if (!invoice) return;
+
+      if (method === "Online") {
+        await startOnlinePayment(invoiceId, invoice.remainingAmount, "Quick payment");
+      } else {
+        await markCashOrCardPayment(invoiceId, invoice.remainingAmount, method, "Quick payment");
+      }
+    }
+
+    async function startOnlinePayment(invoiceId, amount, notes) {
+      try {
+        const result = await apiPost(API_ENDPOINTS.initiatePayment(invoiceId), {
+          amount,
+          method: 3,
+          notes
+        });
+
+        if (!result) return;
+
+        if (result.iframeUrl) {
+          closePaymentModal();
+          openPaymob(result.iframeUrl);
+          return;
+        }
+
+        showToast(result.message || "Online payment initiated.");
+        closePaymentModal();
+        await loadPayments();
+
+      } catch (err) {
+        console.error(err);
+        showToast(extractError(err), "error");
+      }
+    }
+
+    async function markCashOrCardPayment(invoiceId, amount, method, notes) {
+      try {
+        const result = await apiPost(API_ENDPOINTS.markCashPayment(invoiceId), {
+          amount,
+          method: mapPaymentMethod(method),
+          notes
+        });
+
+        if (!result) return;
+
+        showToast(result.message || `${method} payment saved successfully.`);
+        closePaymentModal();
+        await loadPayments();
+
+      } catch (err) {
+        console.error(err);
+        showToast(extractError(err), "error");
+      }
+    }
+
+    function openPaymob(iframeUrl) {
+      document.getElementById("paymobIframe").src = iframeUrl;
+      document.getElementById("paymobModal").classList.add("open");
+
+      window.addEventListener("message", function onMessage(e) {
+        if (e.data && (e.data.type === "PAYMOB_SUCCESS" || e.data.success === true)) {
+          window.removeEventListener("message", onMessage);
+          closePaymob();
+          showToast("Payment successful!", "success");
+          loadPayments();
+        }
+      });
+    }
+
+    function closePaymob() {
+      document.getElementById("paymobModal").classList.remove("open");
+      document.getElementById("paymobIframe").src = "";
+    }
+
+    function viewInvoice(invoiceId) {
+      const invoice = payments.find(row => String(row.id) === String(invoiceId));
+
+      if (!invoice) {
+        showToast("Invoice not found.", "error");
+        return;
+      }
+
+      alert(
+        `Invoice: ${invoice.invoiceNumber}\n` +
+        `Patient: ${invoice.patientName}\n` +
+        `Service: ${invoice.serviceName}\n` +
+        `Amount: ${money(invoice.amount)}\n` +
+        `Paid: ${money(invoice.paidAmount)}\n` +
+        `Remaining: ${money(invoice.remainingAmount)}\n` +
+        `Status: ${invoice.status}`
+      );
+    }
+
+    function previousPage() {
+      if (currentPage <= 1) return;
+      currentPage--;
+      loadPayments();
+    }
+
+    function nextPage() {
+      if (currentPage >= totalPages) return;
+      currentPage++;
+      loadPayments();
+    }
+
+    // ==============================
+    // Unified Reception Sidebar
+    // ==============================
+
+    function setupSidebar() {
+      const openMenu = document.getElementById("openMenu");
+      const closeMenu = document.getElementById("closeMenu");
+      const mobileSidebar = document.getElementById("mobileSidebar");
+      const overlay = document.getElementById("overlay");
+
+      function showSidebar() {
+        if (mobileSidebar) mobileSidebar.classList.remove("-translate-x-full");
+        if (overlay) overlay.classList.remove("hidden");
+      }
+
+      function hideSidebar() {
+        if (mobileSidebar) mobileSidebar.classList.add("-translate-x-full");
+        if (overlay) overlay.classList.add("hidden");
+      }
+
+      if (openMenu && closeMenu && overlay) {
+        openMenu.addEventListener("click", showSidebar);
+        closeMenu.addEventListener("click", hideSidebar);
+        overlay.addEventListener("click", hideSidebar);
+      }
+    }
+
+    function setActiveSidebarLink() {
+      const page = window.location.pathname.split("/").pop();
+
+      const links = {
+        "reception-dashboard.html": ["navDashboard", "mobileNavDashboard"],
+        "reception-patient-management.html": ["navPatients", "mobileNavPatients"],
+        "reception-appointments.html": ["navAppointments", "mobileNavAppointments"],
+        "payment.html": ["navPayments", "mobileNavPayments"]
+      };
+
+      const activeIds = links[page] || [];
+
+      activeIds.forEach(id => {
+        const link = document.getElementById(id);
+        if (!link) return;
+
+        link.className =
+          "flex items-center gap-3 px-6 py-3 bg-blue-50 text-blue-600 border-l-4 border-blue-600 font-semibold";
+      });
+    }
+
+    function statusBadge(status) {
+      const s = String(status || "").toLowerCase();
+
+      if (s === "paid") {
+        return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Paid</span>`;
+      }
+
+      if (s === "partial") {
+        return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Partial</span>`;
+      }
+
+      return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Unpaid</span>`;
+    }
+
+    function getInitials(name) {
+      if (!name) return "PT";
+
+      return String(name)
+        .trim()
+        .split(" ")
+        .filter(Boolean)
+        .map(word => word[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+    }
+
+    function money(value) {
+      return `${Number(value || 0).toLocaleString()} EGP`;
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return "-";
+
+      return d.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function formatLongDate(value) {
+      if (!value) return "Today";
+
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return "Today";
+
+      return d.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function extractError(err) {
+      if (!err) return "Something went wrong.";
+      if (typeof err === "string") return err;
+      if (err.message) return err.message;
+
+      if (err.errors) {
+        const firstKey = Object.keys(err.errors)[0];
+
+        if (firstKey && err.errors[firstKey]?.length) {
+          return err.errors[firstKey][0];
+        }
+      }
+
+      return "Something went wrong.";
+    }
+
+    let searchTimer;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const today = todayISO();
+
+      els.fromDate.value = today;
+      els.toDate.value = today;
+
+      setupSidebar();
+      setActiveSidebarLink();
+      loadPayments();
+
+      els.searchInput.addEventListener("input", function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(renderPayments, 250);
+      });
+
+      els.statusFilter.addEventListener("change", function () {
+        currentPage = 1;
+        loadPayments();
+      });
+
+      els.fromDate.addEventListener("change", function () {
+        currentPage = 1;
+        loadPayments();
+      });
+
+      els.toDate.addEventListener("change", function () {
+        currentPage = 1;
+        loadPayments();
+      });
+    });
+  </script>
+</body>
+</html>
