@@ -9,6 +9,7 @@ namespace SehhaTech.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<PaymentInvoice> PaymentInvoices { get; set; }
         // Staff Tables
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
@@ -164,6 +165,40 @@ namespace SehhaTech.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(r => r.PortalUserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<PaymentInvoice>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.InvoiceNumber)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(x => x.TotalAmount)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.PaidAmount)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.RemainingAmount)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.Notes)
+                    .HasMaxLength(500);
+
+                entity.HasOne(x => x.Patient)
+                    .WithMany()
+                    .HasForeignKey(x => x.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Appointment)
+                    .WithMany()
+                    .HasForeignKey(x => x.AppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
