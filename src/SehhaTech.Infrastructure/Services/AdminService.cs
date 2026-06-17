@@ -61,13 +61,32 @@ namespace SehhaTech.Infrastructure.Services
                 })
                 .ToListAsync();
 
+            var rawChart = await _db.Appointments
+                .Where(a => a.TenantId == tenantId &&
+                            a.AppointmentDate >= DateTime.Today.AddDays(-7))
+                .GroupBy(a => a.AppointmentDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            var activityChart = rawChart.Select(x => new ActivityChartDto
+            {
+                Date = x.Date.ToString("yyyy-MM-dd"),
+                Count = x.Count
+            }).ToList();
+
             return new AdminDashboardDto
             {
                 TotalDoctors = totalDoctors,
                 TotalReceptionists = totalReceptionists,
                 TodayAppointments = todayAppointments,
                 UpcomingAppointments = upcoming,
-                RecentRegistrations = recentRegistrations
+                RecentRegistrations = recentRegistrations,
+                ActivityChart = activityChart
             };
         }
 
@@ -91,6 +110,16 @@ namespace SehhaTech.Infrastructure.Services
 
         public async Task<DoctorListItemDto> AddDoctorAsync(int tenantId, AddDoctorDto dto)
         {
+            // Validation
+            if (string.IsNullOrWhiteSpace(dto.FullName))
+                throw new ArgumentException("اسم الدكتور مطلوب");
+
+            if (string.IsNullOrWhiteSpace(dto.Specialization))
+                throw new ArgumentException("التخصص مطلوب");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ArgumentException("البريد الإلكتروني مطلوب");
+
             var emailExists = await _db.Users.AnyAsync(u => u.Email == dto.Email);
             if (emailExists)
                 throw new InvalidOperationException("البريد الإلكتروني مستخدم بالفعل");
@@ -138,9 +167,18 @@ namespace SehhaTech.Infrastructure.Services
         {
             var doctor = await _db.Doctors
                 .Include(d => d.User)
+                .Include(d => d.Appointments)
                 .FirstOrDefaultAsync(d => d.Id == doctorId && d.TenantId == tenantId)
                 ?? throw new KeyNotFoundException("الدكتور مش موجود");
 
+            // احذف الـ appointments الأول عشان مفيش FK error
+            if (doctor.Appointments.Any())
+                _db.Appointments.RemoveRange(doctor.Appointments);
+
+            // بعدين احذف الـ Doctor
+            _db.Doctors.Remove(doctor);
+
+            // بعدين احذف الـ User
             if (doctor.User != null)
                 _db.Users.Remove(doctor.User);
 
@@ -150,10 +188,16 @@ namespace SehhaTech.Infrastructure.Services
         public async Task ToggleDoctorStatusAsync(int tenantId, int doctorId)
         {
             var doctor = await _db.Doctors
+                .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == doctorId && d.TenantId == tenantId)
                 ?? throw new KeyNotFoundException("الدكتور مش موجود");
 
             doctor.IsActive = !doctor.IsActive;
+
+            // sync الـ User كمان
+            if (doctor.User != null)
+                doctor.User.IsActive = doctor.IsActive;
+
             await _db.SaveChangesAsync();
         }
 
@@ -175,6 +219,13 @@ namespace SehhaTech.Infrastructure.Services
 
         public async Task<ReceptionistListItemDto> AddReceptionistAsync(int tenantId, AddReceptionistDto dto)
         {
+            // Validation
+            if (string.IsNullOrWhiteSpace(dto.FullName))
+                throw new ArgumentException("اسم الموظف مطلوب");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ArgumentException("البريد الإلكتروني مطلوب");
+
             var emailExists = await _db.Users.AnyAsync(u => u.Email == dto.Email);
             if (emailExists)
                 throw new InvalidOperationException("البريد الإلكتروني مستخدم بالفعل");
@@ -242,9 +293,15 @@ namespace SehhaTech.Infrastructure.Services
             var tenant = await _db.Tenants.FindAsync(tenantId)
                 ?? throw new KeyNotFoundException("العيادة مش موجودة");
 
-            tenant.Name = dto.ClinicName;
-            tenant.Phone = dto.Phone ?? tenant.Phone;
-            tenant.Address = dto.Address ?? tenant.Address;
+            // ✅ مش هنمسح القيم القديمة لو الـ dto فاضي
+            if (!string.IsNullOrWhiteSpace(dto.ClinicName))
+                tenant.Name = dto.ClinicName;
+
+            if (!string.IsNullOrWhiteSpace(dto.Phone))
+                tenant.Phone = dto.Phone;
+
+            if (!string.IsNullOrWhiteSpace(dto.Address))
+                tenant.Address = dto.Address;
 
             await _db.SaveChangesAsync();
         }
