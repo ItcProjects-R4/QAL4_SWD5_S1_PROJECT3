@@ -54,11 +54,11 @@ export default function Login() {
                 password,
             });
 
-            const data = res.data;
+            const data = res.data.data ?? res.data;
 
             if (data.mustResetPassword) {
-                sessionStorage.setItem("resetEmail", data.email);
-                navigate("/reset-password");
+                localStorage.setItem("token", data.token);
+                navigate(`/reset-password?email=${encodeURIComponent(data.email)}`);
                 return;
             }
 

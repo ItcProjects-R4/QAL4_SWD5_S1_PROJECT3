@@ -8,6 +8,8 @@
         public int TodayAppointments { get; set; }
         public List<UpcomingAppointmentDto> UpcomingAppointments { get; set; } = new();
         public List<RecentRegistrationDto> RecentRegistrations { get; set; } = new();
+        public List<ActivityChartDto> ActivityChart { get; set; } = new();
+
     }
 
     public class UpcomingAppointmentDto
@@ -81,5 +83,11 @@
         public string ClinicName { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? Address { get; set; }
+    }
+
+    public class ActivityChartDto
+    {
+        public string Date { get; set; } = string.Empty;
+        public int Count { get; set; }
     }
 }
