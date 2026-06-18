@@ -1,5 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-
+import SuperAdminLayout from './components/SuperAdminLayout';
+import SuperAdminDashboard from './pages/superadmin/Dashboard';
+import Clinics from './pages/superadmin/clinics';
+import Reports from './pages/superadmin/reports';
+import Settings from './pages/superadmin/settings';
 // Public
 import Landing from "./pages/public/Landing";
 import Login from "./pages/public/Login";
@@ -24,12 +28,19 @@ import AdminDoctors from "./pages/admin/AdminDoctors";
 import AdminReceptionists from "./pages/admin/AdminReceptionists";
 import AdminSettings from "./pages/admin/AdminSettings";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+
 function App() {
     return (
         <Routes>
             {/* Public */}
             <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={
+                <PublicRoute>
+                    <Login />
+                </PublicRoute>
+            } />
             <Route path="/register" element={<Register />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -50,6 +61,21 @@ function App() {
                 <Route path="doctors" element={<AdminDoctors />} />
                 <Route path="receptionists" element={<AdminReceptionists />} />
                 <Route path="settings" element={<AdminSettings />} />
+            </Route>
+
+            {/* Super Admin */}
+            <Route
+                path="/superadmin"
+                element={
+                    <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+                        <SuperAdminLayout />
+                    </ProtectedRoute>
+                }
+            >
+                <Route path="dashboard" element={<SuperAdminDashboard />} />
+                <Route path="clinics"   element={<Clinics />} />
+                <Route path="reports"   element={<Reports />} />
+                <Route path="settings"  element={<Settings />} />
             </Route>
         </Routes>
     );

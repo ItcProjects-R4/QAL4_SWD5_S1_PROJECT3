@@ -7,42 +7,36 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     // لما المشروع يفتح، نقرأ بيانات المستخدم المحفوظة (لو موجودة)
+    
+
     useEffect(() => {
-        const storage = localStorage.getItem("token")
-            ? localStorage
-            : sessionStorage;
+    const token = localStorage.getItem("token");
+    const fullName = localStorage.getItem("fullName");
+    const email = localStorage.getItem("email");
+    const role = localStorage.getItem("role");
+    const tenantId = localStorage.getItem("tenantId");
 
-        const token = storage.getItem("token");
-        const fullName = storage.getItem("fullName");
-        const email = storage.getItem("email");
-        const role = storage.getItem("role");
-        const tenantId = storage.getItem("tenantId");
+    if (token) {
+        setUser({ token, fullName, email, role, tenantId });
+    }
 
-        if (token) {
-            setUser({ token, fullName, email, role, tenantId });
-        }
-
-        setLoading(false);
-    }, []);
+    setLoading(false);
+}, []);
 
     // تسجيل الدخول: نحفظ البيانات في localStorage أو sessionStorage
+   
+
+
     function login(data, remember) {
-        const storage = remember ? localStorage : sessionStorage;
+    const storage = localStorage; // 👈 خليها واحدة بس (أسهل وأضمن)
 
-        storage.setItem("token", data.token);
-        storage.setItem("fullName", data.fullName);
-        storage.setItem("email", data.email);
-        storage.setItem("role", data.role);
-        if (data.tenantId) storage.setItem("tenantId", data.tenantId);
+    storage.setItem("token", data.token);
+    storage.setItem("fullName", data.fullName);
+    storage.setItem("email", data.email);
+    storage.setItem("role", data.role);
 
-        setUser({
-            token: data.token,
-            fullName: data.fullName,
-            email: data.email,
-            role: data.role,
-            tenantId: data.tenantId,
-        });
-    }
+    setUser(data);
+}
 
     // تسجيل الخروج
     function logout() {
