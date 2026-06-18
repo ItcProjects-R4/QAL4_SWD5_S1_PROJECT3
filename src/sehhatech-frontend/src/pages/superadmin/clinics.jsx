@@ -68,10 +68,10 @@ export default function Clinics() {
   const fetchClinics = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch("/api/superadmin/clinics");
+      const data = await apiFetch("/api/SuperAdmin/tenants");
       const list = data?.data ?? data ?? [];
       setAllClinics(list);
-      const active   = list.filter((c) => c.status === "active").length;
+      const active   = list.filter((c) => c.isActive === true).length;
       const inactive = list.length - active;
       setStats({ total: list.length, active, inactive });
     } catch (e) {
@@ -90,8 +90,9 @@ export default function Clinics() {
       c.name?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase());
     const matchStatus =
-      statusFilter === "All Statuses" ||
-      c.status?.toLowerCase() === statusFilter.toLowerCase();
+  statusFilter === "All Statuses" ||
+  (statusFilter === "Active" && c.isActive === true) ||
+  (statusFilter === "Inactive" && c.isActive === false);
     return matchSearch && matchStatus;
   });
 
@@ -101,7 +102,7 @@ export default function Clinics() {
   async function handleDelete() {
     if (!deleteTarget) return;
     try {
-      await apiFetch(`/api/superadmin/clinics/${deleteTarget.id}`, { method: "DELETE" });
+      await apiFetch(`/api/SuperAdmin/tenants/${deleteTarget.id}`, { method: "DELETE" });
       setDeleteTarget(null);
       fetchClinics();
     } catch (e) {
@@ -110,17 +111,13 @@ export default function Clinics() {
   }
 
   async function toggleStatus(clinic) {
-    const newStatus = clinic.status === "active" ? "inactive" : "active";
-    try {
-      await apiFetch(`/api/superadmin/clinics/${clinic.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: newStatus }),
-      });
-      fetchClinics();
-    } catch (e) {
-      console.error(e);
-    }
+  try {
+    await apiFetch(`/api/SuperAdmin/tenants/${clinic.id}/toggle`, { method: "PUT" });
+    fetchClinics();
+  } catch (e) {
+    console.error(e);
   }
+}
 
   return (
     <div>
