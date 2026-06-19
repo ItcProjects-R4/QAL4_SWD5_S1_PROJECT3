@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import ReceptionSidebar from "../../components/reception/ReceptionSidebar";
+import ReceptionSidebar from "../../components/ReceptionSidebar";
 
 export default function ReceptionLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

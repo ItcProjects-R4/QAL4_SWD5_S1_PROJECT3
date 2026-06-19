@@ -41,6 +41,7 @@ export const receptionApi = {
   getPatients: () => request("GET", "/patients"),
   getPatient: (id) => request("GET", `/patients/${id}`),
   addPatient: (body) => request("POST", "/patients", body),
+  getPatients: () => request("GET", "/patients"),
   getAvailableDoctors: () => request("GET", "/doctors/available"),
   getAppointments: (params) => request("GET", `/appointments?${params}`),
   bookAppointment: (body) => request("POST", "/appointments", body),
