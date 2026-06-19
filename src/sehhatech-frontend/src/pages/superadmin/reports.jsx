@@ -184,17 +184,17 @@ export default function Reports() {
     async function load() {
       try {
         const [lb, gr, stats] = await Promise.allSettled([
-          apiFetch("/api/superadmin/reports/leaderboard"),
-          apiFetch("/api/superadmin/clinics/growth"),
-          apiFetch("/api/superadmin/stats"),
-        ]);
+  apiFetch("/api/SuperAdmin/reports"),
+  apiFetch("/api/SuperAdmin/dashboard"),
+  apiFetch("/api/SuperAdmin/dashboard"),
+]);
 
-        if (lb.status    === "fulfilled") setLeaderboard(lb.value?.data ?? lb.value ?? []);
-        if (gr.status    === "fulfilled") setGrowth(gr.value?.data ?? gr.value ?? []);
-        if (stats.status === "fulfilled") {
-          const d = stats.value;
-          setDonut({ active: d.active_clinics ?? 0, inactive: (d.total_clinics ?? 0) - (d.active_clinics ?? 0) });
-        }
+       if (lb.status === "fulfilled") setLeaderboard(lb.value?.clinicPerformance ?? lb.value?.data ?? []);
+if (gr.status === "fulfilled") setGrowth(gr.value?.clinicsGrowthChart ?? gr.value?.data ?? []);
+if (stats.status === "fulfilled") {
+  const d = stats.value;
+  setDonut({ active: d.activeClinics ?? 0, inactive: (d.totalClinics ?? 0) - (d.activeClinics ?? 0) });
+}
       } catch (e) {
         console.error(e);
       } finally {

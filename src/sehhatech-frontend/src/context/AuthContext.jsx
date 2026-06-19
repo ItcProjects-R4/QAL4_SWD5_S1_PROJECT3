@@ -10,17 +10,17 @@ export function AuthProvider({ children }) {
     
 
     useEffect(() => {
-    const token = localStorage.getItem("token");
-    const fullName = localStorage.getItem("fullName");
-    const email = localStorage.getItem("email");
-    const role = localStorage.getItem("role");
-    const tenantId = localStorage.getItem("tenantId");
+  const token = localStorage.getItem("token");
+  const fullName = localStorage.getItem("fullName");
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+  const tenantId = localStorage.getItem("tenantId");
 
-    if (token) {
-        setUser({ token, fullName, email, role, tenantId });
-    }
+  if (token) {
+    setUser({ token, fullName, email, role, tenantId });
+  }
 
-    setLoading(false);
+  setLoading(false);
 }, []);
 
     // تسجيل الدخول: نحفظ البيانات في localStorage أو sessionStorage
