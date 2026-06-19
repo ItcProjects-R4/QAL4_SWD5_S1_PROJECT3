@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { superadmin } from "../../api/superadmin";
+import DateRangePicker from "../../components/DateRangePicker";
 
 // ── حساب النسب من الداتا ──────────────────────────────────────────────────────
 function calcGrowthPct(growthChart) {
@@ -168,24 +169,60 @@ function RecentClinicsTable({ clinics = [], loading }) {
   );
 }
 
+// ── Date helpers ───────────────────────────────────────────────────────────────
+function formatRangeLabel(start, end) {
+  if (!start || !end) return "Last 30 Days";
+  const opts = { month: "short", day: "numeric" };
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const startStr = start.toLocaleDateString("en-US", opts);
+  const endStr = end.toLocaleDateString("en-US", { ...opts, year: sameYear ? undefined : "numeric" });
+  return `${startStr} - ${endStr}`;
+}
+
+function toISO(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function SuperAdminDashboard() {
-  const [data, setData]     = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  useEffect(() => {
-    superadmin.getDashboard()
+  const [dateRange, setDateRange] = useState(() => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 29);
+    return { start, end };
+  });
+
+  const fetchDashboard = useCallback((start, end) => {
+    setLoading(true);
+    const params = start && end ? { startDate: toISO(start), endDate: toISO(end) } : {};
+    superadmin.getDashboard(params)
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    fetchDashboard(dateRange.start, dateRange.end);
+  }, [dateRange, fetchDashboard]);
+
+  function handleApplyRange(start, end) {
+    setDateRange({ start, end });
+    setPickerOpen(false);
+  }
+
   // ── parse appointment status ───────────────────────────────────────────────
   const apptStatus = {};
   (data?.appointmentStatusDistribution ?? []).forEach(({ status, count }) => {
-if (status && typeof status === "string") {
-  apptStatus[status.toLowerCase()] = count;
-}
+    if (status && typeof status === "string") {
+      apptStatus[status.toLowerCase()] = count;
+    }
   });
 
   // ── growth chart data (sorted) ─────────────────────────────────────────────
@@ -208,9 +245,25 @@ if (status && typeof status === "string") {
           </h2>
           <p className="text-sm text-slate-500 mt-1">Real-time operational status across the clinic network.</p>
         </div>
-        <button className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all">
-          <span className="material-symbols-outlined text-lg">calendar_today</span> Last 30 Days
-        </button>
+
+        <div className="relative">
+          <button
+            onClick={() => setPickerOpen((v) => !v)}
+            className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all"
+          >
+            <span className="material-symbols-outlined text-lg">calendar_today</span>
+            {formatRangeLabel(dateRange.start, dateRange.end)}
+          </button>
+
+          {pickerOpen && (
+            <DateRangePicker
+              startDate={dateRange.start}
+              endDate={dateRange.end}
+              onApply={handleApplyRange}
+              onClose={() => setPickerOpen(false)}
+            />
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
