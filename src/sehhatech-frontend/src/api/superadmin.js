@@ -1,6 +1,6 @@
 import api from './axios';
 
-export const superAdminApi = {
+export const superadmin = {
   getDashboard: () => api.get('/api/SuperAdmin/dashboard').then(r => r.data.data ?? r.data),
   getTenants: () => api.get('/api/SuperAdmin/tenants').then(r => r.data.data ?? r.data),
   getTenant: (id) => api.get(`/api/SuperAdmin/tenants/${id}`).then(r => r.data.data ?? r.data),
