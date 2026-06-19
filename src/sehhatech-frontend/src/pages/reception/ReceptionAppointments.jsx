@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { receptionApi } from "../../api/receptionApi";
-import ReceptionTopbar from "../../components/reception/ReceptionTopbar";
-import Toast from "../../components/reception/Toast";
+
 import { useToast } from "../../hooks/useToast";
+import ReceptionTopbar from "../../components/ReceptionTopbar";
+import Toast from "../../components/Toast";
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
