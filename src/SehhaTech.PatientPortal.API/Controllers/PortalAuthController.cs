@@ -1,9 +1,7 @@
-using Google.Apis.Auth.OAuth2.Requests;
 using Microsoft.AspNetCore.Mvc;
 using SehhaTech.Core.DTOs.Portal;
 using SehhaTech.Infrastructure.Services.Portal;
 using PortalRefreshRequest = SehhaTech.Core.DTOs.Portal.RefreshTokenRequest;
-
 
 namespace SehhaTech.PatientPortal.API.Controllers;
 

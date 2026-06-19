@@ -15,35 +15,40 @@ public class ClinicSearchService
 
     // GET /api/portal/clinics
     public async Task<List<ClinicSummaryResponse>> SearchClinicsAsync(
-        string? name, string? specialization, string? city)
+        string? name, string? specialty, string? city)   // ✅ اسم الباراميتر زي الـ controller (specialty)
     {
-        var query = _db.Tenants
-            .Where(t => t.IsActive);
+        var query = _db.Tenants.AsQueryable();   // ✅ شلت .Where(t => t.IsActive) من هنا
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(t => t.Name.Contains(name));
 
-        if (!string.IsNullOrWhiteSpace(specialization))
-            query = query.Where(t => t.Specialization.Contains(specialization));
+        if (!string.IsNullOrWhiteSpace(specialty))
+            query = query.Where(t => t.Specialization.Contains(specialty));
 
         if (!string.IsNullOrWhiteSpace(city))
             query = query.Where(t => t.Address.Contains(city));
 
-        return await query.Select(t => new ClinicSummaryResponse
-        {
-            Id = t.Id,
-            Name = t.Name,
-            Specialization = t.Specialization,
-            Phone = t.Phone,
-            Address = t.Address
-        }).ToListAsync();
+        return await query
+            .OrderByDescending(t => t.IsActive)   // ✅ العيادات الـ Active تظهر فوق
+            .ThenBy(t => t.Name)
+            .Select(t => new ClinicSummaryResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Specialization = t.Specialization,
+                Phone = t.Phone,
+                Address = t.Address,
+                IsActive = t.IsActive            // ✅ كان مش موجود! ده سبب ظهور "Inactive" في كل الكروت
+            }).ToListAsync();
     }
 
     // GET /api/portal/clinics/{id}
     public async Task<ClinicProfileResponse?> GetClinicProfileAsync(int tenantId)
     {
+        // ✅ شلت && t.IsActive من هنا كمان - عشان لو حد ضغط على عيادة inactive
+        // الـ controller يقدر يرجع 404 برسالة واضحة بدل ما الـ service يكدب إنها "غير موجودة"
         var tenant = await _db.Tenants
-            .Where(t => t.Id == tenantId && t.IsActive)
+            .Where(t => t.Id == tenantId)
             .FirstOrDefaultAsync();
 
         if (tenant == null) return null;
@@ -67,6 +72,7 @@ public class ClinicSearchService
             Phone = tenant.Phone,
             Address = tenant.Address,
             Email = tenant.Email,
+            IsActive = tenant.IsActive,          // ✅ كان مش موجود برضو هنا
             Doctors = doctors
         };
     }

@@ -20,19 +20,24 @@ public class SlotController : ControllerBase
     [HttpGet("doctors/{doctorId}/slots")]
     public async Task<IActionResult> GetAvailableSlots(
         int doctorId,
-        [FromQuery] int tenantId,
-        [FromQuery] DateTime date)
+        [FromQuery] int tenantId = 0,               // ✅ optional - الـ frontend مش بيبعته
+        [FromQuery] DateTime? date = null)           // ✅ optional - لو مش موجود يرجع slots المستقبل
     {
-        if (date.Date < DateTime.UtcNow.Date)
+        // ✅ لو مفيش date ابدأ من النهارده
+        var targetDate = date?.Date ?? DateTime.UtcNow.Date;
+
+        if (targetDate < DateTime.UtcNow.Date)
             return BadRequest(new { message = "Cannot view slots for past dates." });
 
-        var slots = await _slotService.GetAvailableSlotsAsync(doctorId, tenantId, date);
+        var slots = await _slotService.GetAvailableSlotsAsync(doctorId, tenantId, targetDate);
         return Ok(slots);
     }
 
+    // ─── Admin Endpoints ─────────────────────────────────────────────────────
+
     // GET /api/portal/admin/slots/{doctorId}
     [HttpGet("admin/slots/{doctorId}")]
-    [AllowAnonymous]
+    [Authorize]                                      // ✅ كان [AllowAnonymous]
     public async Task<IActionResult> GetDoctorSlotTemplates(
         int doctorId,
         [FromQuery] int tenantId)
@@ -43,7 +48,7 @@ public class SlotController : ControllerBase
 
     // POST /api/portal/admin/slots
     [HttpPost("admin/slots")]
-    [AllowAnonymous]
+    [Authorize]                                      // ✅ كان [AllowAnonymous]
     public async Task<IActionResult> CreateSlotTemplate(
         [FromBody] CreateSlotTemplateRequest request,
         [FromQuery] int tenantId)
@@ -55,7 +60,7 @@ public class SlotController : ControllerBase
 
     // DELETE /api/portal/admin/slots/{id}
     [HttpDelete("admin/slots/{id}")]
-    [AllowAnonymous]
+    [Authorize]                                      // ✅ كان [AllowAnonymous]
     public async Task<IActionResult> DeleteSlotTemplate(
         int id,
         [FromQuery] int tenantId)
