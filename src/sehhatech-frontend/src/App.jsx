@@ -28,6 +28,13 @@ import AdminDoctors from "./pages/admin/AdminDoctors";
 import AdminReceptionists from "./pages/admin/AdminReceptionists";
 import AdminSettings from "./pages/admin/AdminSettings";
 
+// Reception
+import ReceptionLayout from "./pages/reception/ReceptionLayout";
+import ReceptionDashboard from "./pages/reception/ReceptionDashboard";
+import ReceptionPatients from "./pages/reception/ReceptionPatients";
+import ReceptionAppointments from "./pages/reception/ReceptionAppointments";
+import ReceptionPayments from "./pages/reception/ReceptionPayments";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 
@@ -61,6 +68,21 @@ function App() {
                 <Route path="doctors" element={<AdminDoctors />} />
                 <Route path="receptionists" element={<AdminReceptionists />} />
                 <Route path="settings" element={<AdminSettings />} />
+            </Route>
+
+            {/* Reception */}
+            <Route
+                path="/reception"
+                element={
+                    <ProtectedRoute allowedRoles={["Reception"]}>
+                        <ReceptionLayout />
+                    </ProtectedRoute>
+                }
+            >
+                <Route path="dashboard" element={<ReceptionDashboard />} />
+                <Route path="patients" element={<ReceptionPatients />} />
+                <Route path="appointments" element={<ReceptionAppointments />} />
+                <Route path="payments" element={<ReceptionPayments />} />
             </Route>
 
             {/* Super Admin */}
