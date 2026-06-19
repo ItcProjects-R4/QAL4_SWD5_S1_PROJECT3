@@ -7,6 +7,7 @@ public class ClinicSummaryResponse
     public string Specialization { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
 }
 
 public class ClinicProfileResponse
@@ -17,6 +18,7 @@ public class ClinicProfileResponse
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
     public List<DoctorSummaryResponse> Doctors { get; set; } = new();
 }
 

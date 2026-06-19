@@ -28,12 +28,10 @@ public class PortalAuthService
     public async Task<(bool Success, string Message)> RegisterAsync(
         RegisterPortalUserRequest request, string ipAddress)
     {
-        // تحقق إن الرقم مش موجود
         var exists = await _db.PortalUsers.AnyAsync(u => u.Phone == request.Phone);
         if (exists)
             return (false, "Phone number already registered.");
 
-        // اعمل الـ PortalUser
         var user = new PortalUser
         {
             FullName = request.FullName,
@@ -48,9 +46,8 @@ public class PortalAuthService
         _db.PortalUsers.Add(user);
         await _db.SaveChangesAsync();
 
-        // ابعت OTP
         var otpRecord = await _otpService.CreateOtpAsync(request.Phone, OTPPurpose.Register, ipAddress);
-        await _smsService.SendOtpAsync(request.Phone, otpRecord.CodeHash); // CodeHash هنا بيحتوي على الـ plain code مؤقتاً
+        await _smsService.SendOtpAsync(request.Phone, otpRecord.CodeHash);
 
         return (true, "Registration successful. OTP sent to your phone.");
     }
@@ -66,17 +63,29 @@ public class PortalAuthService
         if (user == null)
             return (false, "User not found.", null);
 
-        // فعّل الـ phone verification
+        // ✅ الـ JWT يتطلع بس لو الـ purpose هو Register (أو أي حاجة غير ResetPassword)
+        // عشان ResetPassword OTP لازم يودي المستخدم لخطوة "set new password"
+        // مش يعمل login تلقائي - ده كان security hole
         if (request.Purpose == OTPPurpose.Register)
         {
             user.IsPhoneVerified = true;
             user.Level = VerificationLevel.PhoneVerified;
             await _db.SaveChangesAsync();
+
+            var tokenPair = _jwtService.GenerateTokenPair(user);
+            return (true, "OTP verified successfully.", tokenPair);
         }
 
-        // اعمل JWT
-        var tokenPair = _jwtService.GenerateTokenPair(user);
-        return (true, "OTP verified successfully.", tokenPair);
+        if (request.Purpose == OTPPurpose.ResetPassword)
+        {
+            // ✅ منرجعش JWT هنا - بس نأكد إن الـ OTP صح
+            // الفرونت المفروض يودي المستخدم لصفحة "set new password"
+            // مع الاحتفاظ بالـ phone+code عشان يبعتهم لـ /resetpassword/confirm
+            return (true, "OTP verified. You may now reset your password.", null);
+        }
+
+        // أي purpose تاني (مش متوقع حالياً) - نتصرف بأمان من غير JWT
+        return (true, "OTP verified successfully.", null);
     }
 
     public async Task<(bool Success, string Message, PortalAuthResponse? Data)> LoginAsync(
@@ -87,11 +96,9 @@ public class PortalAuthService
         if (user == null)
             return (false, "Invalid phone or password.", null);
 
-        // تحقق من الـ lockout
         if (user.IsBlocked && user.BlockedUntil > DateTime.UtcNow)
             return (false, $"Account locked. Try again after {user.BlockedUntil:HH:mm} UTC.", null);
 
-        // لو الـ block انتهى، reset
         if (user.IsBlocked && user.BlockedUntil <= DateTime.UtcNow)
         {
             user.IsBlocked = false;
@@ -113,7 +120,6 @@ public class PortalAuthService
         if (!user.IsPhoneVerified)
             return (false, "Phone number not verified. Please verify your OTP first.", null);
 
-        // reset failed attempts on success
         user.FailedLoginAttempts = 0;
         user.IsBlocked = false;
         await _db.SaveChangesAsync();
@@ -143,11 +149,9 @@ public class PortalAuthService
         if (stored == null || stored.ExpiresAt < DateTime.UtcNow)
             return (false, "Invalid or expired refresh token.", null);
 
-        // Burn the old token
         stored.IsRevoked = true;
         await _db.SaveChangesAsync();
 
-        // Generate new pair
         var tokenPair = _jwtService.GenerateTokenPair(stored.PortalUser);
         return (true, "Token refreshed successfully.", tokenPair);
     }
