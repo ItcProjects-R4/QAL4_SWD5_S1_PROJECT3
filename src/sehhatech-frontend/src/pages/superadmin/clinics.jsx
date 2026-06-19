@@ -13,13 +13,12 @@ async function apiFetch(path, options = {}) {
 }
 
 // ── Status badge ──────────────────────────────────────────────────────────────
-function StatusBadge({ status }) {
-  const isActive = status === "active";
+function StatusBadge({ isActive }) {
   return (
     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
       isActive ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
     }`}>
-      {status ?? "—"}
+      {isActive ? "Active" : "Inactive"}
     </span>
   );
 }
@@ -206,18 +205,18 @@ export default function Clinics() {
                   </td>
                   <td className="px-6 py-4 text-slate-500 text-sm">{c.phone ?? "—"}</td>
                   <td className="px-6 py-4 text-slate-500 text-sm">{c.email ?? "—"}</td>
-                  <td className="px-6 py-4"><StatusBadge status={c.status} /></td>
+                  <td className="px-6 py-4"><StatusBadge isActive={c.isActive} /></td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => toggleStatus(c)}
-                        title={c.status === "active" ? "Deactivate" : "Activate"}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">
-                          {c.status === "active" ? "pause_circle" : "play_circle"}
-                        </span>
-                      </button>
+                     <button
+  onClick={() => toggleStatus(c)}
+  title={c.isActive ? "Deactivate" : "Activate"}
+  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+>
+  <span className="material-symbols-outlined text-sm">
+    {c.isActive ? "pause_circle" : "play_circle"}
+  </span>
+</button>
                       <button
                         onClick={() => setDeleteTarget(c)}
                         title="Delete"

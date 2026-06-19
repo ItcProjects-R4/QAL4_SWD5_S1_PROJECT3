@@ -1,7 +1,9 @@
 import api from './axios';
 
 export const superadmin = {
-  getDashboard: () => api.get('/api/SuperAdmin/dashboard').then(r => r.data.data ?? r.data),
+  // params: { startDate?: 'YYYY-MM-DD', endDate?: 'YYYY-MM-DD' }
+  getDashboard: (params = {}) =>
+    api.get('/api/SuperAdmin/dashboard', { params }).then(r => r.data.data ?? r.data),
   getTenants: () => api.get('/api/SuperAdmin/tenants').then(r => r.data.data ?? r.data),
   getTenant: (id) => api.get(`/api/SuperAdmin/tenants/${id}`).then(r => r.data.data ?? r.data),
   toggleTenant: (id) => api.put(`/api/SuperAdmin/tenants/${id}/toggle`).then(r => r.data.data ?? r.data),
