@@ -1,14 +1,49 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import PublicHeader from "../../components/public/PublicHeader";
 import PublicFooter from "../../components/public/PublicFooter";
 
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used across Landing, Register, Payment, etc.
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.08, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
+
 export default function Privacy() {
+    const pageRef = useScrollReveal();
     return (
-        <div className="policy-page">
+        <div className="policy-page" ref={pageRef}>
             <PublicHeader />
 
             <main className="policy-main">
-                <header className="policy-header policy-header--bordered">
+                <header className="policy-header policy-header--bordered" data-reveal="fade-up">
                     <div className="policy-badge policy-badge--accent">
                         Legal Documentation
                     </div>
@@ -20,7 +55,7 @@ export default function Privacy() {
                 </header>
 
                 <div className="policy-sections">
-                    <article id="introduction">
+                    <article id="introduction" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__bullet" />
                             Introduction
@@ -39,7 +74,7 @@ export default function Privacy() {
                         </div>
                     </article>
 
-                    <article id="data-collection">
+                    <article id="data-collection" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__bullet" />
                             Data We Collect
@@ -85,7 +120,7 @@ export default function Privacy() {
                         </div>
                     </article>
 
-                    <article id="usage">
+                    <article id="usage" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__bullet" />
                             How We Use Your Data
@@ -118,7 +153,7 @@ export default function Privacy() {
                         </div>
                     </article>
 
-                    <article id="third-party">
+                    <article id="third-party" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__bullet" />
                             Third-Party Services
@@ -163,7 +198,7 @@ export default function Privacy() {
                         </div>
                     </article>
 
-                    <article className="policy-highlight-box">
+                    <article className="policy-highlight-box" data-reveal="fade-up">
                         <h2 className="policy-highlight-box__title">
                             Data Isolation &amp; Security
                         </h2>

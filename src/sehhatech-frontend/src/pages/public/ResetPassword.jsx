@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 
@@ -9,6 +9,39 @@ const STRENGTH_CONFIG = [
     { width: "75%", color: "var(--color-secondary)", text: "Good" },
     { width: "100%", color: "var(--color-primary-container)", text: "Strong" },
 ];
+
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used on Landing.jsx, Register.jsx, Payment.jsx.
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
 
 function CheckCircleIcon({ active }) {
     return active ? (
@@ -58,6 +91,7 @@ export default function ResetPassword() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email");
+    const pageRef = useScrollReveal();
 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -122,7 +156,7 @@ export default function ResetPassword() {
     };
 
     return (
-        <div className="reset-page">
+        <div className="reset-page" ref={pageRef}>
             {toast && (
                 <div className={`toast toast--${toast.type}`}>{toast.message}</div>
             )}
@@ -151,7 +185,7 @@ export default function ResetPassword() {
             </header>
 
             <main className="reset-main">
-                <div className="reset-card">
+                <div className="reset-card" data-reveal="fade-up">
                     <div className="reset-card__head">
                         <div className="reset-card__icon">
                             <svg

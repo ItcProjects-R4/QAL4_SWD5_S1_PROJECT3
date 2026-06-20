@@ -1,13 +1,48 @@
+import { useEffect, useRef } from "react";
 import PublicHeader from "../../components/public/PublicHeader";
 import PublicFooter from "../../components/public/PublicFooter";
 
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used across Landing, Register, Payment, etc.
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.08, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
+
 export default function Terms() {
+    const pageRef = useScrollReveal();
     return (
-        <div className="policy-page">
+        <div className="policy-page" ref={pageRef}>
             <PublicHeader />
 
             <main className="policy-main">
-                <header className="policy-header">
+                <header className="policy-header" data-reveal="fade-up">
                     <div className="policy-badge">Legal Documentation</div>
                     <h1 className="policy-title">Terms of Service</h1>
                     <p className="policy-subtitle">
@@ -17,7 +52,7 @@ export default function Terms() {
                 </header>
 
                 <article className="policy-sections">
-                    <section className="policy-section" id="introduction">
+                    <section className="policy-section" id="introduction" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__num">01</span> Agreement to
                             Terms
@@ -37,7 +72,7 @@ export default function Terms() {
                         </div>
                     </section>
 
-                    <section className="policy-section" id="account-usage">
+                    <section className="policy-section" id="account-usage" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__num">02</span> Account Usage
                             &amp; Security
@@ -62,7 +97,7 @@ export default function Terms() {
                         </div>
                     </section>
 
-                    <section className="policy-section" id="subscriptions">
+                    <section className="policy-section" id="subscriptions" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__num">03</span> Subscriptions
                             &amp; Billing
@@ -137,7 +172,7 @@ export default function Terms() {
                         </div>
                     </section>
 
-                    <section className="policy-section" id="liability">
+                    <section className="policy-section" id="liability" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__num">04</span> Liability
                             &amp; Medical Disclaimer
@@ -189,7 +224,7 @@ export default function Terms() {
                         </div>
                     </section>
 
-                    <section className="policy-section" id="data">
+                    <section className="policy-section" id="data" data-reveal="fade-up">
                         <h2 className="policy-section__title">
                             <span className="policy-section__num">05</span> Data Ownership
                             &amp; Privacy

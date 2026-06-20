@@ -316,7 +316,7 @@ export default function ChatbotWidget() {
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
-                            className={`chatbot-message chatbot-message--${msg.role}`}
+                            className={`chatbot-message chatbot-message--${msg.role} chatbot-message--in`}
                         >
                             {msg.role === "bot" && (
                                 <div className="chatbot-message__avatar">

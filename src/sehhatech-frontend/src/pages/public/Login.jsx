@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
@@ -13,6 +13,14 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState(null); // { message, type }
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // Trigger entrance animation on next frame so the initial
+        // (hidden) state actually paints first.
+        const id = requestAnimationFrame(() => setMounted(true));
+        return () => cancelAnimationFrame(id);
+    }, []);
 
     function showToast(message, type = "success") {
         setToast({ message, type });
@@ -76,11 +84,19 @@ export default function Login() {
 
     return (
         <div className="bg-surface font-body text-on-surface min-h-screen flex flex-col relative">
+            <style>{`
+                @keyframes toast-in {
+                    from { opacity: 0; transform: translate(-50%, 12px); }
+                    to { opacity: 1; transform: translate(-50%, 0); }
+                }
+            `}</style>
+
             {/* Toast */}
             {toast && (
                 <div
-                    className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-7 py-3.5 rounded-lg font-semibold text-sm z-[9999] shadow-lg text-white ${toast.type === "error" ? "bg-error" : "bg-[#1a365d]"
+                    className={`fixed bottom-8 left-1/2 px-7 py-3.5 rounded-lg font-semibold text-sm z-[9999] shadow-lg text-white animate-[toast-in_0.3s_ease-out] ${toast.type === "error" ? "bg-error" : "bg-[#1a365d]"
                         }`}
+                    style={{ animationFillMode: "both" }}
                 >
                     {toast.message}
                 </div>
@@ -109,8 +125,11 @@ export default function Login() {
                     </div>
 
                     {/* Branding */}
-                    <div className="text-center mb-10">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary text-white mb-6 shadow-xl">
+                    <div
+                        className={`text-center mb-10 transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+                            }`}
+                    >
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary text-white mb-6 shadow-xl transition-transform duration-300 hover:scale-105 hover:rotate-3">
                             <span className="material-symbols-outlined text-4xl">medical_services</span>
                         </div>
                         <h1 className="font-display font-extrabold text-3xl text-primary tracking-tight">
@@ -122,19 +141,22 @@ export default function Login() {
                     </div>
 
                     {/* Login Card */}
-                    <div className="bg-white/85 backdrop-blur-md border-none rounded-xl shadow-2xl overflow-hidden p-8 md:p-10">
+                    <div
+                        className={`bg-white/85 backdrop-blur-md border-none rounded-xl shadow-2xl overflow-hidden p-8 md:p-10 transition-all duration-700 ease-out delay-150 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                            }`}
+                    >
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             {/* Email */}
-                            <div className="space-y-2">
+                            <div className="space-y-2 group">
                                 <label className="block font-label text-xs font-bold uppercase tracking-widest text-primary-container">
                                     Email Address
                                 </label>
                                 <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline transition-all duration-200 group-focus-within:text-primary group-focus-within:scale-110">
                                         mail
                                     </span>
                                     <input
-                                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest text-on-surface rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all border-none placeholder:text-outline/60"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest text-on-surface rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all duration-200 border-none placeholder:text-outline/60 focus:-translate-y-0.5"
                                         placeholder="dr.ahmed@yourclinic.com"
                                         type="email"
                                         value={email}
@@ -144,7 +166,7 @@ export default function Login() {
                             </div>
 
                             {/* Password */}
-                            <div className="space-y-2">
+                            <div className="space-y-2 group">
                                 <div className="flex justify-between items-center">
                                     <label className="block font-label text-xs font-bold uppercase tracking-widest text-primary-container">
                                         Password
@@ -157,11 +179,11 @@ export default function Login() {
                                     </Link>
                                 </div>
                                 <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline transition-all duration-200 group-focus-within:text-primary group-focus-within:scale-110">
                                         lock
                                     </span>
                                     <input
-                                        className="w-full pl-12 pr-12 py-3.5 bg-surface-container-highest text-on-surface rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all border-none placeholder:text-outline/60"
+                                        className="w-full pl-12 pr-12 py-3.5 bg-surface-container-highest text-on-surface rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all duration-200 border-none placeholder:text-outline/60 focus:-translate-y-0.5"
                                         placeholder="••••••••••••"
                                         type={showPassword ? "text" : "password"}
                                         value={password}
@@ -170,7 +192,7 @@ export default function Login() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((s) => !s)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary hover:scale-110 transition-all duration-200"
                                     >
                                         <span className="material-symbols-outlined">
                                             {showPassword ? "visibility_off" : "visibility"}
@@ -182,7 +204,7 @@ export default function Login() {
                             {/* Remember Me */}
                             <div className="flex items-center">
                                 <input
-                                    className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer"
+                                    className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer transition-transform duration-150 active:scale-90"
                                     type="checkbox"
                                     id="remember"
                                     checked={remember}
@@ -190,7 +212,7 @@ export default function Login() {
                                 />
                                 <label
                                     htmlFor="remember"
-                                    className="ml-2 text-sm font-medium text-on-surface-variant cursor-pointer select-none"
+                                    className="ml-2 text-sm font-medium text-on-surface-variant cursor-pointer select-none hover:text-primary transition-colors duration-200"
                                 >
                                     Stay logged in on this device
                                 </label>
@@ -200,18 +222,24 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-gradient-to-br from-[#002045] to-[#1a365d] text-on-primary font-headline font-bold py-4 rounded-lg shadow-lg hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70"
+                                className="w-full bg-gradient-to-br from-[#002045] to-[#1a365d] text-on-primary font-headline font-bold py-4 rounded-lg shadow-lg hover:shadow-xl hover:shadow-primary/25 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0"
                             >
                                 <span>{loading ? "Please wait..." : "Login"}</span>
-                                <span className="material-symbols-outlined text-xl">
-                                    {loading ? "hourglass_empty" : "login"}
+                                <span
+                                    className={`material-symbols-outlined text-xl ${loading ? "animate-spin" : ""
+                                        }`}
+                                >
+                                    {loading ? "progress_activity" : "login"}
                                 </span>
                             </button>
                         </form>
                     </div>
 
                     {/* Footer Meta */}
-                    <div className="mt-8 flex flex-col items-center gap-6">
+                    <div
+                        className={`mt-8 flex flex-col items-center gap-6 transition-all duration-700 ease-out delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                            }`}
+                    >
                         <a
                             className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-80 transition-opacity"
                             href="#"
@@ -220,13 +248,13 @@ export default function Login() {
                             Need help?
                         </a>
                         <div className="flex items-center gap-6 opacity-60">
-                            <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 transition-all cursor-default">
+                            <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">verified_user</span>
                                 <span className="font-label text-[10px] font-extrabold uppercase tracking-widest">
                                     HIPAA Compliant
                                 </span>
                             </div>
-                            <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 transition-all cursor-default">
+                            <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">lock_person</span>
                                 <span className="font-label text-[10px] font-extrabold uppercase tracking-widest">
                                     SSL Secured

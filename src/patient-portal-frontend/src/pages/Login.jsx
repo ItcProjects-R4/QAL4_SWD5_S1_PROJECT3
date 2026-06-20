@@ -115,7 +115,19 @@ export default function Login() {
             localStorage.setItem('patientPhone', p)
             navigate('/clinics')
         } catch (err) {
-            setGeneral(err.response?.data?.message || 'Login failed. Please try again.')
+            const msg = err.response?.data?.message || 'Login failed. Please try again.'
+            setGeneral(msg)
+
+            // ✅ لو الرقم مش متحقق منه، روحه تلقائياً لصفحة OTP بعد ما نبعت كود جديد
+            if (msg.toLowerCase().includes('not verified')) {
+                try {
+                    await api.post('/api/portal/auth/resend-otp', { phone, purpose: 0 })
+                } catch {
+                    // تجاهل فشل الـ resend هنا - صفحة OTP نفسها فيها زرار resend تاني لو احتاج
+                }
+                sessionStorage.setItem('registerPhone', phone)
+                navigate('/verify-otp')
+            }
         } finally {
             setLoading(false)
         }
