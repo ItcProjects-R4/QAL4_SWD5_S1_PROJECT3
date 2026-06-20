@@ -38,7 +38,7 @@ export default function Login() {
             case "Doctor":
                 navigate("/doctor/dashboard");
                 break;
-            case "Receptionist":
+            case "Reception":
                 navigate("/reception/dashboard");
                 break;
             default:
