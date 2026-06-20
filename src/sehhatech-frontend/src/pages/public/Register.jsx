@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 
@@ -17,6 +17,40 @@ const STRENGTH_CONFIG = [
     { width: "75%", color: "var(--color-secondary)", text: "Good" },
     { width: "100%", color: "var(--color-primary)", text: "Strong" },
 ];
+
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used on Landing.jsx — pure CSS handles the
+ * actual transition (see public-pages.css).
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
 
 function CheckCircleIcon({ active }) {
     return active ? (
@@ -68,6 +102,7 @@ function EyeIcon({ visible }) {
 
 export default function Register() {
     const navigate = useNavigate();
+    const pageRef = useScrollReveal();
 
     const [form, setForm] = useState({
         clinicName: "",
@@ -101,6 +136,23 @@ export default function Register() {
         const score = Object.values(checks).filter(Boolean).length;
         return { checks, ...STRENGTH_CONFIG[score] };
     }, [form.password]);
+
+    const isFormReady = useMemo(() => {
+        const requiredFilled = [
+            "clinicName",
+            "clinicAddress",
+            "clinicPhone",
+            "fullName",
+            "email",
+            "password",
+            "confirmPassword",
+        ].every((key) => form[key].trim().length > 0);
+        return (
+            requiredFilled &&
+            form.password === form.confirmPassword &&
+            strength.checks.length
+        );
+    }, [form, strength]);
 
     const showToast = (message, type = "success") => {
         setToast({ message, type });
@@ -164,7 +216,7 @@ export default function Register() {
     };
 
     return (
-        <div className="register-page">
+        <div className="register-page" ref={pageRef}>
             {toast && (
                 <div className={`toast toast--${toast.type}`}>{toast.message}</div>
             )}
@@ -195,14 +247,25 @@ export default function Register() {
             <main className="register-main">
                 <div className="register-container">
                     {/* Step Indicator */}
-                    <div className="register-steps">
+                    <div className="register-steps" data-reveal="fade-up">
                         <div className="register-steps__circle register-steps__circle--active">
                             1
                         </div>
                         <div className="register-steps__bar">
-                            <div className="register-steps__bar-fill" />
+                            <div
+                                className="register-steps__bar-fill"
+                                style={{ width: isFormReady ? "100%" : "0%" }}
+                            />
                         </div>
-                        <div className="register-steps__circle">2</div>
+                        <div
+                            className={
+                                isFormReady
+                                    ? "register-steps__circle register-steps__circle--done"
+                                    : "register-steps__circle"
+                            }
+                        >
+                            2
+                        </div>
                     </div>
                     <h1 className="register-title">Create Your SehhaTech Workspace</h1>
                     <p className="register-subtitle">
@@ -215,7 +278,10 @@ export default function Register() {
                             onSubmit={(e) => e.preventDefault()}
                         >
                             {/* Clinic Information */}
-                            <section className="register-section">
+                            <section
+                                className="register-section"
+                                data-reveal="fade-up"
+                            >
                                 <div className="register-section__header">
                                     <svg
                                         className="icon icon-sm register-section__icon"
@@ -277,7 +343,11 @@ export default function Register() {
                             </section>
 
                             {/* Administrator Account */}
-                            <section className="register-section register-section--bordered">
+                            <section
+                                className="register-section register-section--bordered"
+                                data-reveal="fade-up"
+                                style={{ "--reveal-delay": "120ms" }}
+                            >
                                 <div className="register-section__header">
                                     <svg
                                         className="icon icon-sm register-section__icon"
@@ -420,7 +490,11 @@ export default function Register() {
                             </section>
 
                             {/* Submit */}
-                            <div className="register-submit">
+                            <div
+                                className="register-submit"
+                                data-reveal="fade-up"
+                                style={{ "--reveal-delay": "220ms" }}
+                            >
                                 <button
                                     type="button"
                                     className="register-submit__btn"
@@ -468,7 +542,11 @@ export default function Register() {
                     </div>
 
                     {/* Trust Badges */}
-                    <div className="register-trust">
+                    <div
+                        className="register-trust"
+                        data-reveal="fade-up"
+                        style={{ "--reveal-delay": "150ms" }}
+                    >
                         <div className="register-trust__item">
                             <svg
                                 className="icon icon-sm"

@@ -47,7 +47,11 @@ public class PortalAuthService
         await _db.SaveChangesAsync();
 
         var otpRecord = await _otpService.CreateOtpAsync(request.Phone, OTPPurpose.Register, ipAddress);
-        await _smsService.SendOtpAsync(request.Phone, otpRecord.CodeHash);
+        var smsSent = await _smsService.SendOtpAsync(request.Phone, otpRecord.CodeHash);
+
+        // ✅ لو الإرسال فشل، نقول للمستخدم بصراحة بدل ما نكذب إن الرسالة راحت
+        if (!smsSent)
+            return (true, "Account created, but we couldn't send the OTP SMS right now. Please try Resend OTP.");
 
         return (true, "Registration successful. OTP sent to your phone.");
     }

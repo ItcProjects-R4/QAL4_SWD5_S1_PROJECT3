@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 
 function Modal({ open, onClose, title, children }) {
@@ -19,6 +20,7 @@ function Modal({ open, onClose, title, children }) {
 }
 
 export default function AdminDoctors() {
+    const navigate = useNavigate();
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [addOpen, setAddOpen] = useState(false);
@@ -117,10 +119,11 @@ export default function AdminDoctors() {
                         ) : (
                             doctors.map((d) => {
                                 const isActive = d.isActive ?? d.IsActive;
+                                const id = d.id || d.Id;
                                 const name = d.fullName || d.FullName || '?';
                                 const photo = d.photoUrl || d.PhotoUrl;
                                 return (
-                                    <tr key={d.id || d.Id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-[#002045] flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
@@ -142,15 +145,23 @@ export default function AdminDoctors() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2">
+                                                {/* ✅ زرار جديد - يودي لصفحة جدول مواعيد الدكتور ده بالتحديد */}
                                                 <button
-                                                    onClick={() => toggleDoctor(d.id || d.Id)}
+                                                    onClick={() => navigate(`/admin/doctors/${id}/schedule`)}
+                                                    className="p-2 hover:bg-blue-50 hover:text-[#002045] rounded-lg text-slate-400 transition-colors"
+                                                    title="Manage Schedule"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">calendar_month</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => toggleDoctor(id)}
                                                     className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
                                                     title={isActive ? 'Deactivate' : 'Activate'}
                                                 >
                                                     <span className="material-symbols-outlined text-lg">{isActive ? 'toggle_on' : 'toggle_off'}</span>
                                                 </button>
                                                 <button
-                                                    onClick={() => setDeleteTarget({ id: d.id || d.Id, name })}
+                                                    onClick={() => setDeleteTarget({ id, name })}
                                                     className="p-2 hover:bg-red-50 hover:text-red-500 rounded-lg text-slate-400 transition-colors"
                                                 >
                                                     <span className="material-symbols-outlined text-lg">delete</span>

@@ -6,7 +6,7 @@ export default function PublicHeader() {
             <nav className="public-header__inner">
                 <Link to="/" className="public-header__back">
                     <svg
-                        className="icon icon-sm"
+                        className="icon icon-sm public-header__back-icon"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
