@@ -11,6 +11,14 @@ const STATUS_COLORS = {
     NoShow: 'bg-surface-container text-on-surface-variant',
 }
 
+// ✅ يدمج slotDate (تاريخ بس) مع slotTime (وقت بس) في Date واحد صحيح
+// من غير ده، new Date(slotDate) بيفترض نص الليل تلقائياً فأي موعد النهارده يتحسب "فايت" غلط
+function combineDateTime(slotDate, slotTime) {
+    const datePart = slotDate.split('T')[0]                 // "2026-06-20"
+    const timePart = slotTime ? slotTime.substring(0, 8) : '00:00:00' // "15:30:00"
+    return new Date(`${datePart}T${timePart}`)
+}
+
 export default function MyBookings() {
     const navigate = useNavigate()
     const [tab, setTab] = useState('upcoming')
@@ -30,10 +38,16 @@ export default function MyBookings() {
             const all = Array.isArray(res.data) ? res.data : []
             const now = new Date()
             const filtered = all.filter(b => {
-                const d = new Date(b.slotDate)
+                const appointmentDateTime = combineDateTime(b.slotDate, b.slotTime)
                 return tab === 'upcoming'
-                    ? d >= now && b.status !== 'Cancelled'
-                    : d < now || b.status === 'Cancelled'
+                    ? appointmentDateTime >= now && b.status !== 'Cancelled'
+                    : appointmentDateTime < now || b.status === 'Cancelled'
+            })
+            // ترتيب منطقي: upcoming الأقرب أولاً، past الأحدث أولاً
+            filtered.sort((a, b2) => {
+                const da = combineDateTime(a.slotDate, a.slotTime)
+                const db = combineDateTime(b2.slotDate, b2.slotTime)
+                return tab === 'upcoming' ? da - db : db - da
             })
             setBookings(filtered)
         } catch {
@@ -73,10 +87,10 @@ export default function MyBookings() {
                 </div>
 
                 {/* Tabs */}
-                <div className="border-b border-outline-variant mb-gutter flex gap-6 fade-up" style={{ animationDelay: '.2s' }}>
+                <div className="border-b border-outline-variant mb-6 flex gap-6 fade-up" style={{ animationDelay: '.2s' }}>
                     {['upcoming', 'past'].map(t => (
                         <button key={t} onClick={() => setTab(t)}
-                            className={`pb-base capitalize font-medium text-label-md transition-colors border-b-2 ${tab === t
+                            className={`pb-2 capitalize font-medium text-label-md transition-colors border-b-2 ${tab === t
                                     ? 'text-primary border-primary'
                                     : 'text-on-surface-variant border-transparent hover:text-primary'
                                 }`}>
@@ -106,9 +120,9 @@ export default function MyBookings() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {bookings.map((b, i) => {
-                            const d = new Date(b.slotDate)
+                            const d = combineDateTime(b.slotDate, b.slotTime)
                             const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-                            const timeStr = b.slotTime ? b.slotTime.substring(0, 5) : ''
+                            const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                             const isUpcoming = tab === 'upcoming' && b.status !== 'Cancelled'
                             return (
                                 <div key={b.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col justify-between fade-up"
@@ -128,11 +142,11 @@ export default function MyBookings() {
                                         </div>
                                         <div className="flex items-center gap-2 text-on-surface-variant text-body-md mb-6 bg-surface p-3 rounded-xl border border-outline-variant">
                                             <span className="material-symbols-outlined text-primary">calendar_month</span>
-                                            <span>{dateStr}{timeStr ? ` • ${timeStr}` : ''}</span>
+                                            <span>{dateStr} • {timeStr}</span>
                                         </div>
                                     </div>
                                     {isUpcoming && (
-                                        <div className="flex justify-end border-t border-outline-variant pt-sm mt-auto">
+                                        <div className="flex justify-end border-t border-outline-variant pt-3 mt-auto">
                                             <button onClick={() => cancel(b.id)}
                                                 className="border border-outline text-on-surface-variant font-medium text-label-md px-3 py-2 rounded-lg hover:bg-surface-container hover:text-error transition-colors">
                                                 Cancel Appointment

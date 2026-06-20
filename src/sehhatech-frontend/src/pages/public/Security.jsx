@@ -1,15 +1,50 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import PublicHeader from "../../components/public/PublicHeader";
 import PublicFooter from "../../components/public/PublicFooter";
 
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used across Landing, Register, Payment, etc.
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.08, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
+
 export default function Security() {
+    const pageRef = useScrollReveal();
     return (
-        <div className="policy-page">
+        <div className="policy-page" ref={pageRef}>
             <PublicHeader />
 
             <main className="policy-main">
                 <article className="policy-article">
-                    <div className="policy-article__intro">
+                    <div className="policy-article__intro" data-reveal="fade-up">
                         <div className="policy-badge policy-badge--label">
                             Security Whitepaper
                         </div>
@@ -38,7 +73,7 @@ export default function Security() {
                         function. SuperAdmins operate across the entire platform, while
                         all other roles are confined to their own clinic's data.
                     </p>
-                    <div className="policy-info-box">
+                    <div className="policy-info-box" data-reveal="fade-up">
                         <h4>Access Control Highlights:</h4>
                         <ul className="policy-list policy-list--bullet">
                             <li>
@@ -81,7 +116,7 @@ export default function Security() {
                         SehhaTech enforces HTTPS for all API communication, ensuring no
                         data is transmitted over unencrypted connections.
                     </p>
-                    <ul className="policy-feature-list">
+                    <ul className="policy-feature-list" data-reveal="fade-up">
                         <li>
                             <svg
                                 className="icon icon-sm policy-feature-list__icon"
@@ -145,7 +180,7 @@ export default function Security() {
                         compliant payment gateway. SehhaTech only stores the resulting
                         order ID and subscription status after a successful transaction.
                     </p>
-                    <div className="policy-stat-grid">
+                    <div className="policy-stat-grid" data-reveal="fade-up">
                         <div className="policy-stat policy-stat--dark">
                             <div className="policy-stat__value">0</div>
                             <div className="policy-stat__label">Card Data Stored</div>
@@ -164,7 +199,7 @@ export default function Security() {
                         models — is designed to align with HIPAA administrative and
                         technical safeguard requirements.
                     </p>
-                    <div className="policy-info-box">
+                    <div className="policy-info-box" data-reveal="fade-up">
                         <h4>Compliance Highlights:</h4>
                         <ul className="policy-list policy-list--bullet">
                             <li>Complete data isolation per clinic (Multi-Tenant architecture).</li>
@@ -174,7 +209,7 @@ export default function Security() {
                         </ul>
                     </div>
 
-                    <footer className="policy-article__footer">
+                    <footer className="policy-article__footer" data-reveal="fade-up">
                         <p>
                             Have questions about our security architecture? We're happy to
                             provide more details.
