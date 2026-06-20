@@ -1,9 +1,43 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axios";
 
+/**
+ * Adds `.is-visible` to any element with [data-reveal] once it scrolls
+ * into view. Same pattern used on Landing.jsx and Register.jsx.
+ */
+function useScrollReveal() {
+    const rootRef = useRef(null);
+
+    useEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+
+        const targets = root.querySelectorAll("[data-reveal]");
+        if (!targets.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -5% 0px" }
+        );
+
+        targets.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    return rootRef;
+}
+
 export default function Payment() {
     const navigate = useNavigate();
+    const pageRef = useScrollReveal();
     const [isLoading, setIsLoading] = useState(false);
     const [toast, setToast] = useState(null);
     const [iframeUrl, setIframeUrl] = useState("");
@@ -63,7 +97,7 @@ export default function Payment() {
     };
 
     return (
-        <div className="payment-page">
+        <div className="payment-page" ref={pageRef}>
             {toast && (
                 <div className={`toast toast--${toast.type}`}>{toast.message}</div>
             )}
@@ -122,7 +156,7 @@ export default function Payment() {
             </header>
 
             <main className="payment-main">
-                <div className="payment-steps">
+                <div className="payment-steps" data-reveal="fade-up">
                     <div className="register-steps">
                         <div className="register-steps__circle register-steps__circle--done">
                             <svg
@@ -146,7 +180,11 @@ export default function Payment() {
                 </div>
 
                 <div className="payment-plan-wrap">
-                    <div className="payment-plan">
+                    <div
+                        className="payment-plan"
+                        data-reveal="fade-up"
+                        style={{ "--reveal-delay": "100ms" }}
+                    >
                         <div className="payment-plan__badge">Annual Plan</div>
                         <div className="payment-plan__info">
                             <h3>SehhaTech Clinic</h3>
@@ -266,7 +304,10 @@ export default function Payment() {
 
                 <section className="payment-trust-section">
                     <div className="payment-trust-grid">
-                        <div className="payment-trust-card">
+                        <div
+                            className="payment-trust-card"
+                            data-reveal="fade-up"
+                        >
                             <div className="payment-trust-card__icon payment-trust-card__icon--primary">
                                 <svg
                                     className="icon icon-lg"
@@ -289,7 +330,11 @@ export default function Payment() {
                                 </p>
                             </div>
                         </div>
-                        <div className="payment-trust-card">
+                        <div
+                            className="payment-trust-card"
+                            data-reveal="fade-up"
+                            style={{ "--reveal-delay": "90ms" }}
+                        >
                             <div className="payment-trust-card__icon payment-trust-card__icon--secondary">
                                 <svg
                                     className="icon icon-lg"
@@ -314,7 +359,11 @@ export default function Payment() {
                                 </p>
                             </div>
                         </div>
-                        <div className="payment-trust-card">
+                        <div
+                            className="payment-trust-card"
+                            data-reveal="fade-up"
+                            style={{ "--reveal-delay": "180ms" }}
+                        >
                             <div className="payment-trust-card__icon payment-trust-card__icon--green">
                                 <svg
                                     className="icon icon-lg"

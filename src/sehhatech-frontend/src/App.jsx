@@ -27,57 +27,63 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDoctors from "./pages/admin/AdminDoctors";
 import AdminReceptionists from "./pages/admin/AdminReceptionists";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDoctorSchedule from "./pages/admin/AdminDoctorSchedule"; // ✅ صفحة جديدة - جدول مواعيد الدكاترة
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import ScrollToTop from "./components/ScrollToTop"; // ✅ يصلح فتح الصفحة من آخرها بعد أي تنقل
 
 function App() {
     return (
-        <Routes>
-            {/* Public */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={
-                <PublicRoute>
-                    <Login />
-                </PublicRoute>
-            } />
-            <Route path="/register" element={<Register />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/security" element={<Security />} />
-            <Route path="/status" element={<Status />} />
-            <Route path="/terms" element={<Terms />} />
+        <>
+            <ScrollToTop />
+            <Routes>
+                {/* Public */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={
+                    <PublicRoute>
+                        <Login />
+                    </PublicRoute>
+                } />
+                <Route path="/register" element={<Register />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/security" element={<Security />} />
+                <Route path="/status" element={<Status />} />
+                <Route path="/terms" element={<Terms />} />
 
-            {/* Doctor */}
-            <Route path="/doctor/dashboard" element={<Dashboard />} />
-            <Route path="/doctor/schedule" element={<MySchedule />} />
-            <Route path="/doctor/patients" element={<PatientRecords />} />
-            <Route path="/doctor/profile" element={<DoctorProfile />} />
+                {/* Doctor */}
+                <Route path="/doctor/dashboard" element={<Dashboard />} />
+                <Route path="/doctor/schedule" element={<MySchedule />} />
+                <Route path="/doctor/patients" element={<PatientRecords />} />
+                <Route path="/doctor/profile" element={<DoctorProfile />} />
 
-            {/* Admin */}
-            <Route path="/admin" element={<AdminLayout />}>
-                <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="doctors" element={<AdminDoctors />} />
-                <Route path="receptionists" element={<AdminReceptionists />} />
-                <Route path="settings" element={<AdminSettings />} />
-            </Route>
+                {/* Admin */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="doctors" element={<AdminDoctors />} />
+                    <Route path="doctors/:doctorId/schedule" element={<AdminDoctorSchedule />} /> {/* ✅ جديد */}
+                    <Route path="receptionists" element={<AdminReceptionists />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
-            {/* Super Admin */}
-            <Route
-                path="/superadmin"
-                element={
-                    <ProtectedRoute allowedRoles={["SuperAdmin"]}>
-                        <SuperAdminLayout />
-                    </ProtectedRoute>
-                }
-            >
-                <Route path="dashboard" element={<SuperAdminDashboard />} />
-                <Route path="clinics"   element={<Clinics />} />
-                <Route path="reports"   element={<Reports />} />
-                <Route path="settings"  element={<Settings />} />
-            </Route>
-        </Routes>
+                {/* Super Admin */}
+                <Route
+                    path="/superadmin"
+                    element={
+                        <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+                            <SuperAdminLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route path="dashboard" element={<SuperAdminDashboard />} />
+                    <Route path="clinics" element={<Clinics />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="settings" element={<Settings />} />
+                </Route>
+            </Routes>
+        </>
     );
 }
 

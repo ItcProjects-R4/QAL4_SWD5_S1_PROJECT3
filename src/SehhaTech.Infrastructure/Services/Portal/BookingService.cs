@@ -37,7 +37,7 @@ public class BookingService
         if (conflict)
             return (false, "This slot is already booked.", null);
 
-        // 3. تأكد إن المريض مش عنده أكتر من 3 حجوزات active
+        // 3. تأكد إن المريض مش عنده أكتر من حد معين من الحجوزات النشطة
         var user = await _db.PortalUsers.FindAsync(portalUserId);
         if (user == null)
             return (false, "User not found.", null);
@@ -45,14 +45,9 @@ public class BookingService
         if (user.Level == VerificationLevel.Unverified)
             return (false, "Phone verification required before booking.", null);
 
-        if (user.Level == VerificationLevel.PhoneVerified)
-        {
-            var activeBookings = await _db.PatientBookings
-                .CountAsync(b => b.PortalUserId == portalUserId &&
-                                 b.Status == BookingStatus.Confirmed);
-            if (activeBookings >= 3)
-                return (false, "Maximum active bookings reached. Please verify your email to book more.", null);
-        }
+        // ✅ شيلنا قيد "Maximum active bookings" المرتبط بـ Email Verification
+        // لأن الـ email verification feature لسه مش متعمل في النظام، فمكنش منطقي
+        // نطلب من المستخدم خطوة مش موجودة أصلاً عشان يكمل يحجز
 
         // 4. Begin transaction
         using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);

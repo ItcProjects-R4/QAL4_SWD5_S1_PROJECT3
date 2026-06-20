@@ -3299,3 +3299,846 @@
     border-radius: 0.5rem;
     cursor: pointer;
 }
+
+/* ============================================
+   Landing Page — Scroll Reveal & Micro-interactions
+   ============================================ */
+
+/* Base hidden state for any element with [data-reveal] */
+[data-reveal] {
+    opacity: 0;
+    transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+}
+
+[data-reveal="fade-up"] {
+    transform: translateY(40px);
+}
+
+[data-reveal="fade-left"] {
+    transform: translateX(44px);
+}
+
+[data-reveal="fade-right"] {
+    transform: translateX(-44px);
+}
+
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+/* Respect users who prefer reduced motion — show content immediately */
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ---------- Showcase card: subtle "live dashboard" feel ---------- */
+.landing-showcase__card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+    .landing-showcase__card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.25);
+    }
+
+.landing-showcase__circle {
+    transition: background-color 0.3s ease;
+}
+
+.landing-showcase__card:hover .landing-showcase__circle {
+    background: var(--color-secondary);
+}
+
+/* Status dot on the mock dashboard header to suggest a "live" system */
+.landing-showcase__card-header {
+    position: relative;
+}
+
+.dot--green {
+    position: relative;
+}
+
+    .dot--green::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: #4ade80;
+        opacity: 0.6;
+        animation: chatbot-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+    .dot--green::after {
+        animation: none;
+        display: none;
+    }
+}
+
+/* ---------- Lock icon: gentle reassurance pulse on hover ---------- */
+.landing-showcase__lock svg {
+    transition: transform 0.3s ease;
+}
+
+.landing-showcase__card:hover .landing-showcase__lock svg {
+    transform: scale(1.08);
+}
+
+/* ---------- Step numbers: small lift on hover for a tactile feel ---------- */
+.landing-showcase__step-num {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.landing-showcase__step:hover .landing-showcase__step-num {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--color-secondary) 50%, transparent);
+}
+
+/* ---------- Story badge: arrives with a soft pop, ties to count-up ---------- */
+.landing-story__badge {
+    transition: transform 0.3s ease;
+}
+
+    .landing-story__badge:hover {
+        transform: translateY(-3px);
+    }
+
+.landing-story__badge-num {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Hero image: the existing [data-reveal="fade-left"] rule above
+   already handles the entrance on .landing-hero__image-wrap. The original
+   :hover tilt transition on .landing-hero__image (in public-pages.css)
+   is untouched and works independently — no extra rules needed here. ---------- */
+
+/* ============================================
+   Buttons — unified interactive feel
+   ============================================ */
+
+/* Base: every button/link gets a consistent press feel */
+.btn--gradient,
+.btn--ai,
+.btn--cta,
+.btn--primary,
+.btn--outline,
+.landing-nav__link {
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background-color 0.3s ease, opacity 0.3s ease, color 0.25s ease;
+}
+
+    .btn--gradient:active,
+    .btn--ai:active,
+    .btn--cta:active,
+    .btn--primary:active,
+    .btn--outline:active {
+        transform: scale(0.96);
+    }
+
+/* ---------- Primary gradient button (Register / Get Started) ---------- */
+.btn--gradient {
+    overflow: hidden;
+}
+
+    .btn--gradient::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .btn--gradient:hover {
+        transform: translateY(-3px);
+        opacity: 1;
+        box-shadow: 0 16px 30px -8px color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+
+        .btn--gradient:hover::before {
+            opacity: 1;
+        }
+
+    .btn--gradient.btn--lg:hover {
+        box-shadow: 0 24px 45px -10px color-mix(in srgb, var(--color-primary) 35%, transparent);
+    }
+
+/* ---------- AI Assistant button: keep its glow, add lift + icon nudge ---------- */
+.btn--ai:hover {
+    transform: translateY(-3px) scale(1.05);
+}
+
+.btn--ai svg {
+    transition: transform 0.3s ease;
+}
+
+.btn--ai:hover svg {
+    transform: rotate(-8deg) scale(1.1);
+}
+
+/* ---------- CTA button (bottom of page) ---------- */
+.btn--cta {
+    position: relative;
+    overflow: hidden;
+}
+
+    .btn--cta:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 28px 50px -12px rgba(0, 0, 0, 0.4);
+    }
+
+/* ---------- Nav links: animated underline instead of flat color swap ---------- */
+.landing-nav__link {
+    position: relative;
+    padding-bottom: 2px;
+}
+
+    .landing-nav__link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 0%;
+        height: 2px;
+        background: var(--color-secondary);
+        border-radius: 9999px;
+        transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .landing-nav__link:hover::after {
+        width: 100%;
+    }
+
+/* Register button in nav already gets .btn--gradient; give it a slightly
+   smaller lift so it doesn't dominate the header */
+.landing-nav__actions .btn--gradient:hover {
+    transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .btn--gradient,
+    .btn--ai,
+    .btn--cta,
+    .btn--primary,
+    .btn--outline,
+    .landing-nav__link {
+        transition: none;
+    }
+
+        .btn--gradient:hover,
+        .btn--ai:hover,
+        .btn--cta:hover,
+        .landing-nav__actions .btn--gradient:hover {
+            transform: none;
+        }
+}
+
+/* ============================================
+   Real images — keep consistent proportions
+   (was previously handled by PlaceholderImage's
+   aspect prop; now matched to each image's real
+   dimensions so nothing important gets cropped)
+   ============================================ */
+.landing-hero__placeholder {
+    width: 100%;
+    aspect-ratio: 1630 / 965;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.landing-about__image {
+    aspect-ratio: 1624 / 969;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.landing-story__image {
+    aspect-ratio: 1292 / 1218;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* ============================================
+   Register Page — Micro-interactions
+   ============================================ */
+
+/* ---------- Step 2 circle: lights up once the form is valid ---------- */
+.register-steps__circle {
+    transition: background-color 0.4s ease, color 0.4s ease, transform 0.3s ease;
+}
+
+.register-steps__circle--done {
+    animation: register-step-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes register-step-pop {
+    0% {
+        transform: scale(0.85);
+    }
+
+    60% {
+        transform: scale(1.12);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.register-steps__bar-fill {
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Password requirement checks: small pop when satisfied ---------- */
+.register-requirements__item {
+    transition: color 0.25s ease;
+}
+
+.register-requirements__item--active svg {
+    animation: register-check-pop 0.35s ease;
+}
+
+@keyframes register-check-pop {
+    0% {
+        transform: scale(0.6);
+    }
+
+    70% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ---------- Inputs: subtle lift on focus to feel responsive ---------- */
+.register-field input,
+.register-field select {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+    .register-field input:focus,
+    .register-field select:focus {
+        transform: translateY(-1px);
+    }
+
+/* ---------- Back button: small nudge instead of flat color swap ---------- */
+.register-back svg {
+    transition: transform 0.25s ease;
+}
+
+.register-back:hover svg {
+    transform: translateX(-3px);
+}
+
+/* ---------- Submit button shares the same family as Landing buttons ---------- */
+.register-submit__btn {
+    position: relative;
+    overflow: hidden;
+}
+
+    .register-submit__btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .register-submit__btn:hover:not(:disabled)::before {
+        opacity: 1;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+
+    .register-steps__circle--done,
+    .register-requirements__item--active svg {
+        animation: none;
+    }
+
+    .register-steps__bar-fill,
+    .register-field input,
+    .register-field select,
+    .register-back svg {
+        transition: none;
+    }
+
+        .register-field input:focus,
+        .register-field select:focus {
+            transform: none;
+        }
+}
+
+/* ============================================
+   Payment Page — Micro-interactions
+   ============================================ */
+
+/* ---------- Feature list: each line steps in right after the card lands ---------- */
+.payment-plan__features li {
+    opacity: 0;
+    transform: translateX(-12px);
+    animation: payment-feature-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.payment-plan[data-reveal].is-visible .payment-plan__features li:nth-child(1) {
+    animation-delay: 0.35s;
+}
+
+.payment-plan[data-reveal].is-visible .payment-plan__features li:nth-child(2) {
+    animation-delay: 0.42s;
+}
+
+.payment-plan[data-reveal].is-visible .payment-plan__features li:nth-child(3) {
+    animation-delay: 0.49s;
+}
+
+.payment-plan[data-reveal].is-visible .payment-plan__features li:nth-child(4) {
+    animation-delay: 0.56s;
+}
+
+.payment-plan[data-reveal].is-visible .payment-plan__features li:nth-child(5) {
+    animation-delay: 0.63s;
+}
+
+@keyframes payment-feature-in {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ---------- Price: gentle emphasis once the card has landed ---------- */
+.payment-plan__amount {
+    display: inline-block;
+    animation: payment-price-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+@keyframes payment-price-in {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ---------- Step 1 checkmark circle: small pop to confirm completion ---------- */
+.payment-steps .register-steps__circle--done {
+    animation: register-step-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------- Trust card icons: lift together with the card on hover ---------- */
+.payment-trust-card {
+    transition: transform 0.3s ease;
+}
+
+    .payment-trust-card:hover {
+        transform: translateY(-4px);
+    }
+
+.payment-trust-card__icon {
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.payment-trust-card:hover .payment-trust-card__icon {
+    transform: scale(1.08);
+}
+
+/* ---------- Proceed to Payment button: same glow family as other primary CTAs ---------- */
+.payment-plan__btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+    .payment-plan__btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .payment-plan__btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px -8px rgba(0, 0, 0, 0.25);
+    }
+
+        .payment-plan__btn:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+@media (prefers-reduced-motion: reduce) {
+
+    .payment-plan__features li {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+
+    .payment-plan__amount {
+        animation: none;
+    }
+
+    .payment-steps .register-steps__circle--done {
+        animation: none;
+    }
+
+    .payment-trust-card,
+    .payment-trust-card__icon,
+    .payment-plan__btn {
+        transition: none;
+    }
+
+        .payment-trust-card:hover {
+            transform: none;
+        }
+}
+
+/* ============================================
+   Reset Password Page — Micro-interactions
+   ============================================ */
+
+/* ---------- Password requirement checks: reuse the same pop as Register ---------- */
+.reset-requirements__item {
+    transition: color 0.25s ease;
+}
+
+.reset-requirements__item--active svg {
+    animation: register-check-pop 0.35s ease;
+}
+
+.reset-strength__fill {
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+}
+
+/* ---------- Inputs: subtle lift on focus, matching Register/Login ---------- */
+.reset-input-wrap input {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+    .reset-input-wrap input:focus {
+        transform: translateY(-1px);
+    }
+
+.reset-input-icon--right {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+    .reset-input-icon--right:hover {
+        transform: scale(1.1);
+    }
+
+/* ---------- Submit button: same glow family as other primary CTAs ---------- */
+.reset-submit {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+    .reset-submit::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .reset-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px -8px rgba(0, 0, 0, 0.3);
+    }
+
+        .reset-submit:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+/* ---------- Back to login link: small nudge instead of flat color swap ---------- */
+.reset-back-link svg {
+    transition: transform 0.25s ease;
+}
+
+.reset-back-link:hover svg {
+    transform: translateX(-3px);
+}
+
+/* ---------- Trust badges: step in one after another once the card lands ---------- */
+.reset-trust__item {
+    transform: translateY(10px);
+    animation: reset-trust-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reset-card[data-reveal].is-visible .reset-trust__item:nth-child(1) {
+    animation-delay: 0.4s;
+}
+
+.reset-card[data-reveal].is-visible .reset-trust__item:nth-child(2) {
+    animation-delay: 0.48s;
+}
+
+.reset-card[data-reveal].is-visible .reset-trust__item:nth-child(3) {
+    animation-delay: 0.56s;
+}
+
+@keyframes reset-trust-in {
+    to {
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .reset-requirements__item--active svg {
+        animation: none;
+    }
+
+    .reset-strength__fill,
+    .reset-input-wrap input,
+    .reset-input-icon--right,
+    .reset-submit,
+    .reset-back-link svg {
+        transition: none;
+    }
+
+        .reset-input-wrap input:focus {
+            transform: none;
+        }
+
+    .reset-trust__item {
+        opacity: 0.4;
+        transform: none;
+        animation: none;
+    }
+}
+
+/* ============================================
+   Public Header / Footer — Micro-interactions
+   ============================================ */
+
+.public-header__back-icon {
+    transition: transform 0.25s ease;
+}
+
+.public-header__back:hover .public-header__back-icon {
+    transform: translateX(-3px);
+}
+
+/* Footer links: animated underline instead of flat color swap */
+.public-footer__link {
+    position: relative;
+    text-decoration: none;
+    padding-bottom: 2px;
+}
+
+    .public-footer__link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 0%;
+        height: 1px;
+        background: var(--color-primary);
+        transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .public-footer__link:hover::after {
+        width: 100%;
+    }
+
+.public-footer__link--active::after {
+    width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .public-header__back-icon {
+        transition: none;
+    }
+
+    .public-footer__link::after {
+        transition: none;
+    }
+}
+
+/* ============================================
+   Chatbot Widget — Message entrance
+   ============================================ */
+
+.chatbot-message--in {
+    animation: chatbot-message-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes chatbot-message-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Gentle breathing pulse on the toggle button to draw the eye before
+   the "unread" badge appears (first few seconds on the page). */
+.chatbot-toggle {
+    animation: chatbot-toggle-breathe 3s ease-in-out 1;
+}
+
+@keyframes chatbot-toggle-breathe {
+    0%, 100% {
+        box-shadow: 0 20px 40px -10px color-mix(in srgb, var(--color-primary) 40%, transparent);
+    }
+
+    50% {
+        box-shadow: 0 20px 48px -8px color-mix(in srgb, var(--color-primary) 60%, transparent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chatbot-message--in {
+        animation: none;
+    }
+
+    .chatbot-toggle {
+        animation: none;
+    }
+}
+
+/* ============================================
+   Policy Pages (Privacy / Terms / Security / Status)
+   — Micro-interactions
+   ============================================ */
+
+/* Cards inside Privacy/data-collection grid: small lift on hover */
+.policy-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .policy-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
+    }
+
+/* Table rows: subtle highlight on hover for scannability */
+.policy-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+    .policy-table tbody tr:hover {
+        background-color: var(--color-surface-container-low);
+    }
+
+/* Checklist / feature-list icons: small pop on hover */
+.policy-check-icon,
+.policy-feature-list__icon {
+    transition: transform 0.25s ease;
+}
+
+.policy-checklist li:hover .policy-check-icon,
+.policy-feature-list li:hover .policy-feature-list__icon {
+    transform: scale(1.15);
+}
+
+/* Stat boxes: lift on hover */
+.policy-stat {
+    transition: transform 0.3s ease;
+}
+
+    .policy-stat:hover {
+        transform: translateY(-2px);
+    }
+
+/* Status page: service rows slide in with a left-to-right feel,
+   and the "Operational" badge gets a quiet pulse to feel live */
+.status-service-row {
+    transition: background-color 0.2s ease;
+}
+
+    .status-service-row:hover {
+        background-color: var(--color-surface-container-low);
+    }
+
+.status-service-row__badge {
+    position: relative;
+    padding-left: 1rem;
+}
+
+    .status-service-row__badge::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0.4rem;
+        height: 0.4rem;
+        border-radius: 50%;
+        background: #10b981;
+        animation: chatbot-pulse 2s ease-in-out infinite;
+    }
+
+.status-indicator__dot {
+    position: relative;
+}
+
+    .status-indicator__dot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: #10b981;
+        opacity: 0.6;
+        animation: chatbot-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+/* Footer action buttons on Security page already use .btn--primary/.btn--outline,
+   which get hover lift from the shared button rules earlier in this file. */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .policy-card,
+    .policy-table tbody tr,
+    .policy-check-icon,
+    .policy-feature-list__icon,
+    .policy-stat,
+    .status-service-row {
+        transition: none;
+    }
+
+        .policy-card:hover,
+        .policy-stat:hover {
+            transform: none;
+        }
+
+    .status-service-row__badge::before,
+    .status-indicator__dot::after {
+        animation: none;
+    }
+}

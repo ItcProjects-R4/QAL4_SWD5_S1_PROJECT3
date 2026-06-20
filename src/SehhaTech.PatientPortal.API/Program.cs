@@ -20,16 +20,22 @@ builder.Services.AddScoped<PortalAuthService>();
 builder.Services.AddScoped<ClinicSearchService>();
 builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<BookingService>();
-// JWT - Patient Portal
+
+// JWT - Patient Portal (للمرضى)
 var patientJwt = builder.Configuration.GetSection("PatientJWT");
-var secretKey = patientJwt["Secret"]!;
+var patientSecretKey = patientJwt["Secret"]!;
+
+// ✅ JWT - النظام الأصلي (للموظفين/الدكاترة/صاحب العيادة) - نفس الـ JwtSettings المستخدمة في SehhaTech.API
+var staffJwt = builder.Configuration.GetSection("JwtSettings");
+var staffSecretKey = staffJwt["SecretKey"]!;
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    // الافتراضي يفضل الـ Patient scheme (هو الأكتر استخدام في هذا الـ API)
+    options.DefaultAuthenticateScheme = "PatientScheme";
+    options.DefaultChallengeScheme = "PatientScheme";
 })
-.AddJwtBearer(options =>
+.AddJwtBearer("PatientScheme", options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -39,7 +45,22 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = patientJwt["Issuer"],
         ValidAudience = patientJwt["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(patientSecretKey))
+    };
+})
+// ✅ Scheme ثانية بتتحقق من توكن النظام الأصلي (الموظفين/صاحب العيادة)
+// بنستخدمها بس في admin/slots endpoints عشان نجيب TenantId من الـ claim بأمان
+.AddJwtBearer("StaffScheme", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = staffJwt["Issuer"],
+        ValidAudience = staffJwt["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(staffSecretKey))
     };
 });
 

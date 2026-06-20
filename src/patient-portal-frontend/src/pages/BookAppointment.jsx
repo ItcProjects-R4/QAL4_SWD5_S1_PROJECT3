@@ -4,6 +4,17 @@ import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
+// عدد الأيام المعروضة للاختيار (النهارده + 13 يوم جاي = أسبوعين)
+const DAYS_AHEAD = 14
+
+function toDateKey(d) {
+    // YYYY-MM-DD بدون تأثير timezone
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+}
+
 export default function BookAppointment() {
     const navigate = useNavigate()
 
@@ -11,10 +22,12 @@ export default function BookAppointment() {
     const clinicName = sessionStorage.getItem('selectedClinicName') || 'Clinic'
 
     const [doctors, setDoctors] = useState([])
-    const [slots, setSlots] = useState([])
     const [doctorId, setDoctorId] = useState('')
-    const [slotId, setSlotId] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [selectedDate, setSelectedDate] = useState(toDateKey(new Date()))
+    const [slots, setSlots] = useState([])
+    const [slotTime, setSlotTime] = useState('')   // "HH:mm:ss" المختار
+    const [loadingDoctors, setLoadingDoctors] = useState(false)
+    const [loadingSlots, setLoadingSlots] = useState(false)
     const [booking, setBooking] = useState(false)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState('')
@@ -27,26 +40,49 @@ export default function BookAppointment() {
     /* load doctors */
     useEffect(() => {
         if (!clinicId) return
-        setLoading(true)
+        setLoadingDoctors(true)
         api.get(`/api/portal/clinics/${clinicId}/doctors`)
             .then(r => setDoctors(Array.isArray(r.data) ? r.data : []))
             .catch(() => setError('Failed to load doctors.'))
-            .finally(() => setLoading(false))
+            .finally(() => setLoadingDoctors(false))
     }, [clinicId])
 
-    /* load slots when doctor changes */
+    /* load slots whenever doctor OR date changes */
     useEffect(() => {
-        if (!doctorId) { setSlots([]); setSlotId(''); return }
-        api.get(`/api/portal/doctors/${doctorId}/slots`)
+        if (!doctorId || !selectedDate) { setSlots([]); setSlotTime(''); return }
+        setLoadingSlots(true)
+        setError('')
+        api.get(`/api/portal/doctors/${doctorId}/slots`, {
+            params: { tenantId: clinicId, date: selectedDate }
+        })
             .then(r => setSlots(Array.isArray(r.data) ? r.data : []))
             .catch(() => setError('Failed to load slots.'))
-    }, [doctorId])
+            .finally(() => setLoadingSlots(false))
+    }, [doctorId, selectedDate, clinicId])
+
+    /* خيارات الأيام القادمة - يبني array من النهارده لحد DAYS_AHEAD يوم جاي */
+    const dayOptions = Array.from({ length: DAYS_AHEAD }, (_, i) => {
+        const d = new Date()
+        d.setDate(d.getDate() + i)
+        return {
+            key: toDateKey(d),
+            label: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+            isToday: i === 0,
+        }
+    })
 
     const handleBook = async () => {
-        if (!slotId) return
+        if (!slotTime || !doctorId) return
         setBooking(true); setError('')
         try {
-            await api.post('/api/portal/bookings', { slotId: Number(slotId) })
+            await api.post('/api/portal/bookings', {
+                doctorId: Number(doctorId),
+                tenantId: Number(clinicId),
+                slotDate: selectedDate,        // "YYYY-MM-DD" - الباك إند بيحوله لـ DateTime
+                slotTime: slotTime,            // "HH:mm:ss" - بيتطابق مع TimeSpan في C#
+                notes: null,
+                idempotencyKey: crypto.randomUUID(),   // ✅ لازم Guid فريد لكل محاولة حجز جديدة
+            })
             setSuccess(true)
         } catch (err) {
             setError(err.response?.data?.message || 'Booking failed. Please try again.')
@@ -93,7 +129,7 @@ export default function BookAppointment() {
 
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 md:p-10 fade-up">
                     {/* Clinic header */}
-                    <div className="flex items-center gap-3 mb-10 pb-md border-b border-outline-variant">
+                    <div className="flex items-center gap-3 mb-10 pb-6 border-b border-outline-variant">
                         <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-primary">
                             <span className="material-symbols-outlined text-[24px]">local_hospital</span>
                         </div>
@@ -103,7 +139,7 @@ export default function BookAppointment() {
                         </div>
                     </div>
 
-                    {loading ? (
+                    {loadingDoctors ? (
                         <div className="text-center py-10">
                             <span className="material-symbols-outlined text-outline text-[48px] block mb-3">hourglass_empty</span>
                             <p className="text-body-md text-on-surface-variant">Loading doctors...</p>
@@ -115,7 +151,7 @@ export default function BookAppointment() {
                                 <label className="font-medium text-label-md text-on-surface">Select Doctor <span className="text-error">*</span></label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">stethoscope</span>
-                                    <select value={doctorId} onChange={e => setDoctorId(e.target.value)}
+                                    <select value={doctorId} onChange={e => { setDoctorId(e.target.value); setSlotTime('') }}
                                         className="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-10 pr-10 py-3 text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none">
                                         <option value="">Choose a doctor...</option>
                                         {doctors.map(d => (
@@ -126,29 +162,62 @@ export default function BookAppointment() {
                                 </div>
                             </div>
 
-                            {/* Slot select */}
+                            {/* Date picker - الحل الصحيح: المستخدم يختار يوم الحجز */}
                             {doctorId && (
                                 <div className="flex flex-col gap-1">
-                                    <label className="font-medium text-label-md text-on-surface">Select Time Slot <span className="text-error">*</span></label>
-                                    {slots.length === 0 ? (
+                                    <label className="font-medium text-label-md text-on-surface">Select Date <span className="text-error">*</span></label>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                                        {dayOptions.map(day => (
+                                            <button
+                                                key={day.key}
+                                                onClick={() => { setSelectedDate(day.key); setSlotTime('') }}
+                                                className={`flex-shrink-0 px-4 py-2 rounded-xl border text-center transition-all whitespace-nowrap ${selectedDate === day.key
+                                                        ? 'border-primary bg-primary-container text-on-primary'
+                                                        : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:bg-surface-container-low'
+                                                    }`}
+                                            >
+                                                <span className="text-label-md font-medium">{day.label}</span>
+                                                {day.isToday && <span className="block text-label-sm opacity-80">Today</span>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Slot select */}
+                            {doctorId && selectedDate && (
+                                <div className="flex flex-col gap-1">
+                                    <label className="font-medium text-label-md text-on-surface">Select Time <span className="text-error">*</span></label>
+
+                                    {loadingSlots ? (
+                                        <div className="border border-outline-variant rounded-xl p-6 text-center">
+                                            <span className="material-symbols-outlined text-outline text-[32px] block mb-1 animate-pulse">hourglass_empty</span>
+                                            <p className="text-body-md text-on-surface-variant">Loading available times...</p>
+                                        </div>
+                                    ) : slots.length === 0 ? (
                                         <div className="border border-outline-variant rounded-xl p-6 text-center">
                                             <span className="material-symbols-outlined text-outline text-[32px] block mb-1">event_busy</span>
-                                            <p className="text-body-md text-on-surface-variant">No available slots for this doctor.</p>
+                                            <p className="text-body-md text-on-surface-variant">No available slots for this date. Try another day.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                            {slots.map(s => {
-                                                const date = new Date(s.date)
-                                                const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-                                                const timeStr = s.time ? s.time.substring(0, 5) : ''
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                            {slots.map((s, i) => {
+                                                const timeStr = typeof s.time === 'string' ? s.time : `${s.time}`
+                                                const displayTime = timeStr.substring(0, 5) // "HH:mm"
+                                                const disabled = s.isAvailable === false
                                                 return (
-                                                    <button key={s.id} onClick={() => setSlotId(s.id)}
-                                                        className={`p-3 rounded-xl border text-center transition-all ${slotId === s.id
-                                                                ? 'border-primary bg-primary-container text-on-primary'
-                                                                : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:bg-surface-container-low'
-                                                            }`}>
-                                                        <p className="font-medium text-label-md">{dateStr}</p>
-                                                        {timeStr && <p className="text-label-sm text-on-surface-variant mt-1">{timeStr}</p>}
+                                                    <button
+                                                        key={`${timeStr}-${i}`}
+                                                        onClick={() => !disabled && setSlotTime(timeStr)}
+                                                        disabled={disabled}
+                                                        className={`p-3 rounded-xl border text-center transition-all ${disabled
+                                                                ? 'border-outline-variant bg-surface-container text-outline cursor-not-allowed opacity-50'
+                                                                : slotTime === timeStr
+                                                                    ? 'border-primary bg-primary-container text-on-primary'
+                                                                    : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:bg-surface-container-low'
+                                                            }`}
+                                                    >
+                                                        <p className="font-medium text-label-md">{displayTime}</p>
                                                     </button>
                                                 )
                                             })}
@@ -161,7 +230,7 @@ export default function BookAppointment() {
 
                             <button
                                 onClick={handleBook}
-                                disabled={!slotId || booking}
+                                disabled={!slotTime || booking}
                                 className="w-full bg-primary text-on-primary font-medium text-label-md py-3 rounded-xl hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-3"
                             >
                                 {booking ? 'Booking...' : 'Confirm Appointment'}
