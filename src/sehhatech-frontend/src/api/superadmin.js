@@ -3,7 +3,9 @@ import api from './axios';
 
 // ── تحويل المفاتيح من PascalCase لـ camelCase (recursive) ──────────────────
 function toCamel(key) {
-  return key.charAt(0).toLowerCase() + key.slice(1);
+  return key
+    .replace(/[_-](\w)/g, (_, c) => c.toUpperCase())
+    .replace(/^./, (c) => c.toLowerCase());
 }
 
 function normalizeKeys(obj) {
