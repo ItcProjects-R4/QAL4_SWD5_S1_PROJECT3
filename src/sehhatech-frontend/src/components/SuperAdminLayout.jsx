@@ -66,7 +66,7 @@ export default function SuperAdminLayout() {
       {/* ── Sidebar ── */}
       <aside className="bg-slate-900 w-[280px] h-screen fixed left-0 top-0 overflow-y-auto border-r border-slate-800 flex flex-col z-50">
         <div className="px-6 py-8">
-          <h1 className="text-xl font-bold text-white tracking-tight">Smart Clinics</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">SehhaTech</h1>
           <p className="text-slate-400 text-xs mt-1">Super Admin</p>
         </div>
 
