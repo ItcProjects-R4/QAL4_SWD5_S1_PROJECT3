@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://localhost:7153";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5099";
+
 const RECEPTION_API_BASE = `${API_BASE}/api/Reception`;
 
 function authHeaders() {
