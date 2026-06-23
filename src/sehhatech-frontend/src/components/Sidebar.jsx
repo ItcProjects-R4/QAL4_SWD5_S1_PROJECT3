@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Sidebar({ profile }) {
+//export default function Sidebar({ profile }) {
+export default function Sidebar({ profile, sidebarOpen }) {
     const { logout } = useAuth();
 
     const name = profile?.user?.fullName || "Loading...";
@@ -23,7 +24,14 @@ export default function Sidebar({ profile }) {
     return (
         <aside
             id="sidebar"
-            className="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 flex flex-col py-8 px-4 z-50"
+            className={`
+        fixed left-0 top-0 h-full w-64
+        bg-white border-r border-slate-200
+        flex flex-col py-8 px-4
+        z-[60] shadow-xl
+        transition-transform duration-300
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    `}
         >
             <div className="mb-8 px-4 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-sm flex-shrink-0">
@@ -37,33 +45,7 @@ export default function Sidebar({ profile }) {
                 <span className="text-xl font-800 tracking-tight text-slate-900">SehhaTech</span>
             </div>
 
-            <div className="mx-4 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {imgUrl ? (
-                            <img src={imgUrl} className="w-full h-full object-cover" alt="" />
-                        ) : (
-                            <span
-                                className="material-symbols-outlined text-white text-lg"
-                                style={{ fontVariationSettings: '"FILL" 1' }}
-                            >
-                                person
-                            </span>
-                        )}
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
-                        <p className="text-[10px] text-slate-400 font-semibold uppercase truncate">{spec}</p>
-                    </div>
-                </div>
-                <NavLink
-                    to="/doctor/profile"
-                    className="mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-primary transition-colors font-medium"
-                >
-                    <span className="material-symbols-outlined text-[14px]">manage_accounts</span>
-                    View Profile
-                </NavLink>
-            </div>
+           
 
             <nav className="flex-1 space-y-1.5">
                 {links.map((link) => (
