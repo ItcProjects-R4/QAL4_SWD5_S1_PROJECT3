@@ -34,34 +34,35 @@ export default function Layout({ children }) {
             )}
 
             {/* Sidebar */}
-            <div
-                className="transition-transform duration-250"
-                style={{
-                    transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-                }}
-            >
-                <Sidebar profile={profile} />
-            </div>
+            <Sidebar
+                profile={profile}
+                sidebarOpen={sidebarOpen}
+            />
 
             {/* Header */}
             <div
                 className="transition-all duration-250"
                 style={{
-                    marginLeft: sidebarOpen && !isMobile ? "16rem" : "0",
-                    left: sidebarOpen && !isMobile ? "16rem" : "0",
+                    marginLeft: sidebarOpen ? "16rem" : "0",
+                    left: sidebarOpen ? "16rem" : "0",
                 }}
             >
-                <Header profile={profile} onMenuClick={toggleSidebar} />
+                <Header
+                    profile={profile}
+                    sidebarOpen={sidebarOpen}
+                    isMobile={isMobile}
+                    onMenuClick={toggleSidebar}
+                />
             </div>
 
             {/* Main Content */}
             <main
-                className="pt-16 min-h-screen transition-all duration-250"
-                style={{
-                    marginLeft: sidebarOpen && !isMobile ? "16rem" : "0",
-                }}
+                className={`pt-16 min-h-screen transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"
+                    }`}
             >
-                <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-8">
+                <div
+                    className="p-4 md:p-10 max-w-[1400px] mx-auto space-y-8"
+                >
                     {children}
                 </div>
             </main>
