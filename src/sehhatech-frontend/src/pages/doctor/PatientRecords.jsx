@@ -36,7 +36,7 @@ export default function PatientRecords() {
     return (
         <Layout>
             {/* Doctor Info */}
-            <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-subtle hover:shadow-card transition-shadow min-w-[260px]">
                 <div className="flex flex-col md:flex-row items-start gap-5">
                     <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {imgUrl ? (
@@ -72,7 +72,7 @@ export default function PatientRecords() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Patients Table */}
-                <section className="lg:col-span-8 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                <section className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-subtle hover:shadow-card transition-shadow overflow-hidden min-w-[260px]">
                     <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
                         <h2 className="text-lg font-extrabold text-primary">My Patients</h2>
                         <span className="text-xs text-slate-400 font-semibold">
@@ -80,7 +80,7 @@ export default function PatientRecords() {
                         </span>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="min-w-[700px] w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100">
                                     <th className="px-6 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -139,7 +139,7 @@ export default function PatientRecords() {
 
                 {/* Upcoming */}
                 <aside className="lg:col-span-4">
-                    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-subtle hover:shadow-card transition-shadow p-6 min-w-[260px]">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-primary text-[20px]">event</span>
                             <h2 className="text-lg font-extrabold text-primary">Upcoming</h2>
@@ -153,7 +153,10 @@ export default function PatientRecords() {
                                 appointments.map((a, i) => {
                                     const date = new Date(a.appointmentDate);
                                     return (
-                                        <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                                        <div
+                                            key={i}
+                                            className="p-4 bg-slate-50 border border-slate-100 rounded-xl hover:border-primary transition-all min-w-[220px]"
+                                        >
                                             <div className="flex justify-between mb-1">
                                                 <span className="text-sm font-bold text-primary">
                                                     {date.toLocaleDateString()}

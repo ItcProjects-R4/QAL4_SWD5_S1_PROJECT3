@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Sidebar() {
+export default function Sidebar({ profile, sidebarOpen }) {
     const { logout } = useAuth();
 
     function handleLogout() {
@@ -19,7 +19,15 @@ export default function Sidebar() {
     return (
         <aside
             id="sidebar"
-            className="fixed left-0 top-0 h-full w-[272px] bg-white border-r border-slate-200/80 flex flex-col py-6 z-50 font-manrope"
+            className={`
+                fixed left-0 top-0 h-full w-[272px]
+                bg-white border-r border-slate-200/80
+                flex flex-col py-6
+                z-[60] shadow-xl
+                transition-transform duration-300
+                font-manrope
+                ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            `}
         >
             {/* Brand */}
             <div className="mb-8 px-6 flex items-center gap-3">
@@ -31,6 +39,7 @@ export default function Sidebar() {
                         medical_services
                     </span>
                 </div>
+
                 <div>
                     <h2 className="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
                         SehhaTech
@@ -60,13 +69,17 @@ export default function Sidebar() {
                                 {isActive && (
                                     <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r-full" />
                                 )}
+
                                 <span
                                     className={`material-symbols-outlined text-[22px] transition-transform duration-200 ${
-                                        isActive ? "scale-110" : "group-hover:scale-105"
+                                        isActive
+                                            ? "scale-110"
+                                            : "group-hover:scale-105"
                                     }`}
                                 >
                                     {link.icon}
                                 </span>
+
                                 <span>{link.label}</span>
                             </>
                         )}
@@ -80,7 +93,9 @@ export default function Sidebar() {
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-6 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 text-sm font-medium transition-colors duration-200"
                 >
-                    <span className="material-symbols-outlined text-[22px]">logout</span>
+                    <span className="material-symbols-outlined text-[22px]">
+                        logout
+                    </span>
                     <span>Logout</span>
                 </button>
             </div>

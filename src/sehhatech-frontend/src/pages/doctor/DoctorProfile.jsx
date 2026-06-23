@@ -73,7 +73,7 @@ export default function DoctorProfile() {
             if (photoFile) {
                 const formData = new FormData();
                 formData.append("file", photoFile);
-                const uploadRes = await api.post("/api/upload", formData, {
+                const uploadRes = await api.post("/api/upload/image", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
                 photoUrl =
@@ -117,7 +117,7 @@ export default function DoctorProfile() {
             </div>
 
             {/* Profile Hero Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle overflow-hidden min-w-[260px]">
                 <div className="h-32 bg-gradient-to-r from-primary to-slate-600" />
                 <div className="px-6 md:px-8 pb-8">
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4">
@@ -167,7 +167,7 @@ export default function DoctorProfile() {
 
             {/* Info Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6 min-w-[260px]">
                     <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
                         <span className="material-symbols-outlined text-primary text-[18px]">badge</span>
                         Personal Information
@@ -187,7 +187,7 @@ export default function DoctorProfile() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6 min-w-[260px]">
                     <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
                         <span className="material-symbols-outlined text-primary text-[18px]">medical_services</span>
                         Professional Information
@@ -212,7 +212,7 @@ export default function DoctorProfile() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center">
                     <span
                         className="material-symbols-outlined text-primary text-2xl"
