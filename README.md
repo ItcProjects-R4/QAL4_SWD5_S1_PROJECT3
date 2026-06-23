@@ -9,7 +9,7 @@
 <br/><br/>
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=3500&pause=800&color=0077B6&center=true&vCenter=true&width=800&lines=%F0%9F%8F%A5+Multi-Tenant+Clinic+Management+System;%F0%9F%91%A5+Patient+Portal+%26+Online+Appointment+Booking;%F0%9F%94%90+JWT+%2B+OTP+Secure+Authentication;%F0%9F%93%8A+Real-time+Dashboard+%26+Analytics;%F0%9F%9A%80+Deployed+on+Railway+%C2%B7+Render+%C2%B7+Vercel;%F0%9F%8E%93+DEPI+Full+Stack+.NET+Graduation+Project+2025" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=3500&pause=800&color=0077B6&center=true&vCenter=true&width=800&lines=%F0%9F%8F%A5+Multi-Tenant+Clinic+Management+System;%F0%9F%91%A5+Patient+Portal+%26+Online+Appointment+Booking;%F0%9F%94%90+JWT+%2B+OTP+Secure+Authentication;%F0%9F%93%8A+Real-time+Dashboard+%26+Analytics;%F0%9F%9A%80+Deployed+on+Railway+%C2%B7+Render+%C2%B7+Vercel;%F0%9F%8E%93+DEPI+Full+Stack+.NET+Graduation+Project+2026" alt="Typing SVG" />
 </a>
 
 <br/><br/>
@@ -49,7 +49,7 @@
 
 <br/>
 
-<img src="https://img.shields.io/badge/DEPI-Graduation%20Project%202025-FF6B35?style=for-the-badge" />
+<img src="https://img.shields.io/badge/DEPI-Graduation%20Project%202026-FF6B35?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Made%20In-Egypt%20%F0%9F%87%AA%F0%9F%87%AC-E74C3C?style=for-the-badge" />
 
 </div>
@@ -121,7 +121,7 @@
 
 <img align="right" src="./assets/logo.png" width="130" />
 
-**SehhaTech** is a production-ready, enterprise-grade **Healthcare Management Platform** built from scratch as a graduation project for the **Digital Egypt Pioneers Initiative (DEPI) — Full Stack .NET Track, 2025**.
+**SehhaTech** is a production-ready, enterprise-grade **Healthcare Management Platform** built from scratch as a graduation project for the **Digital Egypt Pioneers Initiative (DEPI) — Full Stack .NET Track, 2026**.
 
 The platform delivers two fully cloud-deployed systems:
 
@@ -459,7 +459,7 @@ npm run dev   # → http://localhost:5174
 <div align="center">
 
 > 🎓 Built with ❤️, late-night ☕, and a lot of `git push` by the **SehhaTech Team**
-> — **DEPI Full Stack .NET Track · Egypt 🇪🇬 · 2025**
+> — **DEPI Full Stack .NET Track · Egypt 🇪🇬 · 2026**
 
 <br/>
 
