@@ -137,23 +137,28 @@ export default function DateRangePicker({ startDate, endDate, onApply, onClose }
   return (
     <div
       ref={ref}
-      className="absolute right-0 mt-2 z-50 bg-white rounded-xl border border-slate-200 shadow-xl p-5 w-[640px]"
+      className="absolute right-0 mt-2 z-50 bg-white rounded-xl border border-slate-200 shadow-xl p-4 sm:p-5
+                 w-[92vw] sm:w-[640px] max-w-[640px]
+                 max-h-[85vh] overflow-y-auto"
     >
-      <div className="flex gap-6">
-        <div className="w-40 shrink-0 border-r border-slate-100 pr-4 space-y-1">
-          {PRESETS.map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => applyPreset(p)}
-              className="w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-600 font-medium"
-            >
-              {p.label}
-            </button>
-          ))}
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+        {/* Presets: عمود جانبي على الديسكتوب، صف أفقي قابل للسحب على الموبايل */}
+        <div className="w-full sm:w-40 shrink-0 sm:border-r border-b sm:border-b-0 border-slate-100 pb-3 sm:pb-0 sm:pr-4">
+          <div className="flex sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible -mx-1 px-1 sm:mx-0 sm:px-0">
+            {PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => applyPreset(p)}
+                className="shrink-0 sm:w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-600 font-medium whitespace-nowrap"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
             <button
               type="button"
@@ -162,6 +167,10 @@ export default function DateRangePicker({ startDate, endDate, onApply, onClose }
             >
               <span className="material-symbols-outlined text-lg">chevron_left</span>
             </button>
+            {/* عنوان الشهر الحالي يظهر هنا فقط على الموبايل لأنه شهر واحد ظاهر */}
+            <span className="sm:hidden text-sm font-semibold text-slate-800">
+              {MONTHS_FULL[baseMonth.getMonth()]} {baseMonth.getFullYear()}
+            </span>
             <button
               type="button"
               onClick={() => setBaseMonth(new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1))}
@@ -170,20 +179,24 @@ export default function DateRangePicker({ startDate, endDate, onApply, onClose }
               <span className="material-symbols-outlined text-lg">chevron_right</span>
             </button>
           </div>
-          <div className="flex gap-6">
+
+          {/* على الموبايل: شهر واحد بس. من sm وفوق: شهرين جنب بعض */}
+          <div className="flex flex-col sm:flex-row gap-6">
             {renderMonth(baseMonth)}
-            {renderMonth(nextMonth)}
+            <div className="hidden sm:block w-full">
+              {renderMonth(nextMonth)}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100">
-            <span className="text-xs text-slate-500">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-5 pt-4 border-t border-slate-100">
+            <span className="text-xs text-slate-500 text-center sm:text-left">
               {start ? toISO(start) : "Start date"} → {end ? toISO(end) : "End date"}
             </span>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg"
+                className="flex-1 sm:flex-none px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg"
               >
                 Cancel
               </button>
@@ -191,7 +204,7 @@ export default function DateRangePicker({ startDate, endDate, onApply, onClose }
                 type="button"
                 onClick={handleApply}
                 disabled={!start || !end}
-                className="px-4 py-1.5 text-sm font-semibold text-white bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 sm:flex-none px-4 py-1.5 text-sm font-semibold text-white bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Apply
               </button>
