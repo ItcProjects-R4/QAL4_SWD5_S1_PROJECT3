@@ -67,7 +67,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Doctor", b =>
@@ -103,7 +103,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Patient", b =>
@@ -150,70 +150,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Patients");
-                });
-
-            modelBuilder.Entity("SehhaTech.Core.Models.PaymentInvoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AppointmentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InvoiceNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("RemainingAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ServiceName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppointmentId");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("PaymentInvoices");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.OTPRecord", b =>
@@ -252,7 +189,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OTPRecords");
+                    b.ToTable("OTPRecords", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.PatientBooking", b =>
@@ -314,7 +251,7 @@ namespace SehhaTech.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[Status] != 'Cancelled'");
 
-                    b.ToTable("PatientBookings");
+                    b.ToTable("PatientBookings", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.PortalRefreshToken", b =>
@@ -348,7 +285,7 @@ namespace SehhaTech.Infrastructure.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.PortalUser", b =>
@@ -409,7 +346,7 @@ namespace SehhaTech.Infrastructure.Migrations
                     b.HasIndex("Phone")
                         .IsUnique();
 
-                    b.ToTable("PortalUsers");
+                    b.ToTable("PortalUsers", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Portal.SlotTemplate", b =>
@@ -448,7 +385,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("SlotTemplates");
+                    b.ToTable("SlotTemplates", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Subscription", b =>
@@ -489,7 +426,7 @@ namespace SehhaTech.Infrastructure.Migrations
                     b.HasIndex("TenantId")
                         .IsUnique();
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Tenant", b =>
@@ -533,7 +470,7 @@ namespace SehhaTech.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Tenants");
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.User", b =>
@@ -583,7 +520,7 @@ namespace SehhaTech.Infrastructure.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("SehhaTech.Core.Models.Appointment", b =>
@@ -639,32 +576,6 @@ namespace SehhaTech.Infrastructure.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("SehhaTech.Core.Models.PaymentInvoice", b =>
-                {
-                    b.HasOne("SehhaTech.Core.Models.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SehhaTech.Core.Models.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SehhaTech.Core.Models.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("Patient");
 
                     b.Navigation("Tenant");
                 });
