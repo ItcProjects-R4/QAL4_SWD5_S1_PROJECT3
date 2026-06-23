@@ -50,7 +50,7 @@ function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <h3 className="text-xl font-semibold text-slate-900 mb-6">Appointment Status</h3>
       <div className="flex flex-col items-center">
-        <div className="relative w-48 h-48 mb-6">
+        <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
             <circle className="stroke-slate-100" cx="18" cy="18" fill="none" r="15.915" strokeWidth="3" />
             <circle cx="18" cy="18" fill="none" r="15.915" stroke="#EF4444"
@@ -157,8 +157,8 @@ function RecentClinicsTable({ clinics = [], loading }) {
   return (
     <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-slate-900">Recent Clinics</h3>
-        <Link to="/superadmin/clinics" className="text-sm text-slate-600 font-semibold hover:underline">
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">Recent Clinics</h3>
+        <Link to="/superadmin/clinics" className="text-sm text-slate-600 font-semibold hover:underline whitespace-nowrap">
           View All
         </Link>
       </div>
@@ -167,7 +167,12 @@ function RecentClinicsTable({ clinics = [], loading }) {
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               {["Name", "Email", "Onboarding", "Status"].map((h) => (
-                <th key={h} className={`px-6 py-3 text-[12px] font-semibold text-slate-500 uppercase tracking-wider ${h === "Status" ? "text-right" : ""}`}>
+                <th
+                  key={h}
+                  className={`px-4 sm:px-6 py-3 text-[12px] font-semibold text-slate-500 uppercase tracking-wider ${
+                    h === "Status" ? "text-right" : ""
+                  } ${h === "Email" ? "hidden sm:table-cell" : ""}`}
+                >
                   {h}
                 </th>
               ))}
@@ -180,13 +185,13 @@ function RecentClinicsTable({ clinics = [], loading }) {
               <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">No clinics found.</td></tr>
             ) : clinics.map((c, i) => (
               <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4 font-medium text-slate-900 text-sm">{c.name}</td>
-                <td className="px-6 py-4 text-slate-500 text-sm">{c.email}</td>
-                <td className="px-6 py-4 text-slate-500 text-sm">
+                <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">{c.name}</td>
+                <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden sm:table-cell">{c.email}</td>
+                <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm">
                   {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                <td className="px-4 sm:px-6 py-4 text-right">
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${
                     c.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
                   }`}>
                     {c.isActive ? "Active" : "Inactive"}
@@ -276,15 +281,15 @@ const apptStatus = {};
   return (
     <div>
       {/* Page Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-[30px] font-bold leading-[38px] tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
             Executive Overview
           </h2>
           <p className="text-sm text-slate-500 mt-1">Real-time operational status across the clinic network.</p>
         </div>
 
-        <div className="relative">
+        <div className="relative self-start sm:self-auto">
           <button
             onClick={() => setPickerOpen((v) => !v)}
             className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all"

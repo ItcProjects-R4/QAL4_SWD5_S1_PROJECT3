@@ -21,7 +21,7 @@ function StatusBadge({ status }) {
 
   return (
     <span
-      className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+      className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${
         styles[s] || "bg-slate-100 text-slate-500"
       }`}
     >
@@ -35,7 +35,7 @@ function Leaderboard({ rows = [], loading }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100">
-        <h3 className="text-xl font-semibold text-slate-900">
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
           Performance Leaderboard
         </h3>
       </div>
@@ -45,18 +45,20 @@ function Leaderboard({ rows = [], loading }) {
           <thead className="bg-slate-50/50">
             <tr>
               {[
-                "Clinic Name",
-                "Doctors",
-                "Load",
-                "Satisfaction",
-                "Patients",
-                "Status",
-              ].map((h) => (
+                { label: "Clinic Name", hideOnMobile: false },
+                { label: "Doctors", hideOnMobile: true },
+                { label: "Load", hideOnMobile: false },
+                { label: "Satisfaction", hideOnMobile: false },
+                { label: "Patients", hideOnMobile: true },
+                { label: "Status", hideOnMobile: false },
+              ].map(({ label, hideOnMobile }) => (
                 <th
-                  key={h}
-                  className="px-6 py-4 text-[12px] font-semibold text-slate-500 uppercase tracking-wider"
+                  key={label}
+                  className={`px-4 sm:px-6 py-4 text-[12px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap ${
+                    hideOnMobile ? "hidden md:table-cell" : ""
+                  }`}
                 >
-                  {h}
+                  {label}
                 </th>
               ))}
             </tr>
@@ -85,17 +87,17 @@ function Leaderboard({ rows = [], loading }) {
               rows.map((r, i) => {
                 return (
                   <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-slate-900 text-sm">
+                    <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">
                       {r.name}
                     </td>
 
-                    <td className="px-6 py-4 text-slate-500 text-sm">
+                    <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden md:table-cell">
                       {r.doctors ?? "—"}
                     </td>
 
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-4 sm:px-6 py-4 text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 max-w-[80px]">
+                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 max-w-[60px] sm:max-w-[80px]">
                           <div
                             className="bg-slate-800 h-1.5 rounded-full"
                             style={{
@@ -103,13 +105,13 @@ function Leaderboard({ rows = [], loading }) {
                             }}
                           />
                         </div>
-                        <span className="text-slate-500 text-xs">
+                        <span className="text-slate-500 text-xs whitespace-nowrap">
                           {r.load ?? "—"}%
                         </span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-4 sm:px-6 py-4 text-sm">
                       <div className="flex items-center gap-1 text-amber-500">
                         <span
                           className="material-symbols-outlined text-sm"
@@ -123,11 +125,11 @@ function Leaderboard({ rows = [], loading }) {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-slate-500 text-sm">
+                    <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden md:table-cell">
                       {r.patients ?? "—"}
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <StatusBadge status={r.status} />
                     </td>
                   </tr>
@@ -173,7 +175,7 @@ function GrowthLineChart({ data = [] }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-slate-900">
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
           Clinics Growth Trend
         </h3>
         <p className="text-sm text-slate-500">
@@ -181,7 +183,7 @@ function GrowthLineChart({ data = [] }) {
         </p>
       </div>
 
-      <div className="relative h-[300px] w-full">
+      <div className="relative h-[220px] sm:h-[300px] w-full">
         <svg
           className="w-full h-full"
           preserveAspectRatio="none"
@@ -222,9 +224,9 @@ function GrowthLineChart({ data = [] }) {
         </svg>
       </div>
 
-      <div className="flex justify-between mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+      <div className="flex justify-between mt-4 text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tighter overflow-hidden">
         {data.map((d, i) => (
-          <span key={i}>
+          <span key={i} className="truncate">
             {MONTHS[(d.month ?? i + 1) - 1]}
           </span>
         ))}
@@ -242,8 +244,8 @@ function StatusDonut({ active = 0, inactive = 0 }) {
   const inactiveDash = total ? (inactive / total) * circ : 0;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-sm">
-      <h3 className="text-xl font-semibold text-slate-900 mb-1">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 w-full max-w-sm">
+      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1">
         Status Distribution
       </h3>
       <p className="text-sm text-slate-500 mb-8">
@@ -251,7 +253,7 @@ function StatusDonut({ active = 0, inactive = 0 }) {
       </p>
 
       <div className="flex flex-col items-center">
-        <div className="relative w-48 h-48 flex items-center justify-center">
+        <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F1F5F9" strokeWidth="12" />
             <circle
@@ -294,7 +296,7 @@ function StatusDonut({ active = 0, inactive = 0 }) {
           ].map(({ color, label, value }) => (
             <div key={label} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${color}`} />
+                <div className={`w-3 h-3 rounded-full ${color} shrink-0`} />
                 <span className="text-sm font-medium text-slate-700">
                   {label}
                 </span>
@@ -347,7 +349,7 @@ export default function Reports() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <div>
-        <h1 className="text-[30px] font-bold text-slate-900">
+        <h1 className="text-2xl sm:text-[30px] font-bold text-slate-900">
           System-wide Reports
         </h1>
         <p className="text-slate-500 mt-1 text-sm">
