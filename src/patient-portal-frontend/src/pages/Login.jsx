@@ -13,6 +13,7 @@ export default function Login() {
     const [errors, setErrors] = useState({})
     const [general, setGeneral] = useState('')
     const [loading, setLoading] = useState(false)
+    const [shakeForm, setShakeForm] = useState(false)
 
     /* ── animated background (canvas crosses) ── */
     useEffect(() => {
@@ -104,7 +105,11 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setGeneral('')
-        if (!validate()) return
+        if (!validate()) {
+            setShakeForm(true)
+            setTimeout(() => setShakeForm(false), 500)
+            return
+        }
         setLoading(true)
         try {
             const res = await api.post('/api/portal/auth/login', { phone, password })
@@ -117,10 +122,13 @@ export default function Login() {
         } catch (err) {
             const msg = err.response?.data?.message || 'Login failed. Please try again.'
             setGeneral(msg)
+            setShakeForm(true)
+            setTimeout(() => setShakeForm(false), 500)
 
             // ✅ لو الرقم مش متحقق منه، روحه تلقائياً لصفحة OTP بعد ما نبعت كود جديد
             if (msg.toLowerCase().includes('not verified')) {
                 try {
+                    // purpose: 0 = OTPPurpose.Register (نفس purpose التحقق من رقم التليفون عند التسجيل)
                     await api.post('/api/portal/auth/resend-otp', { phone, purpose: 0 })
                 } catch {
                     // تجاهل فشل الـ resend هنا - صفحة OTP نفسها فيها زرار resend تاني لو احتاج
@@ -134,13 +142,13 @@ export default function Login() {
     }
 
     const fieldCls = (key) =>
-        `w-full pl-10 pr-3 py-3 border rounded bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${errors[key]
+        `w-full pl-10 pr-3 py-3 border rounded-xl bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${errors[key]
             ? 'border-error focus:border-error focus:ring-error'
             : 'border-outline-variant focus:border-primary focus:ring-primary'
         }`
 
     return (
-        <div className="bg-background text-on-surface min-h-screen flex flex-col relative overflow-hidden">
+        <div className="bg-background text-on-surface min-h-screen flex flex-col relative overflow-hidden page-enter">
             {/* Animated background */}
             <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-0" style={{ backgroundColor: '#f8f9ff' }} />
 
@@ -148,18 +156,18 @@ export default function Login() {
             <header className="bg-surface/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
                 <div className="flex justify-between items-center w-full px-8 max-w-7xl mx-auto h-16">
                     <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
+                        <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <button className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant">
+                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
                         <span className="material-symbols-outlined">help</span>
-                    </button>
+                    </Link>
                 </div>
             </header>
 
             {/* Card */}
             <main className="flex-grow flex items-center justify-center p-4 md:p-8 relative z-10">
-                <div className="bg-surface-container-lowest w-full max-w-md border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-6 md:p-10 fade-up">
+                <div className={`bg-surface-container-lowest w-full max-w-md border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-6 md:p-10 fade-up ${shakeForm ? 'shake' : ''}`}>
                     <div className="text-center mb-6">
                         <h1 className="font-semibold text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">Welcome Back</h1>
                         <p className="text-body-md text-on-surface-variant">Please sign in to access your patient portal.</p>
@@ -183,10 +191,11 @@ export default function Login() {
                                         else setErrors(p => { const n = { ...p }; delete n.phone; return n })
                                     }}
                                     placeholder="01xxxxxxxxx"
+                                    autoComplete="tel"
                                     className={fieldCls('phone')}
                                 />
                             </div>
-                            {errors.phone && <p className="text-label-sm text-error">{errors.phone}</p>}
+                            {errors.phone && <p className="text-label-sm text-error fade-in">{errors.phone}</p>}
                         </div>
 
                         {/* Password */}
@@ -206,34 +215,43 @@ export default function Login() {
                                         else setErrors(p => { const n = { ...p }; delete n.password; return n })
                                     }}
                                     placeholder="••••••••"
+                                    autoComplete="current-password"
                                     className={fieldCls('password') + ' pr-10'}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPw(v => !v)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-primary"
+                                    aria-label={showPw ? 'Hide password' : 'Show password'}
                                 >
                                     <span className="material-symbols-outlined">{showPw ? 'visibility_off' : 'visibility'}</span>
                                 </button>
                             </div>
-                            {errors.password && <p className="text-label-sm text-error">{errors.password}</p>}
+                            {errors.password && <p className="text-label-sm text-error fade-in">{errors.password}</p>}
                             <div className="flex justify-end mt-1">
-                                <a className="text-label-sm text-primary hover:text-primary-container transition-colors" href="#">Forgot Password?</a>
+                                <Link className="text-label-sm text-primary hover:text-primary-container transition-colors hover:underline" to="/forgot-password">
+                                    Forgot Password?
+                                </Link>
                             </div>
                         </div>
 
-                        {general && <p className="text-label-sm text-error text-center">{general}</p>}
+                        {general && <p className="text-label-sm text-error text-center fade-in">{general}</p>}
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary-container hover:bg-primary text-on-primary font-medium text-label-md py-3 rounded-lg transition-colors active:opacity-80 mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="btn-press w-full bg-primary-container hover:bg-primary text-on-primary font-medium text-label-md py-3 rounded-xl transition-colors active:opacity-80 mt-3 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {loading ? 'Logging in...' : 'Login'}
+                            {loading ? (
+                                <>
+                                    <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
+                                    Logging in...
+                                </>
+                            ) : 'Login'}
                         </button>
                     </form>
 
-                    <div className="mt-xl text-center">
+                    <div className="mt-6 text-center">
                         <p className="text-body-md text-on-surface-variant">
                             Don't have an account?{' '}
                             <Link className="text-primary hover:underline font-medium" to="/register">Register</Link>

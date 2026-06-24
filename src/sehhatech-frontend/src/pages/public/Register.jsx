@@ -119,6 +119,7 @@ export default function Register() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [toast, setToast] = useState(null); // { message, type }
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -150,9 +151,10 @@ export default function Register() {
         return (
             requiredFilled &&
             form.password === form.confirmPassword &&
-            strength.checks.length
+            strength.checks.length &&
+            agreedToTerms
         );
-    }, [form, strength]);
+    }, [form, strength, agreedToTerms]);
 
     const showToast = (message, type = "success") => {
         setToast({ message, type });
@@ -181,6 +183,10 @@ export default function Register() {
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
             showToast("Please enter a valid email address.", "error");
+            return false;
+        }
+        if (!agreedToTerms) {
+            showToast("Please agree to the Terms of Service to continue.", "error");
             return false;
         }
         return true;
@@ -489,6 +495,31 @@ export default function Register() {
                                 </div>
                             </section>
 
+                            {/* Terms Agreement */}
+                            <div className="register-terms">
+                                <input
+                                    type="checkbox"
+                                    id="agreedToTerms"
+                                    checked={agreedToTerms}
+                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                    className="register-terms__checkbox"
+                                />
+                                <label
+                                    htmlFor="agreedToTerms"
+                                    className="register-terms__label"
+                                >
+                                    I agree to the{" "}
+                                    <Link to="/terms" target="_blank" className="register-terms__link">
+                                        Terms of Service
+                                    </Link>{" "}
+                                    and{" "}
+                                    <Link to="/privacy" target="_blank" className="register-terms__link">
+                                        Privacy Policy
+                                    </Link>
+                                    .
+                                </label>
+                            </div>
+
                             {/* Submit */}
                             <div
                                 className="register-submit"
@@ -498,7 +529,7 @@ export default function Register() {
                                 <button
                                     type="button"
                                     className="register-submit__btn"
-                                    disabled={isLoading}
+                                    disabled={isLoading || !isFormReady}
                                     onClick={handleRegister}
                                 >
                                     <span>

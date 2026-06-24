@@ -38,7 +38,7 @@ export default function Login() {
             case "Doctor":
                 navigate("/doctor/dashboard");
                 break;
-            case "Reception":
+            case "Receptionist":
                 navigate("/reception/dashboard");
                 break;
             default:
@@ -192,7 +192,7 @@ export default function Login() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((s) => !s)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary hover:scale-110 transition-all duration-200"
+                                        className="absolute right-1 top-1/2 -translate-y-1/2 p-2.5 text-outline hover:text-primary hover:scale-110 transition-all duration-200"
                                     >
                                         <span className="material-symbols-outlined">
                                             {showPassword ? "visibility_off" : "visibility"}
@@ -240,13 +240,13 @@ export default function Login() {
                         className={`mt-8 flex flex-col items-center gap-6 transition-all duration-700 ease-out delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                             }`}
                     >
-                        <a
+                        <Link
                             className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-80 transition-opacity"
-                            href="#"
+                            to="/contact"
                         >
                             <span className="material-symbols-outlined text-lg">help</span>
                             Need help?
-                        </a>
+                        </Link>
                         <div className="flex items-center gap-6 opacity-60">
                             <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">verified_user</span>
