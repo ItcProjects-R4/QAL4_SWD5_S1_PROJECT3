@@ -77,7 +77,9 @@ export default function ReceptionDashboard() {
 
       // detect new arrivals
       const currentIds = new Set(newQueue.map(i => i.appointmentId));
-      const added = new Set([...currentIds].filter(id => !prevQueueIds.current.has(id)));
+      const added = new Set(
+  [...currentIds].filter((id) => !prevQueueIds.current.has(id))
+);
       if (added.size > 0) {
         setNewRows(added);
         setTimeout(() => setNewRows(new Set()), 3000);
