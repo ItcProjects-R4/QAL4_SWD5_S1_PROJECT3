@@ -66,7 +66,7 @@
   <!-- Main title -->
   <text x="450" y="103" font-family="Arial Black, Impact, sans-serif" font-size="55" font-weight="900"
     text-anchor="middle" fill="#FFFFFF">
-    QAL4 &middot; SWD5 &middot; S1
+    QAL4 • SWD5 • S1
     <animate attributeName="opacity" values="0.88;1;0.88" dur="4s" repeatCount="indefinite"/>
   </text>
 
