@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- ═══════════ CUSTOM ANIMATED SVG BANNER ═══════════ -->
-<img src="https://raw.githubusercontent.com/abdelrahmanKhalawy/QAL4_SWD5_S1_PROJECT3/main/assets/banner.svg" width="100%" alt="QAL4 SWD5 S1"/>
+<img src="./assets/banner.svg" width="100%" alt="QAL4 SWD5 S1"/>
 
 <br/><br/>
 
