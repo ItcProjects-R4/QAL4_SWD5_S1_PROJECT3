@@ -6,6 +6,7 @@ export default function PublicFooter({ activePage }) {
         { to: "/terms", label: "Terms of Service", key: "terms" },
         { to: "/security", label: "Security", key: "security" },
         { to: "/status", label: "Status", key: "status" },
+        { to: "/contact", label: "Contact Us", key: "contact" },
     ];
 
     return (
