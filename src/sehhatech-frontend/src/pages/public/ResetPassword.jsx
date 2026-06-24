@@ -166,7 +166,7 @@ export default function ResetPassword() {
             <header className="reset-header">
                 <div className="reset-header__inner">
                     <div className="reset-brand">SehhaTech</div>
-                    <button className="reset-help" aria-label="Help">
+                    <Link to="/contact" className="reset-help" aria-label="Help">
                         <svg
                             className="icon icon-sm"
                             viewBox="0 0 24 24"
@@ -180,7 +180,7 @@ export default function ResetPassword() {
                             <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
                             <line x1="12" y1="17" x2="12" y2="17" />
                         </svg>
-                    </button>
+                    </Link>
                 </div>
             </header>
 
