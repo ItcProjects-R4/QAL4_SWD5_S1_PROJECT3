@@ -7,7 +7,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     useEffect(() => {
         async function fetchDashboard() {
             try {
@@ -43,7 +43,7 @@ export default function Dashboard() {
 
             {/* Stats Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-subtle hover:shadow-card transition-shadow flex flex-col justify-between h-40">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-subtle hover:shadow-card transition-shadow flex flex-col justify-between h-40 min-w-[260px]">
                     <div className="flex justify-between items-start">
                         <div>
                             <span className="text-[11px] font-800 text-slate-400 uppercase tracking-widest">

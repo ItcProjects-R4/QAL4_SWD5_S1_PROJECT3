@@ -1,53 +1,126 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://localhost:7153";
-const RECEPTION_API_BASE = `${API_BASE}/api/Reception`;
+import api from "./axios";
 
-function authHeaders() {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+function getMessage(error) {
+  return (
+    error.response?.data?.message ||
+    error.response?.data?.title ||
+    error.message ||
+    "Something went wrong"
+  );
 }
 
-async function readResponse(res) {
-  const text = await res.text();
+async function request(promise) {
   try {
-    return text ? JSON.parse(text) : {};
-  } catch {
-    return { message: text || "Request failed" };
+    const res = await promise;
+    return res.data;
+  } catch (error) {
+    console.log("Reception API Error:", error);
+    console.log("Status:", error.response?.status);
+    console.log("Data:", error.response?.data);
+    throw new Error(getMessage(error));
   }
-}
-
-async function request(method, path, body) {
-  const res = await fetch(`${RECEPTION_API_BASE}${path}`, {
-    method,
-    headers: authHeaders(),
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-
-  if (res.status === 401 || res.status === 403) {
-    const err = new Error("Unauthorized. Please login again.");
-    err.unauthorized = true;
-    throw err;
-  }
-
-  const data = await readResponse(res);
-  if (!res.ok) throw data;
-  return data;
 }
 
 export const receptionApi = {
-  getDashboard: () => request("GET", "/dashboard"),
-  getPatients: () => request("GET", "/patients"),
-  getPatient: (id) => request("GET", `/patients/${id}`),
-  addPatient: (body) => request("POST", "/patients", body),
-  getPatients: () => request("GET", "/patients"),
-  getAvailableDoctors: () => request("GET", "/doctors/available"),
-  getAppointments: (params) => request("GET", `/appointments?${params}`),
-  bookAppointment: (body) => request("POST", "/appointments", body),
-  checkInAppointment: (id) => request("PUT", `/appointments/${id}/checkin`),
-  getPayments: (params) => request("GET", `/payments?${params}`),
-  createPaymentInvoice: (body) => request("POST", "/payments", body),
-  initiatePayment: (invoiceId, body) => request("POST", `/payments/${invoiceId}/pay`, body),
-  markCashPayment: (invoiceId, body) => request("POST", `/payments/${invoiceId}/cash`, body),
+  // Dashboard
+  getDashboard() {
+    return request(api.get("/api/Reception/dashboard"));
+  },
+
+  // Patients
+  getPatients(search = "") {
+    const query = search ? `?search=${encodeURIComponent(search)}` : "";
+    return request(api.get(`/api/Reception/patients${query}`));
+  },
+
+  getPatient(id) {
+    return request(api.get(`/api/Reception/patients/${id}`));
+  },
+
+  addPatient(payload) {
+    return request(
+      api.post("/api/Reception/patients", {
+        fullName: payload.fullName?.trim(),
+        phone: payload.phone?.trim(),
+        email: payload.email?.trim(),
+        dateOfBirth: payload.dateOfBirth,
+        gender: payload.gender,
+      })
+    );
+  },
+
+  // Doctors
+  getAvailableDoctors() {
+    return request(api.get("/api/Reception/doctors/available"));
+  },
+
+  // Appointments
+  getAppointments(queryString = "") {
+    const query = queryString ? `?${queryString}` : "";
+    return request(api.get(`/api/Reception/appointments${query}`));
+  },
+
+  bookAppointment(payload) {
+    return request(
+      api.post("/api/Reception/appointments", {
+        patientId: Number(payload.patientId),
+        doctorId: Number(payload.doctorId),
+        appointmentDate: payload.appointmentDate,
+        duration: payload.duration || "00:30:00",
+        notes: payload.notes || null,
+      })
+    );
+  },
+
+  checkInAppointment(id) {
+    return request(api.put(`/api/Reception/appointments/${id}/checkin`));
+  },
+
+  // Queue
+  getQueue() {
+    return request(api.get("/api/Reception/queue"));
+  },
+
+  // Payments
+  getPayments(queryString = "") {
+    const query = queryString ? `?${queryString}` : "";
+    return request(api.get(`/api/Reception/payments${query}`));
+  },
+
+  getPayment(invoiceId) {
+    return request(api.get(`/api/Reception/payments/${invoiceId}`));
+  },
+
+  createPaymentInvoice(payload) {
+    return request(
+      api.post("/api/Reception/payments", {
+        patientId: Number(payload.patientId),
+        appointmentId: payload.appointmentId ? Number(payload.appointmentId) : null,
+        serviceName: payload.serviceName?.trim(),
+        totalAmount: Number(payload.totalAmount),
+        paidAmount: Number(payload.paidAmount || 0),
+        notes: payload.notes || null,
+      })
+    );
+  },
+
+  markCashPayment(invoiceId, payload) {
+    return request(
+      api.post(`/api/Reception/payments/${invoiceId}/cash`, {
+        amount: Number(payload.amount),
+        method: payload.method,
+        notes: payload.notes || null,
+      })
+    );
+  },
+
+  initiatePayment(invoiceId, payload) {
+    return request(
+      api.post(`/api/Reception/payments/${invoiceId}/pay`, {
+        amount: Number(payload.amount),
+        method: payload.method,
+        notes: payload.notes || null,
+      })
+    );
+  },
 };

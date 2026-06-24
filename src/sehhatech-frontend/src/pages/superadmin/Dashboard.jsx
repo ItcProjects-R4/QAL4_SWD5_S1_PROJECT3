@@ -50,7 +50,7 @@ function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <h3 className="text-xl font-semibold text-slate-900 mb-6">Appointment Status</h3>
       <div className="flex flex-col items-center">
-        <div className="relative w-48 h-48 mb-6">
+        <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
             <circle className="stroke-slate-100" cx="18" cy="18" fill="none" r="15.915" strokeWidth="3" />
             <circle cx="18" cy="18" fill="none" r="15.915" stroke="#EF4444"
@@ -86,35 +86,67 @@ function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
 }
 
 // ── Growth Chart ──────────────────────────────────────────────────────────────
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 
 function GrowthChart({ data = [] }) {
-  const max = Math.max(...data.map((d) => d.count ?? 0), 1);
+  if (!data.length) {
+    return (
+      <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <h3 className="text-xl font-semibold">Clinics Growth</h3>
+        <p className="text-slate-400 mt-6">No data available</p>
+      </div>
+    );
+  }
+
+  const chartData = data.map(d => ({
+    month: `${d.month}/${d.year}`,
+    count: d.count
+  }));
+
   return (
     <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-slate-900">Clinics Growth</h3>
-        <p className="text-sm text-slate-500">Monthly onboarding trends</p>
+        <h3 className="text-xl font-semibold text-slate-900">
+          Clinics Growth
+        </h3>
+        <p className="text-sm text-slate-500">
+          Monthly onboarding trends
+        </p>
       </div>
-      <div className="h-48 flex items-end gap-2 px-2">
-        {data.map((d, i) => {
-          const pct = Math.max((d.count / max) * 100, 4);
-          const isLast = i === data.length - 1;
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <div
-                title={`${MONTHS[(d.month ?? 1) - 1]}: ${d.count}`}
-                className={`w-full rounded-t-lg transition-all ${isLast ? "bg-slate-800" : "bg-blue-100 hover:bg-blue-200"}`}
-                style={{ height: `${pct}%` }}
-              />
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex justify-between mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-        {data.map((d, i) => (
-          <span key={i}>{MONTHS[(d.month ?? 1) - 1]}</span>
-        ))}
+
+      <div style={{ width: "100%", height: 280 }}>
+        <ResponsiveContainer>
+          <LineChart data={chartData}>
+            <defs>
+  <linearGradient id="colorLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stopColor="#2563EB" stopOpacity={0.8}/>
+    <stop offset="100%" stopColor="#60A5FA" stopOpacity={1}/>
+  </linearGradient>
+</defs>
+
+<Line stroke="url(#colorLine)" />
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke="#2563EB"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -125,8 +157,8 @@ function RecentClinicsTable({ clinics = [], loading }) {
   return (
     <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-slate-900">Recent Clinics</h3>
-        <Link to="/superadmin/clinics" className="text-sm text-slate-600 font-semibold hover:underline">
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">Recent Clinics</h3>
+        <Link to="/superadmin/clinics" className="text-sm text-slate-600 font-semibold hover:underline whitespace-nowrap">
           View All
         </Link>
       </div>
@@ -135,7 +167,12 @@ function RecentClinicsTable({ clinics = [], loading }) {
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               {["Name", "Email", "Onboarding", "Status"].map((h) => (
-                <th key={h} className={`px-6 py-3 text-[12px] font-semibold text-slate-500 uppercase tracking-wider ${h === "Status" ? "text-right" : ""}`}>
+                <th
+                  key={h}
+                  className={`px-4 sm:px-6 py-3 text-[12px] font-semibold text-slate-500 uppercase tracking-wider ${
+                    h === "Status" ? "text-right" : ""
+                  } ${h === "Email" ? "hidden sm:table-cell" : ""}`}
+                >
                   {h}
                 </th>
               ))}
@@ -148,13 +185,13 @@ function RecentClinicsTable({ clinics = [], loading }) {
               <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">No clinics found.</td></tr>
             ) : clinics.map((c, i) => (
               <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4 font-medium text-slate-900 text-sm">{c.name}</td>
-                <td className="px-6 py-4 text-slate-500 text-sm">{c.email}</td>
-                <td className="px-6 py-4 text-slate-500 text-sm">
+                <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">{c.name}</td>
+                <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden sm:table-cell">{c.email}</td>
+                <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm">
                   {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                <td className="px-4 sm:px-6 py-4 text-right">
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${
                     c.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
                   }`}>
                     {c.isActive ? "Active" : "Inactive"}
@@ -203,9 +240,14 @@ export default function SuperAdminDashboard() {
     setLoading(true);
     const params = start && end ? { startDate: toISO(start), endDate: toISO(end) } : {};
     superadmin.getDashboard(params)
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  .then(res => {
+    console.log("Dashboard Response:", res);
+    setData(res);
+  })
+  .catch(err => {
+    console.log("Dashboard Error:", err);
+  })
+  .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -218,12 +260,13 @@ export default function SuperAdminDashboard() {
   }
 
   // ── parse appointment status ───────────────────────────────────────────────
-  const apptStatus = {};
-  (data?.appointmentStatusDistribution ?? []).forEach(({ status, count }) => {
-    if (status && typeof status === "string") {
-      apptStatus[status.toLowerCase()] = count;
-    }
-  });
+  console.log("Appointment Status Distribution:", data?.appointmentStatusDistribution);
+
+const apptStatus = {};
+
+(data?.appointmentStatusDistribution ?? []).forEach(({ status, count }) => {
+  apptStatus[status] = count;
+});
 
   // ── growth chart data (sorted) ─────────────────────────────────────────────
   const growthData = [...(data?.clinicsGrowthChart ?? [])].sort((a, b) =>
@@ -238,15 +281,15 @@ export default function SuperAdminDashboard() {
   return (
     <div>
       {/* Page Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-[30px] font-bold leading-[38px] tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
             Executive Overview
           </h2>
           <p className="text-sm text-slate-500 mt-1">Real-time operational status across the clinic network.</p>
         </div>
 
-        <div className="relative">
+        <div className="relative self-start sm:self-auto">
           <button
             onClick={() => setPickerOpen((v) => !v)}
             className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all"
@@ -302,11 +345,11 @@ export default function SuperAdminDashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <GrowthChart data={growthData} />
-        <AppointmentDonut
-          confirmed={apptStatus["confirmed"] ?? 0}
-          pending={apptStatus["pending"] ?? 0}
-          cancelled={apptStatus["cancelled"] ?? 0}
-        />
+       <AppointmentDonut
+  confirmed={apptStatus[1] ?? 0}
+  pending={apptStatus[0] ?? 0}
+  cancelled={apptStatus[2] ?? 0}
+/>
       </div>
 
       {/* Recent Clinics */}

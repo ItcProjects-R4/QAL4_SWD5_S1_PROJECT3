@@ -15,7 +15,7 @@ async function apiFetch(path, options = {}) {
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ isActive }) {
   return (
-    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+    <span className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${
       isActive ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
     }`}>
       {isActive ? "Active" : "Inactive"}
@@ -26,8 +26,8 @@ function StatusBadge({ isActive }) {
 // ── Delete Modal ──────────────────────────────────────────────────────────────
 function DeleteModal({ clinic, onCancel, onConfirm }) {
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-[360px] flex flex-col items-center gap-4">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-[360px] flex flex-col items-center gap-4">
         <div className="p-3 bg-red-50 rounded-full">
           <span className="material-symbols-outlined text-red-500 text-3xl">delete</span>
         </div>
@@ -121,9 +121,9 @@ export default function Clinics() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-[30px] font-bold leading-[38px] tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
             Clinics Management
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
@@ -140,7 +140,7 @@ export default function Clinics() {
           { icon: "pending_actions", bg: "bg-amber-50",  iconColor: "text-amber-600",  label: "Inactive",      value: stats.inactive },
         ].map(({ icon, bg, iconColor, label, value }) => (
           <div key={label} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className={`w-12 h-12 ${bg} flex items-center justify-center rounded-lg`}>
+            <div className={`w-12 h-12 ${bg} flex items-center justify-center rounded-lg shrink-0`}>
               <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
             </div>
             <div>
@@ -152,7 +152,7 @@ export default function Clinics() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex flex-wrap items-center gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap">
           <span className="material-symbols-outlined text-slate-400">filter_list</span> Filter by:
         </div>
@@ -161,12 +161,12 @@ export default function Clinics() {
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 min-w-[200px]"
+          className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 w-full sm:w-auto sm:min-w-[200px]"
         />
         <select
           value={statusFilter}
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-          className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 min-w-[140px]"
+          className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 w-full sm:w-auto sm:min-w-[140px]"
         >
           <option>All Statuses</option>
           <option>Active</option>
@@ -174,7 +174,7 @@ export default function Clinics() {
         </select>
         <button
           onClick={() => { setSearch(""); setStatus("All Statuses"); setPage(1); }}
-          className="ml-auto text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+          className="sm:ml-auto text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors text-left sm:text-right"
         >
           Clear Filters
         </button>
@@ -187,7 +187,12 @@ export default function Clinics() {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
                 {["Clinic Name", "Phone", "Email", "Status", "Actions"].map((h) => (
-                  <th key={h} className={`px-6 py-4 text-sm font-semibold text-slate-600 ${h === "Actions" ? "text-right" : ""}`}>
+                  <th
+                    key={h}
+                    className={`px-4 sm:px-6 py-4 text-sm font-semibold text-slate-600 ${
+                      h === "Actions" ? "text-right" : ""
+                    } ${h === "Email" || h === "Phone" ? "hidden sm:table-cell" : ""}`}
+                  >
                     {h}
                   </th>
                 ))}
@@ -200,13 +205,13 @@ export default function Clinics() {
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-sm">No clinics found.</td></tr>
               ) : paginated.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                     <p className="font-semibold text-slate-900 text-sm">{c.name}</p>
                   </td>
-                  <td className="px-6 py-4 text-slate-500 text-sm">{c.phone ?? "—"}</td>
-                  <td className="px-6 py-4 text-slate-500 text-sm">{c.email ?? "—"}</td>
-                  <td className="px-6 py-4"><StatusBadge isActive={c.isActive} /></td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden sm:table-cell">{c.phone ?? "—"}</td>
+                  <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden sm:table-cell">{c.email ?? "—"}</td>
+                  <td className="px-4 sm:px-6 py-4"><StatusBadge isActive={c.isActive} /></td>
+                  <td className="px-4 sm:px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                      <button
   onClick={() => toggleStatus(c)}
@@ -233,8 +238,8 @@ export default function Clinics() {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
+        <div className="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center sm:justify-between gap-3">
+          <p className="text-sm text-slate-500 text-center sm:text-left">
             Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
             {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} clinics
           </p>

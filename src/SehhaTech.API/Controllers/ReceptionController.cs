@@ -865,7 +865,6 @@ public class ReceptionController : ControllerBase
             data = invoice
         });
     }
-
     [HttpPost("payments")]
     public async Task<IActionResult> CreatePaymentInvoice(CreatePaymentInvoiceRequest request)
     {
@@ -947,7 +946,10 @@ public class ReceptionController : ControllerBase
             TenantId = tenantId,
             PatientId = request.PatientId,
             AppointmentId = request.AppointmentId,
-            InvoiceNumber = $"INV-{DateTime.Now:yyyyMMddHHmmss}",
+
+            // ✅ Better unique invoice number
+            InvoiceNumber = $"INV-{DateTime.Now:yyyyMMddHHmmssfff}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}",
+
             ServiceName = request.ServiceName.Trim(),
             TotalAmount = request.TotalAmount,
             PaidAmount = request.PaidAmount,
@@ -1067,12 +1069,23 @@ public class ReceptionController : ControllerBase
             });
         }
 
+        // ✅ /cash endpoint must not accept Online
         if (!allowOnline && request.Method == PaymentMethod.Online)
         {
             return BadRequest(new
             {
                 success = false,
                 message = "Use online payment endpoint for online payments"
+            });
+        }
+
+        // ✅ /pay endpoint must accept Online only
+        if (allowOnline && request.Method != PaymentMethod.Online)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Use cash endpoint for cash or card payments"
             });
         }
 

@@ -15,7 +15,7 @@ async function apiFetch(path, options = {}) {
 // ── Toggle Switch ─────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, activeColor = "bg-emerald-500" }) {
   return (
-    <label className="relative inline-flex items-center cursor-pointer">
+    <label className="relative inline-flex items-center cursor-pointer shrink-0">
       <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
       <div
         className={`w-11 h-6 rounded-full transition-colors duration-200
@@ -103,7 +103,7 @@ export default function Settings() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-[30px] font-bold leading-[38px] tracking-tight text-slate-900">
+        <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
           System Settings
         </h2>
         <p className="text-slate-500 text-sm mt-1">
@@ -130,7 +130,7 @@ export default function Settings() {
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                     Email Address
                   </label>
-                  <p className="text-sm text-slate-900">{profile.email}</p>
+                  <p className="text-sm text-slate-900 break-all">{profile.email}</p>
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
@@ -191,11 +191,14 @@ export default function Settings() {
           {/* System Toggles */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 className="text-2xl font-semibold text-slate-900">System Status & Toggles</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">System Status & Toggles</h3>
             </div>
             <div className="divide-y divide-slate-100">
               {systemToggles.map(({ key, icon, iconBg, iconColor, title, desc, activeColor }) => (
-                <div key={key} className="p-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                <div
+                  key={key}
+                  className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+                >
                   <div className="flex gap-4">
                     <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
                       <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
@@ -218,7 +221,7 @@ export default function Settings() {
           {/* Danger Zone */}
           <div className="bg-red-50/30 border border-red-200/60 rounded-xl p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-red-100 p-2 rounded-lg">
+              <div className="bg-red-100 p-2 rounded-lg shrink-0">
                 <span className="material-symbols-outlined text-red-500">warning</span>
               </div>
               <div className="flex-1">
@@ -227,10 +230,10 @@ export default function Settings() {
                   Actions here are irreversible and will affect the entire network.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <button className="bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold">
+                  <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold">
                     Flush System Cache
                   </button>
-                  <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold">
+                  <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold">
                     Factory Reset Network
                   </button>
                 </div>

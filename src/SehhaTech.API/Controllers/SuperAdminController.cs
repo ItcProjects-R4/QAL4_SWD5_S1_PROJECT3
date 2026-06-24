@@ -174,14 +174,34 @@ namespace SehhaTech.API.Controllers
                 Status = g.Key,
                 Count = g.Count()
             }).ToListAsync();
-            var leaderboard = await _context.Tenants
-             .Select(t => new
-             {
-                 t.Name,
-                 Doctors = _context.Doctors.Count(d => d.TenantId == t.Id),
-                 Patients = _context.Patients.Count(p => p.TenantId == t.Id)
+            var leaderboardRaw = await _context.Tenants
+    .Select(t => new
+    {
+        t.Name,
+        t.IsActive,
+        Doctors = _context.Doctors.Count(d => d.TenantId == t.Id),
+        Patients = _context.Patients.Count(p => p.TenantId == t.Id),
+        TotalAppointments = _context.Appointments.Count(a => a.TenantId == t.Id),
+        CompletedAppointments = _context.Appointments.Count(a => a.TenantId == t.Id && a.Status == AppointmentStatus.Completed),
+        TodayAppointments = _context.Appointments.Count(a => a.TenantId == t.Id && a.AppointmentDate.Date == DateTime.Today)
+    })
+    .OrderByDescending(x => x.Patients)
+    .Take(5)
+    .ToListAsync();
 
-             }).OrderByDescending(x => x.Patients).Take(5).ToListAsync();
+var leaderboard = leaderboardRaw.Select(x => new
+{
+    x.Name,
+    x.Doctors,
+    x.Patients,
+    Load = x.Doctors > 0
+        ? Math.Round((double)x.TodayAppointments / (x.Doctors * 8) * 100, 0)
+        : 0,
+    Satisfaction = x.TotalAppointments > 0
+        ? Math.Round((double)x.CompletedAppointments / x.TotalAppointments * 5, 1)
+        : 0,
+    Status = x.IsActive ? "Active" : "Inactive"
+}).ToList();
             return Ok(new
             {
                 ClinicsGrowthTrend = clinicsGrowth,
