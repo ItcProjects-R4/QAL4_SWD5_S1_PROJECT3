@@ -14,7 +14,7 @@
 
 <br/><br/>
 
-<!-- ════════════ TECH BADGES ════════════ -->
+<!-- ════════ TECH BADGES ════════ -->
 <img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
 <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white" />
 <img src="https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
@@ -26,30 +26,38 @@
 
 <br/>
 
-<!-- ════════════ DEPLOYMENT BADGES ════════════ -->
+<!-- ════════ DEPLOYMENT BADGES ════════ -->
 <img src="https://img.shields.io/badge/Railway-Deployed-0B0D0E?style=for-the-badge&logo=railway&logoColor=white" />
 <img src="https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=black" />
 <img src="https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" />
 
 <br/><br/>
 
-<!-- ════════════ LIVE REPO STATS ════════════ -->
+<!-- ════════ GITHUB PINNED REPO CARD ════════ -->
+<a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI">
+  <img src="https://github-readme-stats.vercel.app/api/pin/?username=abdelrahmanKhalawy&repo=Final-Project-DEPI&theme=tokyonight&hide_border=false&bg_color=0D1117&title_color=00B4D8&icon_color=FFD700&text_color=FFFFFF&border_color=1A4A6A" />
+</a>
+
+<br/><br/>
+
+<!-- ════════ DYNAMIC REPO STATS (FIXED) ════════ -->
 <a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI/stargazers">
-  <img src="https://img.shields.io/github/stars/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=FFD700&labelColor=1a1a2e&logo=star" />
+  <img src="https://img.shields.io/github/stars/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=FFD700&label=%E2%AD%90+Stars" />
 </a>
 <a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI/network/members">
-  <img src="https://img.shields.io/github/forks/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=0077B6&labelColor=1a1a2e" />
+  <img src="https://img.shields.io/github/forks/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=00B4D8&label=%F0%9F%8D%B4+Forks" />
 </a>
 <a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI/commits/main">
-  <img src="https://img.shields.io/github/last-commit/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=00B4D8&labelColor=1a1a2e&label=Last+Commit" />
+  <img src="https://img.shields.io/github/last-commit/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=2ECC71&label=%F0%9F%94%84+Last+Commit" />
 </a>
-<a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI/blob/main/LICENSE">
-  <img src="https://img.shields.io/github/license/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=2ECC71&labelColor=1a1a2e" />
+<a href="https://github.com/abdelrahmanKhalawy/Final-Project-DEPI/issues">
+  <img src="https://img.shields.io/github/issues/abdelrahmanKhalawy/Final-Project-DEPI?style=for-the-badge&color=E74C3C&label=%F0%9F%90%9B+Issues" />
 </a>
 
 <br/>
 
 <img src="https://img.shields.io/badge/DEPI-Graduation%20Project%202026-FF6B35?style=for-the-badge" />
+<img src="https://img.shields.io/badge/License-MIT-2ECC71?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Made%20In-Egypt%20%F0%9F%87%AA%F0%9F%87%AC-E74C3C?style=for-the-badge" />
 
 </div>
@@ -157,23 +165,45 @@ The platform delivers two fully cloud-deployed systems:
 
 SehhaTech is built on a **clean 3-layer architecture** — two independent APIs sharing one PostgreSQL database, with full tenant isolation enforced at the infrastructure layer.
 
-```
-╔══════════════════════════════════════════════════════════════════════════╗
-║                         🏥  SehhaTech Platform                         ║
-╠══════════════════════════════╦═══════════════════════════════════════════╣
-║   System 1: Clinic Mgmt     ║       System 2: Patient Portal           ║
-║   (Multi-Tenant SaaS)       ║       (Public Self-Service)              ║
-╠══════════════════════════════╬═══════════════════════════════════════════╣
-║  📡 SehhaTech.API            ║   📡 SehhaTech.PatientPortal.API        ║
-║  🖥️  sehhatech-frontend       ║   📱 patient-portal-frontend            ║
-╠══════════════════════════════╩═══════════════════════════════════════════╣
-║         🧠 SehhaTech.Core   +   🏗️ SehhaTech.Infrastructure            ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║                       🐘  PostgreSQL Database                           ║
-╚══════════════════════════════════════════════════════════════════════════╝
+```mermaid
+flowchart TB
+    subgraph Platform["🏥  SehhaTech Platform"]
+        subgraph S1["  📋 System 1 — Clinic Management (Multi-Tenant SaaS)  "]
+            direction LR
+            API1("📡 SehhaTech.API")
+            FE1("🖥️ sehhatech-frontend")
+        end
 
-         ☁️ Railway              ☁️ Render              🌐 Vercel
-      (Clinic API)           (Portal API)          (Both Frontends)
+        subgraph S2["  📋 System 2 — Patient Portal (Public Self-Service)  "]
+            direction LR
+            API2("📡 PatientPortal.API")
+            FE2("📱 patient-portal-frontend")
+        end
+
+        subgraph SH["  ⚙️ Shared Domain & Infrastructure  "]
+            direction LR
+            CORE("🧠 SehhaTech.Core")
+            INFRA("🏗️ SehhaTech.Infrastructure")
+        end
+
+        DB[("🐘 PostgreSQL\nDatabase")]
+    end
+
+    RAIL("☁️ Railway\nClinic API")
+    REND("☁️ Render\nPortal API")
+    VERC("🌐 Vercel\nBoth Frontends")
+
+    FE1 -->|HTTPS| API1
+    FE2 -->|HTTPS| API2
+    API1 --> CORE
+    API2 --> CORE
+    CORE --> INFRA
+    INFRA -->|EF Core| DB
+
+    API1 -. deployed on .-> RAIL
+    API2 -. deployed on .-> REND
+    FE1 -. deployed on .-> VERC
+    FE2 -. deployed on .-> VERC
 ```
 
 ---
@@ -305,10 +335,10 @@ A clean, modern platform for patients to **take control of their healthcare jour
 │   │
 │   ├── 🔵 SehhaTech.API/                     # Clinic Management REST API
 │   │   ├── 📁 Controllers/
-│   │   │   ├── SuperAdminController.cs         # Platform-wide management
-│   │   │   ├── DoctorController.cs             # Doctor-facing endpoints
-│   │   │   └── ReceptionController.cs          # Reception desk endpoints
-│   │   └── Program.cs                          # App config & middleware pipeline
+│   │   │   ├── SuperAdminController.cs
+│   │   │   ├── DoctorController.cs
+│   │   │   └── ReceptionController.cs
+│   │   └── Program.cs
 │   │
 │   ├── 🧠 SehhaTech.Core/                    # Domain Layer (Framework-free)
 │   │   ├── 📁 Entities/                        # Database models
@@ -321,26 +351,25 @@ A clean, modern platform for patients to **take control of their healthcare jour
 │   │   └── 📁 Services/                        # External & utility services
 │   │
 │   ├── 🏥 SehhaTech.PatientPortal.API/        # Patient Portal REST API
-│   │   ├── 📁 Controllers/                     # Patient-facing endpoints
-│   │   └── Program.cs                          # App config
+│   │   ├── 📁 Controllers/
+│   │   └── Program.cs
 │   │
 │   ├── ⚛️  sehhatech-frontend/                # Clinic Management UI
 │   │   └── 📁 src/
-│   │       ├── 📁 components/                  # Reusable UI components
-│   │       └── 📁 pages/                       # Page-level views
+│   │       ├── 📁 components/
+│   │       └── 📁 pages/
 │   │
 │   └── 📱 patient-portal-frontend/             # Patient Booking UI
 │       └── 📁 src/
-│           ├── 📁 components/                  # Reusable UI components
-│           └── 📁 pages/                       # Page-level views
+│           ├── 📁 components/
+│           └── 📁 pages/
 │
-├── 📁 assets/                                  # Logos & media
-│   └── 📁 screenshots/                         # App screenshots
-├── 📁 database/                                # SQL scripts & seed data
-├── 📁 docs/                                    # API documentation
-├── 📁 presentation/                            # Slides & demo materials
-├── 📄 .gitignore
-├── 📄 LICENSE
+├── 📁 assets/
+│   ├── logo.png
+│   └── 📁 screenshots/
+├── 📁 database/
+├── 📁 docs/
+├── 📁 presentation/
 └── 📄 README.md
 ```
 
@@ -372,7 +401,6 @@ cd Final-Project-DEPI
 
 ```bash
 cd src/SehhaTech.API
-
 dotnet restore
 
 # Edit appsettings.json → update your PostgreSQL connection string:
@@ -388,7 +416,6 @@ dotnet run   # → https://localhost:5001
 
 ```bash
 cd ../SehhaTech.PatientPortal.API
-
 dotnet restore
 dotnet ef database update
 dotnet run   # → https://localhost:5002
@@ -402,12 +429,8 @@ dotnet run   # → https://localhost:5002
 
 ```bash
 cd ../../src/sehhatech-frontend
-
 npm install
-
-# Create .env file
 echo "VITE_API_URL=http://localhost:5001" > .env
-
 npm run dev   # → http://localhost:5173
 ```
 
@@ -415,25 +438,10 @@ npm run dev   # → http://localhost:5173
 
 ```bash
 cd ../patient-portal-frontend
-
 npm install
-
 echo "VITE_API_URL=http://localhost:5002" > .env
-
 npm run dev   # → http://localhost:5174
 ```
-
----
-
-### 🔧 Environment Variables
-
-| Variable | Where | Description |
-|:---------|:-----:|:-----------|
-| `VITE_API_URL` | Both frontends | Backend API base URL |
-| `ConnectionStrings__DefaultConnection` | Both APIs | PostgreSQL connection string |
-| `JWT__SecretKey` | Both APIs | JWT signing secret |
-| `JWT__Issuer` | Both APIs | Token issuer |
-| `OTP__EmailSender` | PatientPortal API | OTP email sender config |
 
 ---
 
@@ -467,7 +475,7 @@ npm run dev   # → http://localhost:5174
 <tr>
 <td align="center">
   <a href="https://github.com/abdelrahmanKhalawy">
-    <img src="https://github.com/abdelrahmanKhalawy.png" width="110px" alt="Abdelrahman" style="border-radius:50%;border:3px solid #0077B6"/>
+    <img src="https://github.com/abdelrahmanKhalawy.png" width="110px" alt="Abdelrahman"/>
     <br/><br/>
     <b>Abdelrahman</b>
   </a>
@@ -476,7 +484,7 @@ npm run dev   # → http://localhost:5174
 </td>
 <td align="center">
   <a href="https://github.com/maryam-888">
-    <img src="https://github.com/maryam-888.png" width="110px" alt="Maryam" style="border-radius:50%;border:3px solid #00B4D8"/>
+    <img src="https://github.com/maryam-888.png" width="110px" alt="Maryam"/>
     <br/><br/>
     <b>Maryam</b>
   </a>
@@ -485,7 +493,7 @@ npm run dev   # → http://localhost:5174
 </td>
 <td align="center">
   <a href="https://github.com/shahd13-abdalaziz">
-    <img src="https://github.com/shahd13-abdalaziz.png" width="110px" alt="Shahd" style="border-radius:50%;border:3px solid #00B4D8"/>
+    <img src="https://github.com/shahd13-abdalaziz.png" width="110px" alt="Shahd"/>
     <br/><br/>
     <b>Shahd</b>
   </a>
@@ -494,7 +502,7 @@ npm run dev   # → http://localhost:5174
 </td>
 <td align="center">
   <a href="https://github.com/BaherKhedr">
-    <img src="https://github.com/BaherKhedr.png" width="110px" alt="Baher" style="border-radius:50%;border:3px solid #00B4D8"/>
+    <img src="https://github.com/BaherKhedr.png" width="110px" alt="Baher"/>
     <br/><br/>
     <b>Baher</b>
   </a>
@@ -503,7 +511,7 @@ npm run dev   # → http://localhost:5174
 </td>
 <td align="center">
   <a href="https://github.com/naglashawky">
-    <img src="https://github.com/naglashawky.png" width="110px" alt="Naglaa" style="border-radius:50%;border:3px solid #00B4D8"/>
+    <img src="https://github.com/naglashawky.png" width="110px" alt="Naglaa"/>
     <br/><br/>
     <b>Naglaa</b>
   </a>
