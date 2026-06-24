@@ -105,13 +105,12 @@ export default function ReceptionPayments() {
 
   const [payModalInvoice, setPayModalInvoice] = useState(null);
   const [payAmount, setPayAmount] = useState("");
-  const [payMethod, setPayMethod] = useState("Online");
+  const [payMethod, setPayMethod] = useState("Cash");
   const [payNotes, setPayNotes] = useState("");
   const [paySubmitting, setPaySubmitting] = useState(false);
 
   const [quickInvoiceId, setQuickInvoiceId] = useState("");
-  const [quickMethod, setQuickMethod] = useState("Online");
-
+  const [quickMethod, setQuickMethod] = useState("Cash");
   const [paymobUrl, setPaymobUrl] = useState(null);
 
   const loadPayments = useCallback(async () => {
@@ -218,7 +217,7 @@ export default function ReceptionPayments() {
   function openPayModal(invoice) {
     setPayModalInvoice(invoice);
     setPayAmount(String(invoice.remainingAmount));
-    setPayMethod("Online");
+    setPayMethod("Cash");
     setPayNotes("");
   }
 
@@ -226,23 +225,21 @@ export default function ReceptionPayments() {
     setPayModalInvoice(null);
   }
 
-  async function startOnlinePayment(invoiceId, amount, notes) {
-    try {
-      const result = await receptionApi.initiatePayment(invoiceId, { amount, method: 3, notes });
+ async function startOnlinePayment(invoiceId, amount, notes) {
+  try {
+    const result = await receptionApi.initiatePayment(invoiceId, {
+      amount,
+      method: methodMap.Online,
+      notes,
+    });
 
-      if (result?.iframeUrl) {
-        closePayModal();
-        setPaymobUrl(result.iframeUrl);
-        return;
-      }
-
-      showToast(result?.message || "Online payment initiated.");
-      closePayModal();
-      await loadPayments();
-    } catch (err) {
-      showToast(err.message || "Failed to initiate payment.", "error");
-    }
+    showToast(result?.message || "Online payment saved successfully.");
+    closePayModal();
+    await loadPayments();
+  } catch (err) {
+    showToast(err.message || "Failed to save online payment.", "error");
   }
+}
 
   async function markCashOrCardPayment(invoiceId, amount, method, notes) {
     try {
