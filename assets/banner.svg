@@ -1,0 +1,97 @@
+<svg width="900" height="230" viewBox="0 0 900 230" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f3460"/>
+      <stop offset="50%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0d1b2a"/>
+    </linearGradient>
+    <filter id="ecgGlow" x="-5%" y="-50%" width="110%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="txtGlow" x="-10%" y="-30%" width="120%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="clip"><rect width="900" height="230" rx="12"/></clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="230" fill="url(#bgG)" rx="12"/>
+
+  <!-- Grid -->
+  <g clip-path="url(#clip)" stroke="#00B4D8" stroke-width="0.4" opacity="0.07">
+    <line x1="0" y1="46" x2="900" y2="46"/><line x1="0" y1="92" x2="900" y2="92"/>
+    <line x1="0" y1="138" x2="900" y2="138"/><line x1="0" y1="184" x2="900" y2="184"/>
+    <line x1="150" y1="0" x2="150" y2="230"/><line x1="300" y1="0" x2="300" y2="230"/>
+    <line x1="450" y1="0" x2="450" y2="230"/><line x1="600" y1="0" x2="600" y2="230"/>
+    <line x1="750" y1="0" x2="750" y2="230"/>
+  </g>
+
+  <!-- ECG Line (seamless loop: path repeats every 500px, animates +500px) -->
+  <g clip-path="url(#clip)" filter="url(#ecgGlow)">
+    <path d="M-500,138 L-330,138 L-315,120 L-300,138 L-268,138 L-256,162 L-246,40 L-236,186 L-226,138 L-196,138 L-166,108 L-148,138
+             L0,138 L170,138 L185,120 L200,138 L232,138 L244,162 L254,40 L264,186 L274,138 L304,138 L334,108 L352,138
+             L500,138 L670,138 L685,120 L700,138 L732,138 L744,162 L754,40 L764,186 L774,138 L804,138 L834,108 L852,138
+             L1000,138 L1170,138 L1185,120 L1200,138 L1232,138 L1244,162 L1254,40 L1264,186 L1274,138 L1304,138 L1334,108 L1352,138 L1500,138"
+      fill="none" stroke="#00B4D8" stroke-width="2.2" opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="500,0" dur="4s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Radar ping LEFT -->
+  <circle cx="72" cy="100" r="3" fill="#00B4D8">
+    <animate attributeName="r" values="2;5;2" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="72" cy="100" r="10" fill="none" stroke="#00B4D8" stroke-width="1.2">
+    <animate attributeName="r" values="6;22;6" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Radar ping RIGHT -->
+  <circle cx="828" cy="100" r="3" fill="#00B4D8">
+    <animate attributeName="r" values="2;5;2" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="828" cy="100" r="10" fill="none" stroke="#00B4D8" stroke-width="1.2">
+    <animate attributeName="r" values="6;22;6" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Glow layer for title -->
+  <text x="450" y="103" font-family="Arial Black, Impact, sans-serif" font-size="55" font-weight="900"
+    text-anchor="middle" fill="#00B4D8" opacity="0.22" filter="url(#txtGlow)">QAL4 SWD5 S1</text>
+
+  <!-- Main title -->
+  <text x="450" y="103" font-family="Arial Black, Impact, sans-serif" font-size="55" font-weight="900"
+    text-anchor="middle" fill="#FFFFFF">
+    QAL4 &middot; SWD5 &middot; S1
+    <animate attributeName="opacity" values="0.88;1;0.88" dur="4s" repeatCount="indefinite"/>
+  </text>
+
+  <!-- Animated underline -->
+  <rect y="116" height="2.5" fill="#00B4D8" rx="1.5">
+    <animate attributeName="x" values="390;310;390" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="width" values="120;280;120" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Subtitle -->
+  <text x="450" y="154" font-family="Arial, Helvetica, sans-serif" font-size="15"
+    text-anchor="middle" fill="#a8d8ea" letter-spacing="4">DEPI FULL STACK .NET TRACK</text>
+
+  <!-- Caption -->
+  <text x="450" y="193" font-family="Arial, Helvetica, sans-serif" font-size="12"
+    text-anchor="middle" fill="#3d6b8a" letter-spacing="2">
+    Projects Repository  —  Team of 5  —  Egypt  —  2025
+  </text>
+
+  <!-- Corner brackets -->
+  <g stroke="#00B4D8" stroke-width="2.5" fill="none">
+    <path d="M22,22 L22,50 M22,22 L50,22"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M878,22 L878,50 M878,22 L850,22"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M22,208 L22,180 M22,208 L50,208"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/></path>
+    <path d="M878,208 L878,180 M878,208 L850,208"><animate attributeName="opacity" values="0.9;0.5;0.9" dur="3s" repeatCount="indefinite"/></path>
+  </g>
+</svg>
