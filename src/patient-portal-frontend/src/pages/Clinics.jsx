@@ -5,6 +5,9 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
 const SPECIALTIES = ['Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'General', 'Dental']
+// ✅ مفيش حقل City مستقل في الباك إند - فلتر المدينة فعلياً بيدور جوه نص "Address" الحر
+// (ClinicSearchService: query.Where(t => t.Address.Contains(city))) فلو عنوان العيادة
+// مكتوب فيه اسم المدينة بالحروف دي بالظبط، الفلترة هتشتغل صح
 const CITIES = ['Cairo', 'Alexandria', 'Giza']
 
 export default function Clinics() {
@@ -47,7 +50,7 @@ export default function Clinics() {
     }
 
     return (
-        <div className="bg-background min-h-screen flex flex-col text-on-surface relative overflow-x-hidden">
+        <div className="bg-background min-h-screen flex flex-col text-on-surface relative overflow-x-hidden page-enter">
             {/* decorative floating icons */}
             {[{ top: '10%', left: '5%', delay: '0s' }, { top: '40%', right: '10%', delay: '-5s' }, { bottom: '20%', left: '15%', delay: '-10s' }].map((s, i) => (
                 <span key={i} className="material-symbols-outlined fixed z-0 pointer-events-none select-none"
@@ -55,7 +58,6 @@ export default function Clinics() {
                     medical_services
                 </span>
             ))}
-            <style>{`@keyframes float{0%{transform:translateY(0) rotate(0deg) scale(1)}50%{transform:translateY(-30px) rotate(15deg) scale(1.05)}100%{transform:translateY(20px) rotate(-10deg) scale(.95)}}`}</style>
 
             <Navbar />
 
@@ -105,14 +107,25 @@ export default function Clinics() {
 
                 {/* Grid */}
                 {loading ? (
-                    <div className="text-center py-16">
-                        <span className="material-symbols-outlined text-outline text-[64px] block mb-3">hourglass_empty</span>
-                        <p className="text-body-lg text-on-surface-variant">Loading clinics...</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="w-12 h-12 rounded-xl skeleton" />
+                                    <div className="w-16 h-6 rounded-lg skeleton" />
+                                </div>
+                                <div className="h-6 w-3/4 rounded skeleton mb-2" />
+                                <div className="h-4 w-1/2 rounded skeleton mb-6" />
+                                <div className="h-4 w-2/3 rounded skeleton mb-2" />
+                                <div className="h-4 w-1/2 rounded skeleton mb-8" />
+                                <div className="h-10 w-full rounded-lg skeleton" />
+                            </div>
+                        ))}
                     </div>
                 ) : error ? (
-                    <p className="text-error text-body-md text-center py-16">{error}</p>
+                    <p className="text-error text-body-md text-center py-16 fade-in">{error}</p>
                 ) : clinics.length === 0 ? (
-                    <div className="text-center py-16">
+                    <div className="text-center py-16 fade-up">
                         <span className="material-symbols-outlined text-outline text-[64px] block mb-3">search_off</span>
                         <p className="text-body-lg text-on-surface-variant">No clinics found.</p>
                     </div>
@@ -121,23 +134,25 @@ export default function Clinics() {
                         {clinics.map((c, i) => (
                             <div
                                 key={c.id}
-                                className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] fade-up"
+                                className="card-hover bg-surface-container-lowest border border-outline-variant rounded-xl p-6 fade-up"
                                 style={{ animationDelay: `${0.3 + i * 0.1}s` }}
                             >
                                 <div className="flex justify-between items-start mb-3">
-                                    <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary">
+                                    <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary icon-pop">
                                         <span className="material-symbols-outlined text-[24px]">local_hospital</span>
                                     </div>
-                                    <span className={`px-2 py-1 rounded-lg font-semibold text-label-sm flex items-center gap-1 ${c.isActive ? 'bg-[#e6f4ea] text-[#137333]' : 'bg-surface-container-high text-on-surface-variant'}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${c.isActive ? 'bg-[#137333]' : 'bg-outline'}`} />
+                                    <span className={`px-2 py-1 rounded-lg font-semibold text-label-sm flex items-center gap-1 ${c.isActive ? 'bg-success-container text-success' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${c.isActive ? 'bg-success' : 'bg-outline'}`} />
                                         {c.isActive ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
                                 <h3 className="font-semibold text-headline-md text-on-surface mb-1">{c.name || 'Clinic'}</h3>
-                                <p className="text-body-md text-on-surface-variant mb-6">{c.specialty || ''}</p>
+                                {/* ✅ الباك إند بيرجع "specialization" مش "specialty" (ClinicSummaryResponse.Specialization) */}
+                                <p className="text-body-md text-on-surface-variant mb-6">{c.specialization || ''}</p>
                                 <div className="space-y-2 mb-10">
+                                    {/* ✅ مفيش حقل "city" في الباك إند خالص - بس فيه "address" (ClinicSummaryResponse.Address) */}
                                     <div className="flex items-center text-on-surface-variant text-label-md">
-                                        <span className="material-symbols-outlined text-outline mr-2 text-[16px]">location_on</span>{c.city || ''}
+                                        <span className="material-symbols-outlined text-outline mr-2 text-[16px]">location_on</span>{c.address || ''}
                                     </div>
                                     <div className="flex items-center text-on-surface-variant text-label-md">
                                         <span className="material-symbols-outlined text-outline mr-2 text-[16px]">call</span>{c.phone || ''}
@@ -146,7 +161,7 @@ export default function Clinics() {
                                 <button
                                     onClick={() => viewClinic(c.id, c.name)}
                                     disabled={!c.isActive}
-                                    className={`w-full font-medium text-label-md py-2 rounded-lg transition-colors ${c.isActive
+                                    className={`btn-press w-full font-medium text-label-md py-2 rounded-lg transition-colors ${c.isActive
                                             ? 'bg-primary-container text-on-primary hover:bg-primary'
                                             : 'bg-surface-container text-outline cursor-not-allowed opacity-70'
                                         }`}

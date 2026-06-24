@@ -120,7 +120,7 @@ export default function Status() {
                             data-reveal="fade-up"
                             style={{ "--reveal-delay": `${i * 70}ms` }}
                         >
-                            <div>
+                            <div className="status-service-row__info">
                                 <span className="status-service-row__name">
                                     {service.name}
                                 </span>
