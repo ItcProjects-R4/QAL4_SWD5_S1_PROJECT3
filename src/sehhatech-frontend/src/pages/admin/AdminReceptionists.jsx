@@ -44,8 +44,12 @@ export default function AdminReceptionists() {
     }
 
     async function submitAdd() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!form.name || !form.email) {
             setFormError('Please fill all required fields.'); return;
+        }
+        if (!emailRegex.test(form.email)) {
+            setFormError('Please enter a valid email (e.g. name@example.com).'); return;
         }
         setSubmitting(true);
         try {
@@ -125,7 +129,7 @@ export default function AdminReceptionists() {
                             recs.map((r) => {
                                 const isActive = r.isActive ?? r.IsActive;
                                 const name = r.fullName || r.FullName || '?';
-                                const photo = r.photoUrl || r.PhotoUrl;
+                                const photo = r.profileImageUrl || r.ProfileImageUrl || r.photoUrl || r.PhotoUrl;
                                 return (
                                     <tr key={r.id || r.Id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">

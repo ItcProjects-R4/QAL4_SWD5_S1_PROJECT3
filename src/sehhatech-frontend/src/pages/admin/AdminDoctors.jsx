@@ -46,8 +46,12 @@ export default function AdminDoctors() {
     }
 
     async function submitAdd() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!form.name || !form.specialization || !form.email) {
             setFormError('Please fill all required fields.'); return;
+        }
+        if (!emailRegex.test(form.email)) {
+            setFormError('Please enter a valid email (e.g. name@example.com).'); return;
         }
         setSubmitting(true);
         try {
@@ -136,7 +140,7 @@ export default function AdminDoctors() {
                                 const isActive = d.isActive ?? d.IsActive;
                                 const id = d.id || d.Id;
                                 const name = d.fullName || d.FullName || '?';
-                                const photo = d.photoUrl || d.PhotoUrl;
+                                const photo = d.profileImageUrl || d.ProfileImageUrl || d.photoUrl || d.PhotoUrl;
                                 return (
                                     <tr key={id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
