@@ -131,29 +131,34 @@ namespace SehhaTech.API.Controllers
         {
             var tenant = await _context.Tenants.FindAsync(id);
             if (tenant == null)
-                return NotFound(new
-                {
-                    success = false,
-                    message = "Clinic not found"
-                });
+                return NotFound(new { success = false, message = "Clinic not found" });
 
-            var doctors = _context.Doctors.Where(d => d.TenantId == id);
-            var patients = _context.Patients.Where(p => p.TenantId == id);
+            // 1. invoices (مرتبطة بـ appointments و patients)
+            var invoices = _context.PaymentInvoices.Where(x => x.TenantId == id);
+            _context.PaymentInvoices.RemoveRange(invoices);
+
+            // 2. appointments
             var appointments = _context.Appointments.Where(a => a.TenantId == id);
-
-            _context.Doctors.RemoveRange(doctors);
-            _context.Patients.RemoveRange(patients);
             _context.Appointments.RemoveRange(appointments);
 
+            // 3. patients
+            var patients = _context.Patients.Where(p => p.TenantId == id);
+            _context.Patients.RemoveRange(patients);
+
+            // 4. doctors
+            var doctors = _context.Doctors.Where(d => d.TenantId == id);
+            _context.Doctors.RemoveRange(doctors);
+
+            // 5. users (آخر حاجة قبل الـ tenant)
+            var users = _context.Users.Where(u => u.TenantId == id);
+            _context.Users.RemoveRange(users);
+
+            // 6. tenant نفسه (الـ Subscription هتتمسح تلقائي بـ Cascade)
             _context.Tenants.Remove(tenant);
 
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                success = true,
-                message = "Clinic Deleted Successfully"
-            });
+            return Ok(new { success = true, message = "Clinic Deleted Successfully" });
         }
         [HttpGet("reports")]
         public async Task<IActionResult> GetReports()
