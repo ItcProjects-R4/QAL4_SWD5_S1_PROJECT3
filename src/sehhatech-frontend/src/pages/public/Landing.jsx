@@ -5,6 +5,7 @@ import ChatbotWidget from "../../components/public/ChatbotWidget";
 import heroDashboardImg from "../../assets/images/hero-dashboard.png";
 import aboutClinicDoctorImg from "../../assets/images/about-clinic-doctor.png";
 import storyMobileAppImg from "../../assets/images/story-mobile-app.png";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 const openChat = () => window.dispatchEvent(new Event("sehhatech:open-chat"));
 
@@ -257,7 +258,11 @@ export default function Landing() {
             <nav className="landing-nav">
                 <div className="landing-nav__inner">
                     <div className="landing-nav__brand">
-                        <span className="landing-nav__brand-icon">S</span>
+                        <img
+                            src={sehhatechIcon}
+                            alt="SehhaTech"
+                            className="landing-nav__brand-icon"
+                        />
                         SehhaTech
                     </div>
                     <div className="landing-nav__links">

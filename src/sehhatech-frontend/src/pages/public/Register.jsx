@@ -1,6 +1,8 @@
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axios";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 const SPECIALIZATIONS = [
     "General Practice",
@@ -245,7 +247,14 @@ export default function Register() {
                             </svg>
                             <span>Back</span>
                         </button>
-                        <div className="register-brand">SehhaTech</div>
+                        <div className="register-brand">
+                            <img
+                                src={sehhatechIcon}
+                                alt="SehhaTech"
+                                className="register-brand__icon"
+                            />
+                            SehhaTech
+                        </div>
                     </div>
                 </div>
             </header>
