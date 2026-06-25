@@ -136,7 +136,7 @@ function App() {
                     <Route path="settings" element={<Settings />} />
                 </Route>
 
-                {/* 404 — must stay last */}
+                {/* 404 ï¿½ must stay last */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </>
