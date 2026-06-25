@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 
 export default function AdminSettings() {
-    const [form, setForm] = useState({ name: '', phone: '', address: '', logoUrl: '' });
-    const [sub, setSub] = useState({ plan: '—', expiry: '—' });
+    const [form, setForm] = useState({ clinicName: '', phone: '', address: '' });
+    const [sub, setSub] = useState({ active: false, expiry: '—' });
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
@@ -14,18 +14,19 @@ export default function AdminSettings() {
         try {
             const res = await api.get('/api/admin/settings');
             const s = res.data.data ?? res.data;
+            // ClinicSettingsDto: clinicName, phone, address, subscriptionStart, subscriptionEnd, isSubscriptionActive
             setForm({
-                name: s.name || s.Name || '',
+                clinicName: s.clinicName || s.ClinicName || '',
                 phone: s.phone || s.Phone || '',
                 address: s.address || s.Address || '',
-                logoUrl: s.logoUrl || s.LogoUrl || '',
             });
-            const expiry = s.subscriptionExpiry || s.SubscriptionExpiry;
+            const expiry = s.subscriptionEnd || s.SubscriptionEnd;
+            const isActive = s.isSubscriptionActive ?? s.IsSubscriptionActive ?? false;
             setSub({
-                plan: s.subscriptionPlan || s.SubscriptionPlan || 'Standard',
+                active: isActive,
                 expiry: expiry ? new Date(expiry).toLocaleDateString('en-GB') : '—',
             });
-            localStorage.setItem('clinicName', s.name || s.Name || 'SehhaTech');
+            localStorage.setItem('clinicName', s.clinicName || s.ClinicName || 'SehhaTech');
         } catch {
             setError('Failed to load settings.');
         }
@@ -36,13 +37,13 @@ export default function AdminSettings() {
         setMsg('');
         setError('');
         try {
+            // UpdateClinicSettingsDto: clinicName, phone, address
             await api.put('/api/admin/settings', {
-                name: form.name || null,
+                clinicName: form.clinicName || null,
                 phone: form.phone || null,
                 address: form.address || null,
-                logoUrl: form.logoUrl || null,
             });
-            localStorage.setItem('clinicName', form.name || 'SehhaTech');
+            localStorage.setItem('clinicName', form.clinicName || 'SehhaTech');
             setMsg('Settings saved successfully!');
         } catch (e) {
             setError(e.response?.data?.message || 'Failed to save settings.');
@@ -66,10 +67,9 @@ export default function AdminSettings() {
                 </h3>
                 <div className="space-y-4">
                     {[
-                        { id: 'name', label: 'Clinic Name', placeholder: 'My Clinic' },
+                        { id: 'clinicName', label: 'Clinic Name', placeholder: 'My Clinic' },
                         { id: 'phone', label: 'Phone', placeholder: '+20 1xx xxx xxxx' },
                         { id: 'address', label: 'Address', placeholder: '123 Street, Cairo, Egypt' },
-                        { id: 'logoUrl', label: 'Logo URL', placeholder: 'https://...' },
                     ].map((f) => (
                         <div key={f.id}>
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">{f.label}</label>
@@ -104,8 +104,10 @@ export default function AdminSettings() {
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-slate-50 rounded-lg p-4">
-                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Plan</p>
-                        <p className="font-bold text-slate-900">{sub.plan}</p>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Status</p>
+                        <span className={`text-sm font-bold ${sub.active ? 'text-green-600' : 'text-red-500'}`}>
+                            {sub.active ? '✓ Active' : '✗ Inactive'}
+                        </span>
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4">
                         <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Expires</p>
