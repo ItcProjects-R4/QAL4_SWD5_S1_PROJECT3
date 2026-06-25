@@ -25,7 +25,16 @@ export default function Header({ profile, onMenuClick, sidebarOpen }) {
                     <p className="text-[10px] text-slate-400 font-semibold uppercase">{spec}</p>
                 </div>
                 <div
-                    className="w-8 h-8 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition"
+                    className="
+w-8 h-8
+rounded-full
+cursor-pointer
+transition-all duration-300
+hover:scale-110
+hover:ring-2
+hover:ring-blue-200
+hover:shadow-md
+"
                     onClick={() => navigate("/doctor/profile")}
                 >
                     {imgUrl ? (
