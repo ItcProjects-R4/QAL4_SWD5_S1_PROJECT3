@@ -420,12 +420,26 @@ export default function ReceptionPatients() {
                   onChange={(e) => setPatientForm({ ...patientForm, fullName: e.target.value })}
                   className="mt-1 w-full rounded-xl border-slate-300" />
               </label>
-              <label>
-                <span className="text-sm font-bold text-slate-600">Phone</span>
-                <input required value={patientForm.phone}
-                  onChange={(e) => setPatientForm({ ...patientForm, phone: e.target.value })}
-                  className="mt-1 w-full rounded-xl border-slate-300" />
-              </label>
+                          <label>
+                              <span className="text-sm font-bold text-slate-600">Phone</span>
+                              <input
+                                  required
+                                  type="tel"
+                                  inputMode="numeric"
+                                  pattern="^[0-9]{10,15}$"
+                                  title="Phone must contain digits only and be between 10 and 15 digits"
+                                  value={patientForm.phone}
+                                  onChange={(e) =>
+                                      setPatientForm({
+                                          ...patientForm,
+                                          phone: e.target.value.replace(/\D/g, ""), // يقبل أرقام بس وقت الكتابة
+                                      })
+                                  }
+                                  className="mt-1 w-full rounded-xl border-slate-300"
+                                  placeholder="01012345678"
+                              />
+                              <span className="text-xs text-slate-400">10–15 digits, numbers only</span>
+                          </label>
               <label>
                 <span className="text-sm font-bold text-slate-600">Email</span>
                 <input required type="email" value={patientForm.email}

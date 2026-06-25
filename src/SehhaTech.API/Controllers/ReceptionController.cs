@@ -457,13 +457,19 @@ public class ReceptionController : ControllerBase
         var appointmentStart = request.AppointmentDate;
         var appointmentEnd = request.AppointmentDate.Add(request.Duration);
 
-        var hasConflict = await _context.Appointments
-            .AnyAsync(a =>
-                a.TenantId == tenantId &&
-                a.DoctorId == request.DoctorId &&
-                a.Status != AppointmentStatus.Cancelled &&
-                appointmentStart < a.AppointmentDate.Add(a.Duration) &&
-                appointmentEnd > a.AppointmentDate);
+        var existingAppointments = await _context.Appointments
+    .Where(a =>
+        a.TenantId == tenantId &&
+        a.DoctorId == request.DoctorId &&
+        a.Status != AppointmentStatus.Cancelled &&
+        a.AppointmentDate >= appointmentStart.AddHours(-3) &&
+        a.AppointmentDate <= appointmentEnd.AddHours(3))
+    .Select(a => new { a.AppointmentDate, a.Duration })
+    .ToListAsync();
+
+        var hasConflict = existingAppointments.Any(a =>
+            appointmentStart < a.AppointmentDate.Add(a.Duration) &&
+            appointmentEnd > a.AppointmentDate);
 
         if (hasConflict)
         {
