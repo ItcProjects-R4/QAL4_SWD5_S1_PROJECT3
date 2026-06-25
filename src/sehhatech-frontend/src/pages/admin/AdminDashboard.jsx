@@ -112,7 +112,7 @@ export default function AdminDashboard() {
                         {(data.recentRegistrations || data.RecentRegistrations || []).map((p, i) => {
                             const name = p.fullName || p.FullName || '?';
                             const role = p.role || p.Role || '';
-                            const imgUrl = p.profileImageUrl || p.ProfileImageUrl;
+                            const imgUrl = p.profileImageUrl || p.ProfileImageUrl || p.photoUrl || p.PhotoUrl;
                             const createdAt = p.createdAt || p.CreatedAt;
                             const roleColor = role === 'Doctor'
                                 ? 'bg-blue-100 text-blue-700'
