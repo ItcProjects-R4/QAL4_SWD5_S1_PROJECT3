@@ -67,13 +67,21 @@ export default function SuperAdminLayout() {
     <div className="flex min-h-screen bg-slate-50 font-manrope">
       {/* ── Sidebar ── */}
       <aside className="bg-white w-[272px] h-screen fixed left-0 top-0 flex flex-col z-50 border-r border-slate-200/80">
-        <div className="px-6 pt-8 pb-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 shrink-0">
-            <span className="material-symbols-outlined text-white text-[22px]">health_and_safety</span>
-          </div>
+
+        {/* Logo / Brand */}
+        <div className="px-6 pt-8 pb-6 flex items-center gap-3 group">
+          <img
+            src="/logo.png"
+            alt="SehhaTech Logo"
+            className="w-14 h-14 object-contain shrink-0 transition-transform duration-300 group-hover:scale-105"
+          />
           <div>
-            <h1 className="text-lg font-extrabold text-slate-900 tracking-tight leading-tight">SehhaTech</h1>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Super Admin</p>
+            <h1 className="text-[19px] font-extrabold text-blue-600 tracking-tight leading-tight">
+              SehhaTech
+            </h1>
+            <p className="text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.12em] mt-0.5">
+              Super Admin
+            </p>
           </div>
         </div>
 
@@ -203,7 +211,7 @@ export default function SuperAdminLayout() {
                 }}
                 className="flex items-center gap-2.5 hover:bg-slate-100 rounded-xl pl-2 pr-3 py-1.5 transition-all"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white text-[11px] font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold">
                   {initials}
                 </div>
                 <span className="font-semibold text-slate-800 text-[13px] hidden sm:block">{adminName}</span>
