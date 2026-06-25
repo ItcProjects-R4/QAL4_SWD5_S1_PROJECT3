@@ -96,7 +96,13 @@ export default function MySchedule() {
 
                 {/* Right: Patient Details */}
                 <div className="col-span-12 lg:col-span-7 space-y-6">
-                    <section className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
+                    <section className="bg-white rounded border border-slate-200 shadow-sm transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-40">
                         <div className="p-8 border-b border-slate-100 flex items-start gap-6">
                             <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                 <span
@@ -146,7 +152,10 @@ export default function MySchedule() {
                                 <button
                                     onClick={openPatientDetails}
                                     disabled={!selected}
-                                    className="w-full bg-primary text-white py-3.5 rounded font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                                    className="w-full bg-primary text-white py-3.5 rounded font-bold text-sm transition-all duration-200
+hover:scale-105
+active:scale-95
+hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                                 >
                                     <span className="material-symbols-outlined text-[20px]">person</span>
                                     View Patient Profile

@@ -36,7 +36,20 @@ export default function PatientRecords() {
     return (
         <Layout>
             {/* Doctor Info */}
-            <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-subtle hover:shadow-card transition-shadow min-w-[260px]">
+            <section className="bg-white
+    p-6
+    rounded-2xl
+    border border-slate-200
+    shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-40
+    min-w-[260px]">
                 <div className="flex flex-col md:flex-row items-start gap-5">
                     <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {imgUrl ? (
@@ -72,7 +85,14 @@ export default function PatientRecords() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Patients Table */}
-                <section className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-subtle hover:shadow-card transition-shadow overflow-hidden min-w-[260px]">
+                <section className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-subtle  transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-60
+    min-w-[260px]">
                     <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
                         <h2 className="text-lg font-extrabold text-primary">My Patients</h2>
                         <span className="text-xs text-slate-400 font-semibold">
@@ -139,7 +159,20 @@ export default function PatientRecords() {
 
                 {/* Upcoming */}
                 <aside className="lg:col-span-4">
-                    <div className="bg-white border border-slate-200 rounded-2xl shadow-subtle hover:shadow-card transition-shadow p-6 min-w-[260px]">
+                    <div className="bg-white
+    p-6
+    rounded-2xl
+    border border-slate-200
+    shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-40
+    min-w-[260px]">
                         <div className="flex items-center gap-2 mb-5">
                             <span className="material-symbols-outlined text-primary text-[20px]">event</span>
                             <h2 className="text-lg font-extrabold text-primary">Upcoming</h2>

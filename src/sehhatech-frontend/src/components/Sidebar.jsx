@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
+import { motion } from "framer-motion";
 export default function Sidebar({ profile, sidebarOpen }) {
     const { logout } = useAuth();
 
@@ -30,20 +30,20 @@ export default function Sidebar({ profile, sidebarOpen }) {
             `}
         >
             {/* Brand */}
-            <div className="mb-8 px-6 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 shrink-0">
-                    <span
-                        className="material-symbols-outlined text-white text-[22px]"
-                        style={{ fontVariationSettings: '"FILL" 1' }}
-                    >
-                        medical_services
-                    </span>
+            <div className="mb-8 px-4 flex items-center gap-3">
+                <div className="w-10 h-10 flex-shrink-0">
+                    <img
+                        src="/logo.png"
+                        alt="SehhaTech Logo"
+                        className="w-full h-full object-contain"
+                    />
                 </div>
 
                 <div>
                     <h2 className="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">
                         SehhaTech
                     </h2>
+
                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                         Doctor Portal
                     </p>

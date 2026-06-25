@@ -102,6 +102,7 @@ export default function DoctorProfile() {
 
     return (
         <Layout>
+          
             <div className="flex justify-between items-start">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
@@ -109,7 +110,10 @@ export default function DoctorProfile() {
                 </div>
                 <button
                     onClick={openEditModal}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity shadow-subtle"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold transition-all duration-200
+hover:scale-105
+active:scale-95
+hover:opacity-90 transition-opacity shadow-subtle"
                 >
                     <span className="material-symbols-outlined text-[18px]">edit</span>
                     Edit Profile
@@ -117,7 +121,20 @@ export default function DoctorProfile() {
             </div>
 
             {/* Profile Hero Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle overflow-hidden min-w-[260px]">
+            <div className=" bg-white
+    p-6
+    rounded-2xl
+    border border-slate-200
+    shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-60
+    min-w-[260px]">
                 <div className="h-32 bg-gradient-to-r from-primary to-slate-600" />
                 <div className="px-6 md:px-8 pb-8">
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4">
@@ -167,7 +184,20 @@ export default function DoctorProfile() {
 
             {/* Info Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6 min-w-[260px]">
+                <div className=" bg-white
+    p-6
+    rounded-2xl
+    border border-slate-200
+    shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-60
+    min-w-[260px]">
                     <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
                         <span className="material-symbols-outlined text-primary text-[18px]">badge</span>
                         Personal Information
@@ -187,7 +217,20 @@ export default function DoctorProfile() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-6 min-w-[260px]">
+                <div className=" bg-white
+    p-6
+    rounded-2xl
+    border border-slate-200
+    shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-60
+    min-w-[260px]">
                     <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-5">
                         <span className="material-symbols-outlined text-primary text-[18px]">medical_services</span>
                         Professional Information
@@ -213,7 +256,15 @@ export default function DoctorProfile() {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-30">
                     <span
                         className="material-symbols-outlined text-primary text-2xl"
                         style={{ fontVariationSettings: '"FILL" 1' }}
@@ -223,7 +274,15 @@ export default function DoctorProfile() {
                     <p className="text-3xl font-bold text-slate-900 mt-1">{loading ? "-" : stats.today}</p>
                     <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-1">Today</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-30">
                     <span
                         className="material-symbols-outlined text-primary text-2xl"
                         style={{ fontVariationSettings: '"FILL" 1' }}
@@ -233,7 +292,15 @@ export default function DoctorProfile() {
                     <p className="text-3xl font-bold text-slate-900 mt-1">{loading ? "-" : stats.upcoming}</p>
                     <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-1">Upcoming</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-subtle p-5 text-center shadow-subtle
+
+    transition-all duration-300 ease-out
+    hover:-translate-y-1
+    hover:shadow-xl
+    hover:border-slate-300
+
+    flex flex-col justify-between
+    h-30">
                     <span
                         className="material-symbols-outlined text-primary text-2xl"
                         style={{ fontVariationSettings: '"FILL" 1' }}
@@ -318,21 +385,28 @@ export default function DoctorProfile() {
                         <div className="px-6 pb-6 flex gap-3">
                             <button
                                 onClick={closeEditModal}
-                                className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                                className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 transition-all duration-200
+hover:scale-105
+active:scale-95
+hover:opacity-90 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={saveProfile}
                                 disabled={saving}
-                                className="flex-1 px-4 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                                className="flex-1 px-4 py-3 bg-primary text-white rounded-xl text-sm font-semibold transition-all duration-200
+hover:scale-105
+active:scale-95
+hover:opacity-90 transition-opacity disabled:opacity-60"
                             >
                                 {saving ? "Saving..." : "Save Changes"}
                             </button>
                         </div>
                     </div>
                 </div>
-            )}
+                )}
+         
         </Layout>
     );
 }
