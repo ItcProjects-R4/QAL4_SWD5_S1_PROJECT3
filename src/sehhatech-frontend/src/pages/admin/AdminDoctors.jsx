@@ -25,9 +25,11 @@ export default function AdminDoctors() {
     const [loading, setLoading] = useState(true);
     const [addOpen, setAddOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [form, setForm] = useState({ name: '', specialization: '', email: '', photoUrl: '' });
+    const [form, setForm] = useState({ name: '', specialization: '', email: '' });
     const [formError, setFormError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState('');
 
     useEffect(() => { loadDoctors(); }, []);
 
@@ -53,10 +55,12 @@ export default function AdminDoctors() {
                 fullName: form.name,
                 specialization: form.specialization,
                 email: form.email,
-                profileImageUrl: form.photoUrl || null,
+                profileImageUrl: photoFile || null,
             });
             setAddOpen(false);
-            setForm({ name: '', specialization: '', email: '', photoUrl: '' });
+            setForm({ name: '', specialization: '', email: '' });
+            setPhotoFile(null);
+            setPhotoPreview('');
             setFormError('');
             loadDoctors();
         } catch (e) {
@@ -64,6 +68,17 @@ export default function AdminDoctors() {
         } finally {
             setSubmitting(false);
         }
+    }
+
+    function handlePhotoChange(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            setPhotoFile(ev.target.result);
+            setPhotoPreview(ev.target.result);
+        };
+        reader.readAsDataURL(file);
     }
 
     async function toggleDoctor(id) {
@@ -136,7 +151,7 @@ export default function AdminDoctors() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-700">{d.specialization || d.Specialization || '—'}</td>
-                                        <td className="px-6 py-4 text-xs text-slate-500">{d.phone || d.Phone || '—'}</td>
+                                        <td className="px-6 py-4 text-xs text-slate-500">{d.email || d.Email || '—'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -176,14 +191,12 @@ export default function AdminDoctors() {
                 </table>
             </div>
 
-            {/* Add Doctor Modal */}
-            <Modal open={addOpen} onClose={() => { setAddOpen(false); setFormError(''); }} title="Add New Doctor">
+            <Modal open={addOpen} onClose={() => { setAddOpen(false); setFormError(''); setPhotoFile(null); setPhotoPreview(''); }} title="Add New Doctor">
                 <div className="space-y-4">
                     {[
                         { id: 'name', label: 'Full Name *', placeholder: 'Dr. Ahmed Mohamed' },
                         { id: 'specialization', label: 'Specialization *', placeholder: 'Cardiology' },
                         { id: 'email', label: 'Email *', placeholder: 'doctor@clinic.com', type: 'email' },
-                        { id: 'photoUrl', label: 'Photo URL', placeholder: 'https://...' },
                     ].map((f) => (
                         <div key={f.id}>
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">{f.label}</label>
@@ -196,6 +209,25 @@ export default function AdminDoctors() {
                             />
                         </div>
                     ))}
+
+                    {/* Photo Upload */}
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                            Photo <span className="font-normal normal-case text-slate-400">(optional)</span>
+                        </label>
+                        <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <span className="material-symbols-outlined text-slate-400 text-3xl mb-1">upload</span>
+                            <span className="text-xs text-slate-400">Click to upload image</span>
+                            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                        </label>
+                        {photoPreview && (
+                            <div className="mt-2 flex items-center gap-3">
+                                <img src={photoPreview} alt="preview" className="w-14 h-14 rounded-full object-cover border-2 border-slate-200" />
+                                <button onClick={() => { setPhotoFile(null); setPhotoPreview(''); }} className="text-xs text-red-500 hover:underline">Remove</button>
+                            </div>
+                        )}
+                    </div>
+
                     {formError && <p className="text-red-500 text-sm">{formError}</p>}
                     <button
                         onClick={submitAdd}
