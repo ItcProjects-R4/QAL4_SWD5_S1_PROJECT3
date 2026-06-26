@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/images/sehhatech-logo.jpeg";
 
 const navItems = [
   { to: "/reception/dashboard", icon: "dashboard", label: "Dashboard" },
@@ -41,11 +42,14 @@ export default function ReceptionSidebar({ isOpen, onClose }) {
         {/* Brand */}
         <div className="px-6 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20">
-              <span className="material-symbols-outlined text-white text-[22px]">
-                clinical_notes
-              </span>
+            <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+              <img
+                src={logo}
+                alt="SehhaTech Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
+
             <div>
               <h2 className="text-lg font-extrabold tracking-tight text-slate-900 font-manrope leading-tight">
                 SehhaTech
@@ -67,12 +71,18 @@ export default function ReceptionSidebar({ isOpen, onClose }) {
         {/* Nav */}
         <nav className="flex-1 px-0 space-y-1">
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={linkClass} onClick={onClose}>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={linkClass}
+              onClick={onClose}
+            >
               {({ isActive }) => (
                 <>
                   {isActive && (
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r-full" />
                   )}
+
                   <span
                     className={`material-symbols-outlined text-[22px] transition-transform duration-200 ${
                       isActive ? "scale-110" : "group-hover:scale-105"
@@ -80,6 +90,7 @@ export default function ReceptionSidebar({ isOpen, onClose }) {
                   >
                     {item.icon}
                   </span>
+
                   <span>{item.label}</span>
                 </>
               )}
