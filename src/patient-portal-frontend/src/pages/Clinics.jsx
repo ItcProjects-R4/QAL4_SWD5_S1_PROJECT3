@@ -5,10 +5,38 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
 const SPECIALTIES = ['Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'General', 'Dental']
-// ✅ مفيش حقل City مستقل في الباك إند - فلتر المدينة فعلياً بيدور جوه نص "Address" الحر
-// (ClinicSearchService: query.Where(t => t.Address.Contains(city))) فلو عنوان العيادة
-// مكتوب فيه اسم المدينة بالحروف دي بالظبط، الفلترة هتشتغل صح
-const CITIES = ['Cairo', 'Alexandria', 'Giza']
+
+// ✅ الفلتر بيدور جوه نص "Address" الحر بالـ Contains
+// فالمحافظة لازم تكون مكتوبة بنفس الطريقة دي جوه العنوان اللي بيتسجل في Register.jsx
+const EGYPTIAN_GOVERNORATES = [
+    'Cairo',
+    'Alexandria',
+    'Giza',
+    'Qalyubia',
+    'Sharqia',
+    'Dakahlia',
+    'Gharbia',
+    'Monufia',
+    'Beheira',
+    'Kafr El Sheikh',
+    'Ismailia',
+    'Port Said',
+    'Suez',
+    'North Sinai',
+    'South Sinai',
+    'Damietta',
+    'Faiyum',
+    'Beni Suef',
+    'Minya',
+    'Asyut',
+    'Sohag',
+    'Qena',
+    'Luxor',
+    'Aswan',
+    'Red Sea',
+    'New Valley',
+    'Matruh',
+]
 
 export default function Clinics() {
     const navigate = useNavigate()
@@ -17,7 +45,7 @@ export default function Clinics() {
     const [error, setError] = useState('')
     const [search, setSearch] = useState('')
     const [specialty, setSpecialty] = useState('')
-    const [city, setCity] = useState('')
+    const [governorate, setGovernorate] = useState('')
 
     const load = useCallback(async () => {
         setLoading(true); setError('')
@@ -25,7 +53,7 @@ export default function Clinics() {
             const params = new URLSearchParams()
             if (search) params.append('name', search)
             if (specialty) params.append('specialty', specialty)
-            if (city) params.append('city', city)
+            if (governorate) params.append('city', governorate)
             const res = await api.get(`/api/portal/clinics?${params}`)
             setClinics(Array.isArray(res.data) ? res.data : [])
         } catch {
@@ -33,7 +61,7 @@ export default function Clinics() {
         } finally {
             setLoading(false)
         }
-    }, [search, specialty, city])
+    }, [search, specialty, governorate])
 
     /* debounce search */
     useEffect(() => {
@@ -41,7 +69,7 @@ export default function Clinics() {
         return () => clearTimeout(t)
     }, [load, search])
 
-    useEffect(() => { load() }, [specialty, city]) // eslint-disable-line
+    useEffect(() => { load() }, [specialty, governorate]) // eslint-disable-line
 
     const viewClinic = (id, name) => {
         sessionStorage.setItem('selectedClinicId', id)
@@ -92,13 +120,13 @@ export default function Clinics() {
                             </select>
                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
                         </div>
-                        {/* City */}
-                        <div className="relative w-full md:w-48">
+                        {/* Governorate */}
+                        <div className="relative w-full md:w-56">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">location_on</span>
-                            <select value={city} onChange={e => setCity(e.target.value)}
+                            <select value={governorate} onChange={e => setGovernorate(e.target.value)}
                                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-10 pr-10 py-3 text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none">
-                                <option value="">City</option>
-                                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                <option value="">Governorate</option>
+                                {EGYPTIAN_GOVERNORATES.map(g => <option key={g} value={g}>{g}</option>)}
                             </select>
                             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
                         </div>
@@ -162,8 +190,8 @@ export default function Clinics() {
                                     onClick={() => viewClinic(c.id, c.name)}
                                     disabled={!c.isActive}
                                     className={`btn-press w-full font-medium text-label-md py-2 rounded-lg transition-colors ${c.isActive
-                                            ? 'bg-primary-container text-on-primary hover:bg-primary'
-                                            : 'bg-surface-container text-outline cursor-not-allowed opacity-70'
+                                        ? 'bg-primary-container text-on-primary hover:bg-primary'
+                                        : 'bg-surface-container text-outline cursor-not-allowed opacity-70'
                                         }`}
                                 >
                                     View Clinic

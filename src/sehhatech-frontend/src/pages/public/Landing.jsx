@@ -12,13 +12,16 @@ import LanguageSwitcher from "../../components/LanguageSwitcher";
 const openChat = () => window.dispatchEvent(new Event("sehhatech:open-chat"));
 
 /* ─── Scroll Reveal ─────────────────────────────────────── */
-function useScrollReveal() {
+function useScrollReveal(language) {
     const rootRef = useRef(null);
     useEffect(() => {
         const root = rootRef.current;
         if (!root) return;
-        const targets = root.querySelectorAll("[data-reveal]");
-        if (!targets.length) return;
+
+        // لما اللغة تتغير، شيل is-visible من كل العناصر عشان يتعملوا reveal تاني
+        const allReveal = root.querySelectorAll("[data-reveal]");
+        allReveal.forEach((el) => el.classList.remove("is-visible"));
+
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -30,9 +33,9 @@ function useScrollReveal() {
             },
             { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
         );
-        targets.forEach((el) => observer.observe(el));
+        allReveal.forEach((el) => observer.observe(el));
         return () => observer.disconnect();
-    }, []);
+    }, [language]);
     return rootRef;
 }
 
@@ -183,8 +186,8 @@ function TiltCard({ className, children, maxAngle = 8, style, ...rest }) {
 
 /* ─── Main Component ─────────────────────────────────────── */
 export default function Landing() {
-    const { t } = useTranslation();
-    const pageRef = useScrollReveal();
+    const { t, i18n } = useTranslation();
+    const pageRef = useScrollReveal(i18n.language);
     const [badgeRef, badgeCount] = useCountUp(50);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const parallaxRef = useMouseParallax(14);
