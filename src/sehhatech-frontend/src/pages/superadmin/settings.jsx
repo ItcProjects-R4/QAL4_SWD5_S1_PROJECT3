@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { superadmin } from "../../api/superadmin";
 
-const API = import.meta.env.VITE_API_URL ?? "";
-const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
-
-async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json();
+// ── Eye Icon (SVG بسيط، بدون أي مكتبة خارجية) ──────────────────
+function EyeIcon({ open }) {
+  return open ? (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61C4.4 8.07 2 12 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <path d="M2 2l20 20" />
+    </svg>
+  );
 }
 
 // ── Toggle Switch ─────────────────────────────────────────────
@@ -35,41 +41,95 @@ export default function Settings() {
   const { t } = useTranslation();
 
   const [profile, setProfile] = useState({ name: "—", role: "—", email: "—" });
+  const [profileLoading, setProfileLoading] = useState(true);
+
   const [passwords, setPasswords] = useState({ old: "", new: "" });
   const [pwMsg, setPwMsg] = useState(null);
+  const [pwLoading, setPwLoading] = useState(false);
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+
+  // الـ toggles دلوقتي محلية بس (مفيش endpoint لها في الباك إند حاليًا)
   const [toggles, setToggles] = useState({
     maintenance: false,
     notifications: true,
     auditLogging: true,
   });
 
+  const [dangerMsg, setDangerMsg] = useState(null);
+
+  // ── تحميل البروفايل من الـ API الحقيقي ───────────────────────
   useEffect(() => {
-    const name  = localStorage.getItem("fullName");
-    const email = localStorage.getItem("email");
-    const role  = localStorage.getItem("role");
-    setProfile({
-      name:  name  ?? t("superadmin.settings.profile.roleValue"),
-      role:  role  ?? t("superadmin.settings.profile.roleValue"),
-      email: email ?? "—",
-    });
+    let cancelled = false;
+    setProfileLoading(true);
+    superadmin
+      .getProfile()
+      .then((res) => {
+        if (cancelled) return;
+        const data = res?.data ?? res; // الباك إند بيرجعها جوه data
+        setProfile({
+          name: data?.fullName ?? "—",
+          role: data?.role ?? "—",
+          email: data?.email ?? "—",
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProfile({
+          name: t("superadmin.settings.profile.roleValue"),
+          role: t("superadmin.settings.profile.roleValue"),
+          email: "—",
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setProfileLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [t]);
 
+  // ── تغيير كلمة المرور عبر superadmin.changePassword الحقيقي ──
   async function handleChangePassword() {
     if (!passwords.old || !passwords.new) {
       setPwMsg({ type: "error", text: t("superadmin.settings.security.errorEmpty") });
       return;
     }
+    setPwLoading(true);
     try {
-      await apiFetch("/api/SuperAdmin/change-password", {
-        method: "POST",
-        body: JSON.stringify({ oldPassword: passwords.old, newPassword: passwords.new }),
-      });
+      await superadmin.changePassword(passwords.old, passwords.new);
       setPwMsg({ type: "success", text: t("superadmin.settings.security.successMsg") });
       setPasswords({ old: "", new: "" });
-    } catch {
-      setPwMsg({ type: "error", text: t("superadmin.settings.security.errorMsg") });
+      setShowOld(false);
+      setShowNew(false);
+    } catch (err) {
+      // الباك إند بيرجع 400 لو الباسورد القديمة غلط
+      const serverMsg = err?.response?.data?.message;
+      setPwMsg({
+        type: "error",
+        text: serverMsg || t("superadmin.settings.security.errorMsg"),
+      });
+    } finally {
+      setPwLoading(false);
+      setTimeout(() => setPwMsg(null), 4000);
     }
-    setTimeout(() => setPwMsg(null), 4000);
+  }
+
+  // ── Danger zone: لسه مفيش endpoint في الباك إند، فهي placeholders بـ confirm ──
+  function handleFlushCache() {
+    const ok = window.confirm(t("superadmin.settings.danger.confirmFlush"));
+    if (!ok) return;
+    // TODO: استبدلها بـ superadmin.flushCache() لما يتضاف الـ endpoint في الباك إند
+    setDangerMsg({ type: "info", text: t("superadmin.settings.danger.featureUnavailable") });
+    setTimeout(() => setDangerMsg(null), 4000);
+  }
+
+  function handleFactoryReset() {
+    const ok = window.confirm(t("superadmin.settings.danger.confirmReset"));
+    if (!ok) return;
+    // TODO: استبدلها بـ superadmin.factoryReset() لما يتضاف الـ endpoint في الباك إند
+    setDangerMsg({ type: "info", text: t("superadmin.settings.danger.featureUnavailable") });
+    setTimeout(() => setDangerMsg(null), 4000);
   }
 
   const systemToggles = [
@@ -117,23 +177,27 @@ export default function Settings() {
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-lg shadow-blue-600/20">
                 SA
               </div>
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">{profile.name}</h3>
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                {profileLoading ? "…" : profile.name}
+              </h3>
               <p className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider mb-4">
-                {profile.role}
+                {profileLoading ? "…" : profile.role}
               </p>
               <div className="w-full space-y-3 text-left">
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                     {t("superadmin.settings.profile.emailLabel")}
                   </label>
-                  <p className="text-sm text-slate-900 break-all">{profile.email}</p>
+                  <p className="text-sm text-slate-900 break-all">
+                    {profileLoading ? "…" : profile.email}
+                  </p>
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                     {t("superadmin.settings.profile.roleLabel")}
                   </label>
                   <p className="text-sm text-slate-900">
-                    {t("superadmin.settings.profile.roleValue")}
+                    {profileLoading ? "…" : profile.role}
                   </p>
                 </div>
               </div>
@@ -164,9 +228,7 @@ export default function Settings() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     tabIndex={-1}
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showOld ? "visibility_off" : "visibility"}
-                    </span>
+                    <EyeIcon open={showOld} />
                   </button>
                 </div>
               </div>
@@ -174,13 +236,23 @@ export default function Settings() {
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                   {t("superadmin.settings.security.newPassword")}
                 </label>
-                <input
-                  type="password"
-                  placeholder={t("superadmin.settings.security.newPasswordPlaceholder")}
-                  value={passwords.new}
-                  onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
-                />
+                <div className="relative">
+                  <input
+                    type={showNew ? "text" : "password"}
+                    placeholder={t("superadmin.settings.security.newPasswordPlaceholder")}
+                    value={passwords.new}
+                    onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
+                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 pr-10 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    <EyeIcon open={showNew} />
+                  </button>
+                </div>
               </div>
               {pwMsg && (
                 <p className={`text-sm font-medium ${pwMsg.type === "success" ? "text-emerald-600" : "text-red-500"}`}>
@@ -189,9 +261,10 @@ export default function Settings() {
               )}
               <button
                 onClick={handleChangePassword}
-                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm"
+                disabled={pwLoading}
+                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {t("superadmin.settings.security.updateButton")}
+                {pwLoading ? "…" : t("superadmin.settings.security.updateButton")}
               </button>
             </div>
           </div>
@@ -234,6 +307,9 @@ export default function Settings() {
                 </div>
               ))}
             </div>
+            <p className="px-6 pb-4 text-xs text-slate-400">
+              {t("superadmin.settings.toggles.note")}
+            </p>
           </div>
 
           {/* Danger Zone */}
@@ -249,11 +325,20 @@ export default function Settings() {
                 <p className="text-sm text-slate-500 mb-4">
                   {t("superadmin.settings.danger.subtitle")}
                 </p>
+                {dangerMsg && (
+                  <p className="text-sm font-medium text-slate-600 mb-3">{dangerMsg.text}</p>
+                )}
                 <div className="flex flex-wrap gap-3">
-                  <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold">
+                  <button
+                    onClick={handleFlushCache}
+                    className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold"
+                  >
                     {t("superadmin.settings.danger.flushCache")}
                   </button>
-                  <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold">
+                  <button
+                    onClick={handleFactoryReset}
+                    className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold"
+                  >
                     {t("superadmin.settings.danger.factoryReset")}
                   </button>
                 </div>
