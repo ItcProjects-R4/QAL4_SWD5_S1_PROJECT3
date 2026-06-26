@@ -112,12 +112,12 @@ export default function Settings() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* Profile Card */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-2xl mb-4">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-lg shadow-blue-600/20">
                 SA
               </div>
-              <h3 className="text-xl font-semibold text-slate-900">{profile.name}</h3>
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">{profile.name}</h3>
               <p className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider mb-4">
                 {profile.role}
               </p>
@@ -150,13 +150,25 @@ export default function Settings() {
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                   {t("superadmin.settings.security.currentPassword")}
                 </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwords.old}
-                  onChange={(e) => setPasswords((p) => ({ ...p, old: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
-                />
+                <div className="relative">
+                  <input
+                    type={showOld ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={passwords.old}
+                    onChange={(e) => setPasswords((p) => ({ ...p, old: e.target.value }))}
+                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 pr-10 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOld((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showOld ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
@@ -177,7 +189,7 @@ export default function Settings() {
               )}
               <button
                 onClick={handleChangePassword}
-                className="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-800 transition-all shadow-sm text-sm"
+                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm"
               >
                 {t("superadmin.settings.security.updateButton")}
               </button>
@@ -189,7 +201,7 @@ export default function Settings() {
         <div className="lg:col-span-8 space-y-6">
 
           {/* System Toggles */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
               <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
                 {t("superadmin.settings.toggles.title")}
@@ -202,7 +214,7 @@ export default function Settings() {
                   className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/50 transition-colors"
                 >
                   <div className="flex gap-4">
-                    <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
+                    <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
                       <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
                     </div>
                     <div>
@@ -225,9 +237,9 @@ export default function Settings() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-red-50/30 border border-red-200/60 rounded-xl p-6">
+          <div className="bg-red-50/30 border border-red-200/60 rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-red-100 p-2 rounded-lg shrink-0">
+              <div className="bg-red-100 p-2 rounded-xl shrink-0">
                 <span className="material-symbols-outlined text-red-500">warning</span>
               </div>
               <div className="flex-1">
