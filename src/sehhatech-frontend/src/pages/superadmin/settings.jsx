@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -12,7 +13,7 @@ async function apiFetch(path, options = {}) {
   return res.json();
 }
 
-// ── Toggle Switch ─────────────────────────────────────────────────────────────
+// ── Toggle Switch ─────────────────────────────────────────────
 function Toggle({ checked, onChange, activeColor = "bg-emerald-500" }) {
   return (
     <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -29,43 +30,44 @@ function Toggle({ checked, onChange, activeColor = "bg-emerald-500" }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Page ─────────────────────────────────────────────────────
 export default function Settings() {
+  const { t } = useTranslation();
+
   const [profile, setProfile] = useState({ name: "—", role: "—", email: "—" });
   const [passwords, setPasswords] = useState({ old: "", new: "" });
-  const [pwMsg, setPwMsg]     = useState(null); // { type: "success"|"error", text }
+  const [pwMsg, setPwMsg] = useState(null);
   const [toggles, setToggles] = useState({
     maintenance: false,
     notifications: true,
     auditLogging: true,
   });
 
-  // Load profile
   useEffect(() => {
-  const name  = localStorage.getItem("fullName");
-  const email = localStorage.getItem("email");
-  const role  = localStorage.getItem("role");
-  setProfile({
-    name:  name  ?? "Super Admin",
-    role:  role  ?? "Super Administrator",
-    email: email ?? "—",
-  });
-}, []);
+    const name  = localStorage.getItem("fullName");
+    const email = localStorage.getItem("email");
+    const role  = localStorage.getItem("role");
+    setProfile({
+      name:  name  ?? t("superadmin.settings.profile.roleValue"),
+      role:  role  ?? t("superadmin.settings.profile.roleValue"),
+      email: email ?? "—",
+    });
+  }, [t]);
 
   async function handleChangePassword() {
     if (!passwords.old || !passwords.new) {
-      setPwMsg({ type: "error", text: "Please fill in both fields." });
+      setPwMsg({ type: "error", text: t("superadmin.settings.security.errorEmpty") });
       return;
     }
     try {
       await apiFetch("/api/SuperAdmin/change-password", {
-  method: "POST",
-  body: JSON.stringify({ oldPassword: passwords.old, newPassword: passwords.new }),
-});
-      setPwMsg({ type: "success", text: "Password updated successfully." });
+        method: "POST",
+        body: JSON.stringify({ oldPassword: passwords.old, newPassword: passwords.new }),
+      });
+      setPwMsg({ type: "success", text: t("superadmin.settings.security.successMsg") });
       setPasswords({ old: "", new: "" });
     } catch {
-      setPwMsg({ type: "error", text: "Failed to update password. Check your current password." });
+      setPwMsg({ type: "error", text: t("superadmin.settings.security.errorMsg") });
     }
     setTimeout(() => setPwMsg(null), 4000);
   }
@@ -76,8 +78,6 @@ export default function Settings() {
       icon: "engineering",
       iconBg: "bg-red-50",
       iconColor: "text-red-500",
-      title: "Maintenance Mode",
-      desc: "Prevent users from logging in during system updates.",
       activeColor: "bg-red-500",
     },
     {
@@ -85,8 +85,6 @@ export default function Settings() {
       icon: "notifications_active",
       iconBg: "bg-blue-50",
       iconColor: "text-blue-600",
-      title: "System-Wide Notifications",
-      desc: "Enable alert banners for all active clinic administrators.",
       activeColor: "bg-emerald-500",
     },
     {
@@ -94,8 +92,6 @@ export default function Settings() {
       icon: "list_alt",
       iconBg: "bg-amber-50",
       iconColor: "text-amber-600",
-      title: "Detailed Audit Logging",
-      desc: "Record all database read/write actions for compliance.",
       activeColor: "bg-emerald-500",
     },
   ];
@@ -104,10 +100,10 @@ export default function Settings() {
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
-          System Settings
+          {t("superadmin.settings.title")}
         </h2>
         <p className="text-slate-500 text-sm mt-1">
-          Configure your medical network's global parameters and security protocols.
+          {t("superadmin.settings.subtitle")}
         </p>
       </div>
 
@@ -128,15 +124,17 @@ export default function Settings() {
               <div className="w-full space-y-3 text-left">
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Email Address
+                    {t("superadmin.settings.profile.emailLabel")}
                   </label>
                   <p className="text-sm text-slate-900 break-all">{profile.email}</p>
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Role
+                    {t("superadmin.settings.profile.roleLabel")}
                   </label>
-                  <p className="text-sm text-slate-900">Super Administrator</p>
+                  <p className="text-sm text-slate-900">
+                    {t("superadmin.settings.profile.roleValue")}
+                  </p>
                 </div>
               </div>
             </div>
@@ -144,11 +142,13 @@ export default function Settings() {
 
           {/* Change Password */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h3 className="text-xl font-semibold text-slate-900 mb-4">Security</h3>
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">
+              {t("superadmin.settings.security.title")}
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
-                  Current Password
+                  {t("superadmin.settings.security.currentPassword")}
                 </label>
                 <input
                   type="password"
@@ -160,11 +160,11 @@ export default function Settings() {
               </div>
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
-                  New Password
+                  {t("superadmin.settings.security.newPassword")}
                 </label>
                 <input
                   type="password"
-                  placeholder="Min. 6 characters"
+                  placeholder={t("superadmin.settings.security.newPasswordPlaceholder")}
                   value={passwords.new}
                   onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
                   className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
@@ -179,7 +179,7 @@ export default function Settings() {
                 onClick={handleChangePassword}
                 className="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-800 transition-all shadow-sm text-sm"
               >
-                Update Password
+                {t("superadmin.settings.security.updateButton")}
               </button>
             </div>
           </div>
@@ -191,10 +191,12 @@ export default function Settings() {
           {/* System Toggles */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">System Status & Toggles</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
+                {t("superadmin.settings.toggles.title")}
+              </h3>
             </div>
             <div className="divide-y divide-slate-100">
-              {systemToggles.map(({ key, icon, iconBg, iconColor, title, desc, activeColor }) => (
+              {systemToggles.map(({ key, icon, iconBg, iconColor, activeColor }) => (
                 <div
                   key={key}
                   className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/50 transition-colors"
@@ -204,13 +206,17 @@ export default function Settings() {
                       <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900 text-sm">{title}</p>
-                      <p className="text-slate-500 text-sm mt-0.5">{desc}</p>
+                      <p className="font-semibold text-slate-900 text-sm">
+                        {t(`superadmin.settings.toggles.${key}.title`)}
+                      </p>
+                      <p className="text-slate-500 text-sm mt-0.5">
+                        {t(`superadmin.settings.toggles.${key}.desc`)}
+                      </p>
                     </div>
                   </div>
                   <Toggle
                     checked={toggles[key]}
-                    onChange={() => setToggles((t) => ({ ...t, [key]: !t[key] }))}
+                    onChange={() => setToggles((prev) => ({ ...prev, [key]: !prev[key] }))}
                     activeColor={activeColor}
                   />
                 </div>
@@ -225,21 +231,24 @@ export default function Settings() {
                 <span className="material-symbols-outlined text-red-500">warning</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-red-600 mb-1">Danger Zone</h3>
+                <h3 className="font-bold text-red-600 mb-1">
+                  {t("superadmin.settings.danger.title")}
+                </h3>
                 <p className="text-sm text-slate-500 mb-4">
-                  Actions here are irreversible and will affect the entire network.
+                  {t("superadmin.settings.danger.subtitle")}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold">
-                    Flush System Cache
+                    {t("superadmin.settings.danger.flushCache")}
                   </button>
                   <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold">
-                    Factory Reset Network
+                    {t("superadmin.settings.danger.factoryReset")}
                   </button>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

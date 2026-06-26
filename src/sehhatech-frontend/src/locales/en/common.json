@@ -130,5 +130,192 @@
     "ctaTitle": "Ready to Modernize Your Clinic?",
     "ctaSubtitle": "Join 50+ clinical systems that have transformed their patient experience with SehhaTech.",
     "ctaButton": "Get Started Now"
+  },
+  "superadmin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "clinics": "Clinic Management",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "brand": {
+      "superAdmin": "Super Admin",
+      "systemController": "System Controller"
+    },
+    "actions": {
+      "logout": "Logout",
+      "profileSettings": "Profile Settings"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "newCount": "{{count}} New",
+      "loading": "Loading...",
+      "empty": "No notifications yet"
+    },
+    "logoutModal": {
+      "title": "Confirm Logout",
+      "message": "Are you sure you want to log out of the Super Admin session?",
+      "cancel": "Cancel",
+      "confirm": "Logout"
+    },
+    "dashboard": {
+      "title": "Executive Overview",
+      "subtitle": "Real-time operational status across the clinic network.",
+      "dateRange": "Last 30 Days",
+      "kpi": {
+        "totalClinics": "Total Clinics",
+        "activeClinics": "Active Clinics",
+        "totalDoctors": "Total Doctors",
+        "appointmentsToday": "Appointments Today",
+        "badgeActive": "{{count}} Active",
+        "badgeDoctors": "Doctors",
+        "badgeToday": "Today"
+      },
+      "appointmentStatus": {
+        "title": "Appointment Status Distribution",
+        "total": "Total",
+        "checkedIn": "Checked In",
+        "completed": "Completed",
+        "scheduled": "Scheduled",
+        "confirmed": "Confirmed",
+        "cancelled": "Cancelled",
+        "noShow": "No Show"
+      },
+      "growth": {
+        "title": "Clinic Growth",
+        "subtitle": "Monthly onboarding trends",
+        "noData": "No data available"
+      },
+      "recentClinics": {
+        "title": "Recently Added Clinics",
+        "viewAll": "View All",
+        "colName": "Name",
+        "colEmail": "Email",
+        "colOnboarding": "Onboarding Date",
+        "colStatus": "Status",
+        "loading": "Loading...",
+        "empty": "No clinics found.",
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "clinics": {
+      "title": "Clinic Management",
+      "subtitle": "Configure and monitor all medical facilities in the network.",
+      "stats": {
+        "total": "Total Clinics",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "filter": {
+        "label": "Filter by:",
+        "searchPlaceholder": "Search by clinic name or email...",
+        "allStatuses": "All Statuses",
+        "active": "Active",
+        "inactive": "Inactive",
+        "clear": "Clear Filters"
+      },
+      "table": {
+        "colName": "Clinic Name",
+        "colPhone": "Phone",
+        "colEmail": "Email",
+        "colStatus": "Status",
+        "colActions": "Actions",
+        "loading": "Loading...",
+        "empty": "No clinics found.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "pagination": {
+        "showing": "Showing {{from}}–{{to}} of {{total}} Clinics"
+      },
+      "deleteModal": {
+        "title": "Delete Clinic",
+        "message": "Are you sure you want to delete <1>{{name}}</1>? All doctors, patients, and appointments will be permanently removed.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
+    },
+    "reports": {
+      "title": "System Reports",
+      "subtitle": "Real-time performance metrics and clinic growth analytics.",
+      "leaderboard": {
+        "title": "Leaderboard",
+        "colName": "Clinic Name",
+        "colDoctors": "Doctors",
+        "colLoad": "Workload",
+        "colSatisfaction": "Satisfaction",
+        "colPatients": "Patients",
+        "colStatus": "Status",
+        "loading": "Loading...",
+        "empty": "No data available."
+        
+      },
+      "months": {
+        "jan": "Jan", "feb": "Feb", "mar": "Mar", "apr": "Apr",
+        "may": "May", "jun": "Jun", "jul": "Jul", "aug": "Aug",
+        "sep": "Sep", "oct": "Oct", "nov": "Nov", "dec": "Dec"
+      },
+      "growth": {
+        "title": "Clinic Growth Trend",
+        "subtitle": "Monthly Newly Joined Clinics"
+      },
+      "donut": {
+        "title": "Status Distribution",
+        "subtitle": "Active vs Inactive Facilities",
+        "total": "Total",
+        "active": "Active Clinics",
+        "inactive": "Inactive / Suspended"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "paused": "Paused",
+        "pending": "Pending"
+      }
+    },
+    "settings": {
+      "title": "System Settings",
+      "subtitle": "Configure global parameters and security policies for the medical network.",
+      "profile": {
+        "emailLabel": "Email Address",
+        "roleLabel": "Role",
+        "roleValue": "Super Admin"
+      },
+      "security": {
+        "title": "Security",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "newPasswordPlaceholder": "At least 6 characters",
+        "updateButton": "Update Password",
+        "errorEmpty": "Please fill in both fields.",
+        "successMsg": "Password updated successfully.",
+        "errorMsg": "Failed to update password. Please verify your current password."
+      },
+      "toggles": {
+        "title": "System Status & Configuration",
+        "maintenance": {
+          "title": "Maintenance Mode",
+          "desc": "Prevent users from logging in while system updates are in progress."
+        },
+        "notifications": {
+          "title": "System-wide Notifications",
+          "desc": "Enable broadcast notifications for all active clinic administrators."
+        },
+        "auditLogging": {
+          "title": "Audit Logging",
+          "desc": "Log all database read/write operations for compliance purposes."
+        }
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "subtitle": "Actions in this section are irreversible and affect the entire network.",
+        "flushCache": "Clear Cache",
+        "factoryReset": "Factory Reset"
+      }
+    }
   }
 }
