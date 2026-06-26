@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+
 export default function Sidebar({ profile, sidebarOpen }) {
     const { logout } = useAuth();
+    const { t } = useTranslation();
 
     function handleLogout() {
         logout();
@@ -10,10 +12,10 @@ export default function Sidebar({ profile, sidebarOpen }) {
     }
 
     const links = [
-        { to: "/doctor/dashboard", icon: "dashboard", label: "Dashboard" },
-        { to: "/doctor/schedule", icon: "calendar_today", label: "My Schedule" },
-        { to: "/doctor/patients", icon: "folder_shared", label: "Patient Records" },
-        { to: "/doctor/profile", icon: "manage_accounts", label: "My Profile" },
+        { to: "/doctor/dashboard", icon: "dashboard", label: t("sidebar.dashboard") },
+        { to: "/doctor/schedule", icon: "calendar_today", label: t("sidebar.schedule") },
+        { to: "/doctor/patients", icon: "folder_shared", label: t("sidebar.patients") },
+        { to: "/doctor/profile", icon: "manage_accounts", label: t("sidebar.profile") },
     ];
 
     return (
@@ -45,7 +47,7 @@ export default function Sidebar({ profile, sidebarOpen }) {
                     </h2>
 
                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                        Doctor Portal
+                        {t("sidebar.doctorPortal")}
                     </p>
                 </div>
             </div>
@@ -57,10 +59,9 @@ export default function Sidebar({ profile, sidebarOpen }) {
                         key={link.to}
                         to={link.to}
                         className={({ isActive }) =>
-                            `group relative flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                isActive
-                                    ? "bg-blue-50 text-blue-600 font-semibold"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                            `group relative flex items-center gap-3 px-6 py-3 mx-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                                ? "bg-blue-50 text-blue-600 font-semibold"
+                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                             }`
                         }
                     >
@@ -71,11 +72,10 @@ export default function Sidebar({ profile, sidebarOpen }) {
                                 )}
 
                                 <span
-                                    className={`material-symbols-outlined text-[22px] transition-transform duration-200 ${
-                                        isActive
+                                    className={`material-symbols-outlined text-[22px] transition-transform duration-200 ${isActive
                                             ? "scale-110"
                                             : "group-hover:scale-105"
-                                    }`}
+                                        }`}
                                 >
                                     {link.icon}
                                 </span>
@@ -96,7 +96,7 @@ export default function Sidebar({ profile, sidebarOpen }) {
                     <span className="material-symbols-outlined text-[22px]">
                         logout
                     </span>
-                    <span>Logout</span>
+                    <span>{t("sidebar.logout")}</span>
                 </button>
             </div>
         </aside>

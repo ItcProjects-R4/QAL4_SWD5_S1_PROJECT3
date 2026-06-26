@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header({ profile, onMenuClick, sidebarOpen }) {
     const navigate = useNavigate();
@@ -23,6 +24,9 @@ export default function Header({ profile, onMenuClick, sidebarOpen }) {
             <div className="flex-1 min-w-0" />
 
             <div className="flex items-center gap-3 flex-shrink-0">
+                {/* زرار اللغة */}
+                <LanguageSwitcher />
+
                 <div className="text-right hidden sm:block">
                     <p className="text-xs font-bold text-slate-900 truncate max-w-[140px]">{name}</p>
                     <p className="text-[10px] text-slate-400 font-semibold uppercase truncate max-w-[140px]">{spec}</p>
