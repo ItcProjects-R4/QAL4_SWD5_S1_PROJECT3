@@ -306,13 +306,12 @@
       },
       "toggles": {
         "title": "System Status & Configuration",
+        "note": "These settings are local to this browser only and are not saved on the server yet.",
         "maintenance": {
-          "title": "Maintenance Mode",
-          "desc": "Prevent users from logging in while system updates are in progress."
-        },
         "notifications": {
           "title": "System-wide Notifications",
           "desc": "Enable broadcast notifications for all active clinic administrators."
+        }
         },
         "auditLogging": {
           "title": "Audit Logging",
@@ -323,7 +322,10 @@
         "title": "Danger Zone",
         "subtitle": "Actions in this section are irreversible and affect the entire network.",
         "flushCache": "Clear Cache",
-        "factoryReset": "Factory Reset"
+        "factoryReset": "Factory Reset",
+        "confirmFlush": "Are you sure you want to clear the cache?",
+        "confirmReset": "This action cannot be undone and affects the entire system. Are you sure?",
+        "featureUnavailable": "This feature is not available on the server yet."
       }
     },
     "contact": {
