@@ -218,6 +218,9 @@ export default function Security() {
                             <Link to="/" className="btn btn--primary">
                                 Back to Home
                             </Link>
+                            <Link to="/contact" className="btn btn--outline">
+                                Contact Us
+                            </Link>
                             <Link to="/register" className="btn btn--outline">
                                 Get Started
                             </Link>

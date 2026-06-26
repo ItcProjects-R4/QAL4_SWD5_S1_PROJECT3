@@ -14,6 +14,7 @@ export default function VerifyOtp() {
     const [canResend, setCanResend] = useState(false)
     const [msg, setMsg] = useState(null) // { text, type }
     const [loading, setLoading] = useState(false)
+    const [shake, setShake] = useState(false)
     const inputRefs = useRef([])
 
     /* redirect if no phone in session */
@@ -61,6 +62,7 @@ export default function VerifyOtp() {
         if (!complete) return
         setLoading(true); setMsg(null)
         try {
+            // purpose: 0 = OTPPurpose.Register في الباك إند (enum: Register=0, Login=1, ResetPassword=2, VerifyEmail=3)
             const res = await api.post('/api/portal/auth/verify-otp', { phone, code, purpose: 0 })
             const { accessToken, refreshToken, fullName, phone: p } = res.data.data
             localStorage.setItem('accessToken', accessToken)
@@ -71,6 +73,8 @@ export default function VerifyOtp() {
             navigate('/clinics')
         } catch (err) {
             setMsg({ text: err.response?.data?.message || 'Invalid OTP.', type: 'error' })
+            setShake(true)
+            setTimeout(() => setShake(false), 500)
             setLoading(false)
         }
     }
@@ -78,6 +82,7 @@ export default function VerifyOtp() {
     const resend = async () => {
         if (!canResend) return
         try {
+            // purpose: 0 = OTPPurpose.Register (نفس الـ purpose بتاع التحقق فوق)
             await api.post('/api/portal/auth/resend-otp', { phone, purpose: 0 })
             setMsg({ text: 'OTP resent successfully!', type: 'success' })
             setTimeLeft(TIMER_SECONDS)
@@ -90,22 +95,22 @@ export default function VerifyOtp() {
     }
 
     return (
-        <div className="bg-surface min-h-screen flex flex-col text-on-surface">
+        <div className="bg-surface min-h-screen flex flex-col text-on-surface page-enter">
             {/* Header */}
             <header className="bg-surface/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
                 <div className="flex justify-between items-center w-full px-8 max-w-7xl mx-auto h-16">
                     <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
+                        <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <button className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant">
+                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
                         <span className="material-symbols-outlined">help</span>
-                    </button>
+                    </Link>
                 </div>
             </header>
 
             <main className="flex-grow flex items-center justify-center p-4 md:p-8">
-                <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 md:p-10 w-full max-w-md mx-auto text-center fade-up">
+                <div className={`bg-surface-container-lowest border border-outline-variant rounded-xl p-6 md:p-10 w-full max-w-md mx-auto text-center fade-up ${shake ? 'shake' : ''}`}>
                     <span className="material-symbols-outlined text-primary mb-3 block mx-auto text-[48px]">dialpad</span>
                     <h1 className="font-semibold text-headline-md text-on-surface mb-1">Verify Your Number</h1>
                     <p className="text-body-md text-on-surface-variant mb-6">
@@ -143,16 +148,21 @@ export default function VerifyOtp() {
                     </div>
 
                     {msg && (
-                        <p className={`text-label-sm mb-6 ${msg.type === 'error' ? 'text-error' : 'text-primary'}`}>
+                        <p className={`text-label-sm mb-6 fade-in ${msg.type === 'error' ? 'text-error' : 'text-primary'}`}>
                             {msg.text}
                         </p>
                     )}
 
                     <button
                         onClick={verify} disabled={!complete || loading}
-                        className="w-full bg-primary-container hover:bg-primary text-on-primary font-medium text-label-md py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-press w-full bg-primary-container hover:bg-primary text-on-primary font-medium text-label-md py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                        {loading ? 'Verifying...' : 'Verify'}
+                        {loading ? (
+                            <>
+                                <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
+                                Verifying...
+                            </>
+                        ) : 'Verify'}
                     </button>
                 </div>
             </main>

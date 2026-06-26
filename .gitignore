@@ -30,3 +30,8 @@ publish/
 # NuGet packages
 *.nupkg
 packages/
+
+# Node modules
+node_modules/
+src/node_modules/
+**/node_modules/

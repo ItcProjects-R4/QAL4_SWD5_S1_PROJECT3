@@ -11,6 +11,7 @@ export default function PublicRoute({ children }) {
             case "SuperAdmin": return <Navigate to="/superadmin/dashboard" replace />;
             case "ClinicAdmin": return <Navigate to="/admin/dashboard" replace />;
             case "Doctor": return <Navigate to="/doctor/dashboard" replace />;
+            case "Reception": return <Navigate to="/reception/dashboard" replace />;
             default: return <Navigate to="/" replace />;
         }
     }
