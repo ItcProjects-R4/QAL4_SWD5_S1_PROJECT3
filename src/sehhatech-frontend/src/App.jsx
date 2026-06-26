@@ -15,6 +15,8 @@ import Privacy from "./pages/public/Privacy";
 import Security from "./pages/public/Security";
 import Status from "./pages/public/Status";
 import Terms from "./pages/public/Terms";
+import Contact from "./pages/public/Contact";
+import NotFound from "./pages/public/NotFound";
 
 // Doctor
 import Dashboard from "./pages/doctor/Dashboard";
@@ -66,6 +68,7 @@ function App() {
                 <Route path="/security" element={<Security />} />
                 <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/contact" element={<Contact />} />
 
                 {/* Doctor */}
                 <Route path="/doctor/dashboard" element={<Dashboard />} />
@@ -132,6 +135,9 @@ function App() {
                     <Route path="reports" element={<Reports />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
+
+                {/* 404 � must stay last */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </>
     );

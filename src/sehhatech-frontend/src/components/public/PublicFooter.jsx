@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 export default function PublicFooter({ activePage }) {
     const links = [
@@ -6,13 +7,21 @@ export default function PublicFooter({ activePage }) {
         { to: "/terms", label: "Terms of Service", key: "terms" },
         { to: "/security", label: "Security", key: "security" },
         { to: "/status", label: "Status", key: "status" },
+        { to: "/contact", label: "Contact Us", key: "contact" },
     ];
 
     return (
         <footer className="public-footer">
             <div className="public-footer__inner">
                 <div className="public-footer__brand">
-                    <div className="public-footer__logo">SehhaTech</div>
+                    <div className="public-footer__logo">
+                        <img
+                            src={sehhatechIcon}
+                            alt="SehhaTech"
+                            className="public-footer__logo-icon"
+                        />
+                        SehhaTech
+                    </div>
                     <p className="public-footer__copy">
                         © 2026 SehhaTech Clinical Systems. Helping clinics care for patients.
                     </p>

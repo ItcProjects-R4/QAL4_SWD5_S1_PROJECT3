@@ -5,27 +5,36 @@ import { useDoctorProfile } from "../hooks/useDoctorProfile";
 
 export default function Layout({ children }) {
     const { profile } = useDoctorProfile();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        const mob = window.innerWidth < 768;
-        const saved = localStorage.getItem("sidebarOpen");
-        setSidebarOpen(mob ? false : saved === null ? true : saved === "true");
+        function handleResize() {
+            const mob = window.innerWidth < 768;
+            setIsMobile(mob);
+            if (mob) {
+                setSidebarOpen(false);
+            } else {
+                const saved = localStorage.getItem("sidebarOpen");
+                setSidebarOpen(saved === null ? true : saved === "true");
+            }
+        }
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     function toggleSidebar() {
         const next = !sidebarOpen;
         setSidebarOpen(next);
-        if (window.innerWidth >= 768) {
+        if (!isMobile) {
             localStorage.setItem("sidebarOpen", next);
         }
     }
 
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
     return (
-        <div>
-            {/* Overlay (mobile) */}
+        <div className="min-h-screen bg-slate-50">
+            {/* Overlay (mobile only) */}
             {sidebarOpen && isMobile && (
                 <div
                     onClick={() => setSidebarOpen(false)}
@@ -34,35 +43,22 @@ export default function Layout({ children }) {
             )}
 
             {/* Sidebar */}
-            <Sidebar
-                profile={profile}
-                sidebarOpen={sidebarOpen}
-            />
+            <Sidebar profile={profile} sidebarOpen={sidebarOpen} />
 
             {/* Header */}
-            <div
-                className="transition-all duration-250"
-                style={{
-                    marginLeft: sidebarOpen ? "16rem" : "0",
-                    left: sidebarOpen ? "16rem" : "0",
-                }}
-            >
-                <Header
-                    profile={profile}
-                    sidebarOpen={sidebarOpen}
-                    isMobile={isMobile}
-                    onMenuClick={toggleSidebar}
-                />
-            </div>
+            <Header
+                profile={profile}
+                sidebarOpen={sidebarOpen && !isMobile}
+                isMobile={isMobile}
+                onMenuClick={toggleSidebar}
+            />
 
             {/* Main Content */}
             <main
-                className={`pt-16 min-h-screen transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"
-                    }`}
+                className="pt-16 min-h-screen transition-all duration-300"
+                style={{ marginLeft: sidebarOpen && !isMobile ? "16rem" : "0" }}
             >
-                <div
-                    className="p-4 md:p-10 max-w-[1400px] mx-auto space-y-8"
-                >
+                <div className="p-4 sm:p-6 md:p-8 lg:p-10 max-w-[1400px] mx-auto space-y-6">
                     {children}
                 </div>
             </main>

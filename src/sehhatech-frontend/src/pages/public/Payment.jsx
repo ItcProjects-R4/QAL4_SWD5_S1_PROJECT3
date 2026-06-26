@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axios";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 /**
  * Adds `.is-visible` to any element with [data-reveal] once it scrolls
@@ -150,7 +151,14 @@ export default function Payment() {
                             </svg>
                             <span>Back</span>
                         </button>
-                        <div className="register-brand">SehhaTech</div>
+                        <div className="register-brand">
+                            <img
+                                src={sehhatechIcon}
+                                alt="SehhaTech"
+                                className="register-brand__icon"
+                            />
+                            SehhaTech
+                        </div>
                     </div>
                 </div>
             </header>
@@ -175,7 +183,7 @@ export default function Payment() {
                         </div>
                     </div>
                     <p className="register-subtitle">
-                        Step 2 of 2: Select Your Annual Plan
+                        Step 2 of 2: Select Your Monthly Plan
                     </p>
                 </div>
 
@@ -185,13 +193,13 @@ export default function Payment() {
                         data-reveal="fade-up"
                         style={{ "--reveal-delay": "100ms" }}
                     >
-                        <div className="payment-plan__badge">Annual Plan</div>
+                        <div className="payment-plan__badge">Monthly Plan</div>
                         <div className="payment-plan__info">
                             <h3>SehhaTech Clinic</h3>
                             <p>Complete clinic management system for your practice.</p>
                             <div className="payment-plan__price">
                                 <span className="payment-plan__amount">500</span>
-                                <span className="payment-plan__period">EGP /year</span>
+                                <span className="payment-plan__period">EGP /month</span>
                             </div>
                         </div>
                         <ul className="payment-plan__features">

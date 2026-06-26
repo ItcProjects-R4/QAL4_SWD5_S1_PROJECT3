@@ -13,9 +13,7 @@ export default function AdminDashboard() {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
-    useEffect(() => {
-        loadDashboard();
-    }, []);
+    useEffect(() => { loadDashboard(); }, []);
 
     useEffect(() => {
         if (!data?.activityChart?.length) return;
@@ -30,14 +28,12 @@ export default function AdminDashboard() {
                 type: 'bar',
                 data: {
                     labels: sorted.map((x) => x.date || x.Date),
-                    datasets: [
-                        {
-                            label: 'Appointments',
-                            data: sorted.map((x) => x.count || x.Count || 0),
-                            backgroundColor: '#002045',
-                            borderRadius: 6,
-                        },
-                    ],
+                    datasets: [{
+                        label: 'Appointments',
+                        data: sorted.map((x) => x.count || x.Count || 0),
+                        backgroundColor: '#002045',
+                        borderRadius: 6,
+                    }],
                 },
                 options: {
                     responsive: true,
@@ -65,96 +61,111 @@ export default function AdminDashboard() {
     if (!data) return <p className="text-slate-400 text-sm">Loading...</p>;
 
     const stats = [
-        { label: 'Total Doctors', value: data.totalDoctors ?? '—', icon: 'medical_information', color: 'hover:bg-[#002045]' },
-        { label: 'Total Receptionists', value: data.totalReceptionists ?? '—', icon: 'support_agent', color: 'hover:bg-teal-700' },
-        { label: "Today's Appointments", value: data.todaysAppointments ?? '—', icon: 'calendar_today', color: 'hover:bg-green-700' },
+        { label: 'Total Doctors', value: data.totalDoctors ?? data.TotalDoctors ?? '—', icon: 'medical_information', color: 'hover:bg-[#002045]' },
+        { label: 'Total Receptionists', value: data.totalReceptionists ?? data.TotalReceptionists ?? '—', icon: 'support_agent', color: 'hover:bg-teal-700' },
+        { label: "Today's Appointments", value: data.todayAppointments ?? data.TodayAppointments ?? '—', icon: 'calendar_today', color: 'hover:bg-green-700' },
     ];
 
     return (
         <div>
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-slate-900">Clinic Dashboard</h1>
+            <div className="mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Clinic Dashboard</h1>
                 <p className="text-slate-500 mt-1 text-sm">Welcome back, Admin. Here's what's happening today.</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 {stats.map((s) => (
                     <div
                         key={s.label}
-                        className={`bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-4 group ${s.color} transition-all duration-300 cursor-default`}
+                        className={`bg-white p-5 sm:p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-4 group ${s.color} transition-all duration-300 cursor-default`}
                     >
                         <div className="p-2 rounded-lg bg-slate-50 w-fit group-hover:bg-white/20">
                             <span className="material-symbols-outlined text-slate-600 group-hover:text-white">{s.icon}</span>
                         </div>
                         <div>
-                            <div className="text-3xl font-extrabold text-slate-900 group-hover:text-white">{s.value}</div>
+                            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-white">{s.value}</div>
                             <div className="text-sm text-slate-500 group-hover:text-white/70">{s.label}</div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                 {/* Chart */}
-                <div className="col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+                <div className="col-span-1 lg:col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
                     <h3 className="font-bold text-[#002045] mb-4">Activity — Last 7 Days</h3>
                     <canvas ref={chartRef} height={160} />
                 </div>
 
-                {/* Recent Patients */}
-                <div className="col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm p-6">
-                    <h3 className="font-bold text-[#002045] mb-4">Recent Patients</h3>
+                {/* Recent Registrations */}
+                <div className="col-span-1 lg:col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
+                    <h3 className="font-bold text-[#002045] mb-4">Recent Registrations</h3>
                     <div className="space-y-3">
-                        {(data.recentRegistrations || []).length === 0 && (
-                            <p className="text-slate-400 text-sm">No recent patients.</p>
+                        {(data.recentRegistrations || data.RecentRegistrations || []).length === 0 && (
+                            <p className="text-slate-400 text-sm">No recent registrations.</p>
                         )}
-                        {(data.recentRegistrations || []).map((p, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                                <div className="w-9 h-9 rounded-full bg-[#002045] flex items-center justify-center text-white font-bold text-sm">
-                                    {(p.fullName || p.FullName || '?').charAt(0)}
+                        {(data.recentRegistrations || data.RecentRegistrations || []).map((p, i) => {
+                            const name = p.fullName || p.FullName || '?';
+                            const role = p.role || p.Role || '';
+                            const imgUrl = p.profileImageUrl || p.ProfileImageUrl || p.photoUrl || p.PhotoUrl;
+                            const createdAt = p.createdAt || p.CreatedAt;
+                            const roleColor = role === 'Doctor' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-700';
+                            return (
+                                <div key={i} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                                    <div className="w-9 h-9 rounded-full bg-[#002045] flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
+                                        {imgUrl ? <img src={imgUrl} alt={name} className="w-full h-full object-cover" /> : name.charAt(0)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-semibold text-sm text-slate-900 truncate">{name}</p>
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${roleColor}`}>{role}</span>
+                                    </div>
+                                    {createdAt && (
+                                        <p className="text-xs text-slate-400 flex-shrink-0">
+                                            {new Date(createdAt).toLocaleDateString('en-GB')}
+                                        </p>
+                                    )}
                                 </div>
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-sm text-slate-900 truncate">{p.fullName || p.FullName}</p>
-                                    <p className="text-xs text-slate-400 truncate">{p.phone || p.Phone || ''}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
                 {/* Upcoming Queue */}
-                <div className="col-span-12 bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+                <div className="col-span-1 lg:col-span-12 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
                     <h3 className="font-bold text-[#002045] mb-4">Upcoming Appointments Queue</h3>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="min-w-[560px] w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-slate-100">
                                     {['Patient', 'Doctor', 'Date', 'Time', 'Status'].map((h) => (
-                                        <th key={h} className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider px-4">
+                                        <th key={h} className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider px-3 sm:px-4">
                                             {h}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {(data.upcomingAppointmentsQueue || []).length === 0 ? (
+                                {(data.upcomingAppointments || data.UpcomingAppointments || []).length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-sm">
                                             No upcoming appointments
                                         </td>
                                     </tr>
                                 ) : (
-                                    (data.upcomingAppointmentsQueue || []).map((a, i) => {
+                                    (data.upcomingAppointments || data.UpcomingAppointments || []).map((a, i) => {
                                         const status = a.status || a.Status || 'Scheduled';
+                                        const dt = new Date(a.scheduledAt || a.ScheduledAt);
+                                        const dateStr = isNaN(dt) ? '—' : dt.toLocaleDateString('en-GB');
+                                        const timeStr = isNaN(dt) ? '—' : dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                                         return (
                                             <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-4 py-3 font-medium">{a.patientName || a.PatientName || '—'}</td>
-                                                <td className="px-4 py-3 text-slate-500">{a.doctorName || a.DoctorName || '—'}</td>
-                                                <td className="px-4 py-3 text-slate-500">{a.date || a.Date || '—'}</td>
-                                                <td className="px-4 py-3 text-slate-500">{a.time || a.Time || '—'}</td>
-                                                <td className="px-4 py-3">
-                                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${statusColors[status] || statusColors.Scheduled}`}>
+                                                <td className="px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{a.patientName || a.PatientName || '—'}</td>
+                                                <td className="px-3 sm:px-4 py-3 text-slate-500 text-xs sm:text-sm">{a.doctorName || a.DoctorName || '—'}</td>
+                                                <td className="px-3 sm:px-4 py-3 text-slate-500 text-xs sm:text-sm">{dateStr}</td>
+                                                <td className="px-3 sm:px-4 py-3 text-slate-500 text-xs sm:text-sm">{timeStr}</td>
+                                                <td className="px-3 sm:px-4 py-3">
+                                                    <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${statusColors[status] || statusColors.Scheduled}`}>
                                                         {status}
                                                     </span>
                                                 </td>

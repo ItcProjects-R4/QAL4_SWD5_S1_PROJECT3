@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -57,7 +58,8 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await api.post("/api/Auth/login", {   email: email.trim(),
+            const res = await api.post("/api/auth/login", {
+                email: email.trim(),
                 password,
             });
 
@@ -128,8 +130,12 @@ export default function Login() {
                         className={`text-center mb-10 transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
                             }`}
                     >
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary text-white mb-6 shadow-xl transition-transform duration-300 hover:scale-105 hover:rotate-3">
-                            <span className="material-symbols-outlined text-4xl">medical_services</span>
+                        <div className="inline-flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-300 hover:scale-105 hover:rotate-3">
+                            <img
+                                src={sehhatechIcon}
+                                alt="SehhaTech"
+                                className="w-full h-full object-contain drop-shadow-xl"
+                            />
                         </div>
                         <h1 className="font-display font-extrabold text-3xl text-primary tracking-tight">
                             SehhaTech
@@ -191,7 +197,7 @@ export default function Login() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((s) => !s)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary hover:scale-110 transition-all duration-200"
+                                        className="absolute right-1 top-1/2 -translate-y-1/2 p-2.5 text-outline hover:text-primary hover:scale-110 transition-all duration-200"
                                     >
                                         <span className="material-symbols-outlined">
                                             {showPassword ? "visibility_off" : "visibility"}
@@ -239,13 +245,13 @@ export default function Login() {
                         className={`mt-8 flex flex-col items-center gap-6 transition-all duration-700 ease-out delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                             }`}
                     >
-                        <a
+                        <Link
                             className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-80 transition-opacity"
-                            href="#"
+                            to="/contact"
                         >
                             <span className="material-symbols-outlined text-lg">help</span>
                             Need help?
-                        </a>
+                        </Link>
                         <div className="flex items-center gap-6 opacity-60">
                             <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">verified_user</span>

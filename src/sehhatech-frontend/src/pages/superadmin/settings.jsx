@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { superadmin } from "../../api/superadmin";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -34,6 +35,8 @@ export default function Settings() {
   const [profile, setProfile] = useState({ name: "—", role: "—", email: "—" });
   const [passwords, setPasswords] = useState({ old: "", new: "" });
   const [pwMsg, setPwMsg]     = useState(null); // { type: "success"|"error", text }
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [toggles, setToggles] = useState({
     maintenance: false,
     notifications: true,
@@ -58,10 +61,7 @@ export default function Settings() {
       return;
     }
     try {
-      await apiFetch("/api/SuperAdmin/change-password", {
-  method: "POST",
-  body: JSON.stringify({ oldPassword: passwords.old, newPassword: passwords.new }),
-});
+      await superadmin.changePassword(passwords.old, passwords.new);
       setPwMsg({ type: "success", text: "Password updated successfully." });
       setPasswords({ old: "", new: "" });
     } catch {
@@ -116,12 +116,12 @@ export default function Settings() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* Profile Card */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-2xl mb-4">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-lg shadow-blue-600/20">
                 SA
               </div>
-              <h3 className="text-xl font-semibold text-slate-900">{profile.name}</h3>
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">{profile.name}</h3>
               <p className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider mb-4">
                 {profile.role}
               </p>
@@ -143,32 +143,56 @@ export default function Settings() {
           </div>
 
           {/* Change Password */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h3 className="text-xl font-semibold text-slate-900 mb-4">Security</h3>
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <h3 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">Security</h3>
             <div className="space-y-4">
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                   Current Password
                 </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwords.old}
-                  onChange={(e) => setPasswords((p) => ({ ...p, old: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
-                />
+                <div className="relative">
+                  <input
+                    type={showOld ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={passwords.old}
+                    onChange={(e) => setPasswords((p) => ({ ...p, old: e.target.value }))}
+                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 pr-10 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOld((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showOld ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
                   New Password
                 </label>
-                <input
-                  type="password"
-                  placeholder="Min. 6 characters"
-                  value={passwords.new}
-                  onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
-                />
+                <div className="relative">
+                  <input
+                    type={showNew ? "text" : "password"}
+                    placeholder="Min. 6 characters"
+                    value={passwords.new}
+                    onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
+                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 pr-10 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showNew ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
               {pwMsg && (
                 <p className={`text-sm font-medium ${pwMsg.type === "success" ? "text-emerald-600" : "text-red-500"}`}>
@@ -177,7 +201,7 @@ export default function Settings() {
               )}
               <button
                 onClick={handleChangePassword}
-                className="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-800 transition-all shadow-sm text-sm"
+                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm"
               >
                 Update Password
               </button>
@@ -189,9 +213,9 @@ export default function Settings() {
         <div className="lg:col-span-8 space-y-6">
 
           {/* System Toggles */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">System Status & Toggles</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">System Status & Toggles</h3>
             </div>
             <div className="divide-y divide-slate-100">
               {systemToggles.map(({ key, icon, iconBg, iconColor, title, desc, activeColor }) => (
@@ -200,7 +224,7 @@ export default function Settings() {
                   className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/50 transition-colors"
                 >
                   <div className="flex gap-4">
-                    <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
+                    <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
                       <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
                     </div>
                     <div>
@@ -219,9 +243,9 @@ export default function Settings() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-red-50/30 border border-red-200/60 rounded-xl p-6">
+          <div className="bg-red-50/30 border border-red-200/60 rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <div className="bg-red-100 p-2 rounded-lg shrink-0">
+              <div className="bg-red-100 p-2 rounded-xl shrink-0">
                 <span className="material-symbols-outlined text-red-500">warning</span>
               </div>
               <div className="flex-1">
@@ -230,10 +254,10 @@ export default function Settings() {
                   Actions here are irreversible and will affect the entire network.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold">
+                  <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-xl hover:bg-red-50 transition-all text-sm font-semibold">
                     Flush System Cache
                   </button>
-                  <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold">
+                  <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-all text-sm font-semibold">
                     Factory Reset Network
                   </button>
                 </div>

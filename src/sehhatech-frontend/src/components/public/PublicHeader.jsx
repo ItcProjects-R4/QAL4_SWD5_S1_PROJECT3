@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 export default function PublicHeader() {
     return (
@@ -19,7 +20,14 @@ export default function PublicHeader() {
                     </svg>
                     Back to Home
                 </Link>
-                <div className="public-header__brand">SehhaTech</div>
+                <Link to="/" className="public-header__brand">
+                    <img
+                        src={sehhatechIcon}
+                        alt="SehhaTech"
+                        className="public-header__brand-icon"
+                    />
+                    SehhaTech
+                </Link>
             </nav>
         </header>
     );

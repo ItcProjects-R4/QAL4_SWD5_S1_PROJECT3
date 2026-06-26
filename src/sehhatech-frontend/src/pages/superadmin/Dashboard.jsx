@@ -2,8 +2,11 @@ import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { superadmin } from "../../api/superadmin";
 import DateRangePicker from "../../components/DateRangePicker";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
+} from "recharts";
 
-// ── حساب النسب من الداتا ──────────────────────────────────────────────────────
 function calcGrowthPct(growthChart) {
   if (!growthChart || growthChart.length < 2) return null;
   const sorted = [...growthChart].sort((a, b) =>
@@ -15,12 +18,16 @@ function calcGrowthPct(growthChart) {
   return Math.round(((curr - prev) / prev) * 100);
 }
 
-function calcNewDoctorsThisMonth(growthChart) {
-  // مفيش endpoint للـ doctors growth، فهنرجع null
-  return null;
-}
+// ✅ الترتيب الصح بناءً على الـ Backend
+const STATUS_MAP = {
+  0: "scheduled",
+  1: "confirmed",
+  2: "checkedin",
+  3: "completed",
+  4: "cancelled",
+  5: "noshow",
+};
 
-// ── KPI Card ──────────────────────────────────────────────────────────────────
 function KpiCard({ icon, iconBg, iconColor, badge, badgeBg, badgeText, label, value }) {
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -38,13 +45,27 @@ function KpiCard({ icon, iconBg, iconColor, badge, badgeBg, badgeText, label, va
   );
 }
 
-// ── Donut Chart ───────────────────────────────────────────────────────────────
-function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
-  const total = confirmed + pending + cancelled;
+// ✅ أضفنا scheduled و checkedin
+function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, completed = 0, cancelled = 0, noshow = 0 }) {
+  const total = scheduled + confirmed + checkedin + completed + cancelled + noshow;
   const pct = (n) => (total ? (n / total) * 100 : 0);
-  const c_pct = pct(confirmed);
-  const p_pct = pct(pending);
-  const x_pct = pct(cancelled);
+
+  const segments = [
+    { value: checkedin,  color: "#10B981", label: "Checked In" },
+    { value: completed,  color: "#2563EB", label: "Completed"  },
+    { value: scheduled,  color: "#6366F1", label: "Scheduled"  },
+    { value: confirmed,  color: "#F59E0B", label: "Confirmed"  },
+    { value: cancelled,  color: "#EF4444", label: "Cancelled"  },
+    { value: noshow,     color: "#94A3B8", label: "No Show"    },
+  ];
+
+  let offset = 0;
+  const rendered = segments.map((seg) => {
+    const p = pct(seg.value);
+    const el = { ...seg, pct: p, offset };
+    offset += p;
+    return el;
+  });
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
@@ -52,28 +73,32 @@ function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
       <div className="flex flex-col items-center">
         <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-            <circle className="stroke-slate-100" cx="18" cy="18" fill="none" r="15.915" strokeWidth="3" />
-            <circle cx="18" cy="18" fill="none" r="15.915" stroke="#EF4444"
-              strokeDasharray={`${x_pct} ${100 - x_pct}`} strokeDashoffset="0" strokeWidth="4" />
-            <circle cx="18" cy="18" fill="none" r="15.915" stroke="#F59E0B"
-              strokeDasharray={`${p_pct} ${100 - p_pct}`} strokeDashoffset={-x_pct} strokeWidth="4" />
-            <circle cx="18" cy="18" fill="none" r="15.915" stroke="#10B981"
-              strokeDasharray={`${c_pct} ${100 - c_pct}`} strokeDashoffset={-(x_pct + p_pct)} strokeWidth="4" />
+            <circle
+              className="stroke-slate-100" cx="18" cy="18"
+              fill="none" r="15.915" strokeWidth="3"
+            />
+            {rendered.map((seg) => (
+              <circle
+                key={seg.label}
+                cx="18" cy="18" fill="none" r="15.915"
+                stroke={seg.color}
+                strokeDasharray={`${seg.pct} ${100 - seg.pct}`}
+                strokeDashoffset={-seg.offset}
+                strokeWidth="4"
+              />
+            ))}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-bold text-slate-900">{total || "—"}</span>
             <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total</span>
           </div>
         </div>
+
         <div className="w-full space-y-3">
-          {[
-            { color: "bg-[#10B981]", label: "Confirmed",  value: confirmed },
-            { color: "bg-[#F59E0B]", label: "Pending",    value: pending },
-            { color: "bg-[#EF4444]", label: "Cancelled",  value: cancelled },
-          ].map(({ color, label, value }) => (
+          {rendered.map(({ color, label, value }) => (
             <div key={label} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`w-3 h-3 rounded-full ${color}`} />
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
                 <span className="text-sm font-medium text-slate-600">{label}</span>
               </div>
               <span className="text-sm font-bold text-slate-900">{value}</span>
@@ -85,17 +110,6 @@ function AppointmentDonut({ confirmed = 0, pending = 0, cancelled = 0 }) {
   );
 }
 
-// ── Growth Chart ──────────────────────────────────────────────────────────────
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from "recharts";
-
 function GrowthChart({ data = [] }) {
   if (!data.length) {
     return (
@@ -106,33 +120,20 @@ function GrowthChart({ data = [] }) {
     );
   }
 
-  const chartData = data.map(d => ({
+  const chartData = data.map((d) => ({
     month: `${d.month}/${d.year}`,
-    count: d.count
+    count: d.count,
   }));
 
   return (
     <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-slate-900">
-          Clinics Growth
-        </h3>
-        <p className="text-sm text-slate-500">
-          Monthly onboarding trends
-        </p>
+        <h3 className="text-xl font-semibold text-slate-900">Clinics Growth</h3>
+        <p className="text-sm text-slate-500">Monthly onboarding trends</p>
       </div>
-
       <div style={{ width: "100%", height: 280 }}>
         <ResponsiveContainer>
           <LineChart data={chartData}>
-            <defs>
-  <linearGradient id="colorLine" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stopColor="#2563EB" stopOpacity={0.8}/>
-    <stop offset="100%" stopColor="#60A5FA" stopOpacity={1}/>
-  </linearGradient>
-</defs>
-
-<Line stroke="url(#colorLine)" />
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
@@ -152,7 +153,6 @@ function GrowthChart({ data = [] }) {
   );
 }
 
-// ── Recent Clinics Table ──────────────────────────────────────────────────────
 function RecentClinicsTable({ clinics = [], loading }) {
   return (
     <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
@@ -206,7 +206,6 @@ function RecentClinicsTable({ clinics = [], loading }) {
   );
 }
 
-// ── Date helpers ───────────────────────────────────────────────────────────────
 function formatRangeLabel(start, end) {
   if (!start || !end) return "Last 30 Days";
   const opts = { month: "short", day: "numeric" };
@@ -223,7 +222,6 @@ function toISO(date) {
   return `${y}-${m}-${d}`;
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function SuperAdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -239,15 +237,11 @@ export default function SuperAdminDashboard() {
   const fetchDashboard = useCallback((start, end) => {
     setLoading(true);
     const params = start && end ? { startDate: toISO(start), endDate: toISO(end) } : {};
-    superadmin.getDashboard(params)
-  .then(res => {
-    console.log("Dashboard Response:", res);
-    setData(res);
-  })
-  .catch(err => {
-    console.log("Dashboard Error:", err);
-  })
-  .finally(() => setLoading(false));
+    superadmin
+      .getDashboard(params)
+      .then((res) => setData(res))
+      .catch((err) => console.error("Dashboard Error:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -259,28 +253,27 @@ export default function SuperAdminDashboard() {
     setPickerOpen(false);
   }
 
-  // ── parse appointment status ───────────────────────────────────────────────
-  console.log("Appointment Status Distribution:", data?.appointmentStatusDistribution);
+  // ✅ parse appointment status بالـ map الصح
+  const apptStatus = {
+    scheduled: 0, confirmed: 0, checkedin: 0,
+    completed: 0, cancelled: 0, noshow: 0,
+  };
 
-const apptStatus = {};
+  (data?.appointmentStatusDistribution ?? []).forEach(({ status, count }) => {
+    const key = STATUS_MAP[status];
+    if (key) apptStatus[key] += count;
+  });
 
-(data?.appointmentStatusDistribution ?? []).forEach(({ status, count }) => {
-  apptStatus[status] = count;
-});
-
-  // ── growth chart data (sorted) ─────────────────────────────────────────────
   const growthData = [...(data?.clinicsGrowthChart ?? [])].sort((a, b) =>
     a.year !== b.year ? a.year - b.year : a.month - b.month
   );
 
-  // ── نسبة نمو الكلينيكات مقارنة بالشهر اللي قبله ─────────────────────────
   const growthPct = calcGrowthPct(growthData);
   const growthBadge = growthPct === null ? "—" : growthPct >= 0 ? `+${growthPct}%` : `${growthPct}%`;
   const growthPositive = growthPct === null || growthPct >= 0;
 
   return (
     <div>
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
@@ -309,7 +302,6 @@ const apptStatus = {};
         </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KpiCard
           icon="domain" iconBg="bg-blue-50" iconColor="text-blue-600"
@@ -342,17 +334,19 @@ const apptStatus = {};
         />
       </div>
 
-      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <GrowthChart data={growthData} />
-       <AppointmentDonut
-  confirmed={apptStatus[1] ?? 0}
-  pending={apptStatus[0] ?? 0}
-  cancelled={apptStatus[2] ?? 0}
-/>
+        {/* ✅ بنمرر الـ 6 statuses الصح */}
+        <AppointmentDonut
+          scheduled={apptStatus.scheduled}
+          confirmed={apptStatus.confirmed}
+          checkedin={apptStatus.checkedin}
+          completed={apptStatus.completed}
+          cancelled={apptStatus.cancelled}
+          noshow={apptStatus.noshow}
+        />
       </div>
 
-      {/* Recent Clinics */}
       <RecentClinicsTable clinics={data?.recentClinics ?? []} loading={loading} />
     </div>
   );
