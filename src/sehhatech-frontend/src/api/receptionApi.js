@@ -25,7 +25,10 @@ export const receptionApi = {
   // Dashboard
   getDashboard() {
     return request(api.get("/api/Reception/dashboard"));
-  },
+    },
+
+    getDoctorSlots: (doctorId, date) =>
+        api.get(`/api/Reception/doctors/${doctorId}/slots`, { params: { date } }).then(r => r.data),
 
   // Patients
   getPatients(search = "") {
