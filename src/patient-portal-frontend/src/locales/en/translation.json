@@ -1,0 +1,437 @@
+{
+  "nav": {
+    "login": "Login",
+    "getStarted": "Get Started",
+    "toggleMenu": "Toggle menu",
+    "help": "Help"
+  },
+  "hero": {
+    "badge": "Trusted by clinics across Egypt",
+    "headline1": "Your health,",
+    "headline2": "on your schedule.",
+    "subtitle": "Find clinics, book appointments, and manage your healthcare journey — all in one calm, uncluttered place.",
+    "ctaPrimary": "Create Free Account",
+    "ctaSecondary": "Browse Clinics",
+    "statBookingLabel": "average booking time",
+    "statAvailabilityLabel": "always open to book"
+  },
+  "trust": {
+    "items": [
+      "Cairo",
+      "Alexandria",
+      "Giza",
+      "General Practice",
+      "Cardiology",
+      "Pediatrics",
+      "Dental",
+      "Orthopedics",
+      "Neurology"
+    ]
+  },
+  "features": {
+    "eyebrow": "What you get",
+    "heading": "Everything you need, nothing you don't",
+    "items": [
+      {
+        "title": "Find a clinic",
+        "desc": "Search and filter clinics by specialty, city, and real-time availability."
+      },
+      {
+        "title": "Book in seconds",
+        "desc": "Pick your doctor, pick your slot, confirm. No phone calls, no waiting rooms."
+      },
+      {
+        "title": "Stay in control",
+        "desc": "Track every appointment, reschedule or cancel, all from one calm screen."
+      }
+    ]
+  },
+  "howItWorks": {
+    "eyebrow": "The journey",
+    "heading": "Three steps to better care",
+    "steps": [
+      {
+        "title": "Create your account",
+        "desc": "Register with your phone number and verify with a one-time code."
+      },
+      {
+        "title": "Find your doctor",
+        "desc": "Browse clinics across Egypt and pick the slot that fits your day."
+      },
+      {
+        "title": "Show up and get care",
+        "desc": "Walk in confirmed. Your visit history lives in your portal from now on."
+      }
+    ]
+  },
+  "cta": {
+    "heading": "Ready to take control of your health?",
+    "subtitle": "Join thousands of patients booking smarter across Egypt.",
+    "button": "Get Started for Free"
+  },
+  "validation": {
+    "fullNameMin": "Full name must be at least 3 characters",
+    "phoneInvalid": "Invalid Egyptian phone number",
+    "passwordMin": "Password must be at least 8 characters",
+    "passwordMatch": "Passwords do not match"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Please sign in to access your patient portal.",
+    "phoneLabel": "Phone Number",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot Password?",
+    "submitBtn": "Login",
+    "submitting": "Logging in...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register",
+    "errorFallback": "Login failed. Please try again."
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Join SehhaTech and take control of your health.",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Ahmed Mohamed",
+    "phoneLabel": "Phone Number",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Min 8 characters",
+    "confirmLabel": "Confirm Password",
+    "confirmPlaceholder": "Repeat password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "termsText": "I have read and agree to the",
+    "termsLink": "Terms & Conditions",
+    "termsAnd": "and",
+    "privacyLink": "Privacy Policy",
+    "termsHint": "You must accept the terms to create an account.",
+    "termsError": "Please accept the Terms & Conditions to continue.",
+    "termsTitle": "Please accept the Terms & Conditions first",
+    "submitBtn": "Create Account",
+    "submitting": "Creating account...",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Login",
+    "errorFallback": "Registration failed. Please try again."
+  },
+  "verifyOtp": {
+    "title": "Verify Your Number",
+    "subtitle": "We sent a 6-digit code to",
+    "resendIn": "Resend code in",
+    "resendBtn": "Resend OTP",
+    "submitBtn": "Verify",
+    "submitting": "Verifying...",
+    "resendSuccess": "OTP resent successfully!",
+    "resendError": "Failed to resend OTP.",
+    "invalidOtp": "Invalid OTP."
+  },
+  "navbar": {
+    "findClinic": "Find Clinic",
+    "myBookings": "My Bookings",
+    "hi": "Hi",
+    "logout": "Logout",
+    "loggingOut": "Logging out...",
+    "signIn": "Sign In",
+    "toggleMenu": "Toggle menu"
+  },
+  "footer": {
+    "rights": "© 2026 SehhaTech Medical Systems. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Support"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password?",
+    "subtitle": "Enter your registered phone number and we'll send you a verification code to reset your password.",
+    "phoneLabel": "Phone Number",
+    "sendBtn": "Send Reset Code",
+    "sending": "Sending code...",
+    "backToLogin": "Back to Login",
+    "errorInvalidPhone": "Invalid Egyptian phone number",
+    "errorFallback": "Could not send reset code. Please check the number and try again."
+  },
+  "resetPassword": {
+    "title": "Reset Your Password",
+    "subtitle": "Enter the 6-digit code sent to",
+    "subtitleAnd": "and choose a new password.",
+    "resendIn": "Resend code in",
+    "resendBtn": "Resend Code",
+    "newPwLabel": "New Password",
+    "newPwPlaceholder": "Min 8 characters",
+    "confirmPwLabel": "Confirm New Password",
+    "confirmPwPlaceholder": "Repeat new password",
+    "submitBtn": "Reset Password",
+    "submitting": "Resetting...",
+    "backToLogin": "Back to Login",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "errorCode": "Enter the 6-digit code",
+    "errorPwMin": "Password must be at least 8 characters",
+    "errorPwMatch": "Passwords do not match",
+    "errorFallback": "Could not reset password. The code may be invalid or expired.",
+    "resendSuccess": "A new code has been sent.",
+    "resendError": "Failed to resend code.",
+    "successTitle": "Password Reset!",
+    "successMsg": "Your password has been updated. You can now log in with your new password.",
+    "goToLogin": "Go to Login"
+  },
+  "clinics": {
+    "title": "Find a Clinic",
+    "subtitle": "Explore and connect with top clinics and medical centers in the SehhaTech network.",
+    "searchPlaceholder": "Search by clinic name...",
+    "specialtyLabel": "Specialty",
+    "governorateLabel": "Governorate",
+    "active": "Active",
+    "inactive": "Inactive",
+    "viewClinic": "View Clinic",
+    "noResults": "No clinics found.",
+    "errorLoad": "Failed to load clinics. Please make sure the server is running.",
+    "specialties": {
+      "Cardiology": "Cardiology",
+      "Neurology": "Neurology",
+      "Pediatrics": "Pediatrics",
+      "Orthopedics": "Orthopedics",
+      "General": "General Practice",
+      "Dental": "Dental"
+    },
+    "governorates": {
+      "Cairo": "Cairo",
+      "Alexandria": "Alexandria",
+      "Giza": "Giza",
+      "Qalyubia": "Qalyubia",
+      "Sharqia": "Sharqia",
+      "Dakahlia": "Dakahlia",
+      "Gharbia": "Gharbia",
+      "Monufia": "Monufia",
+      "Beheira": "Beheira",
+      "Kafr El Sheikh": "Kafr El Sheikh",
+      "Ismailia": "Ismailia",
+      "Port Said": "Port Said",
+      "Suez": "Suez",
+      "North Sinai": "North Sinai",
+      "South Sinai": "South Sinai",
+      "Damietta": "Damietta",
+      "Faiyum": "Faiyum",
+      "Beni Suef": "Beni Suef",
+      "Minya": "Minya",
+      "Asyut": "Asyut",
+      "Sohag": "Sohag",
+      "Qena": "Qena",
+      "Luxor": "Luxor",
+      "Aswan": "Aswan",
+      "Red Sea": "Red Sea",
+      "New Valley": "New Valley",
+      "Matruh": "Matruh"
+    }
+  },
+  "myBookings": {
+    "title": "My Bookings",
+    "subtitle": "Manage and track your medical appointments.",
+    "tabUpcoming": "Upcoming",
+    "tabPast": "Past",
+    "emptyTitle": "No {{tab}} bookings",
+    "emptySubtitle": "Ready for your next check-up?",
+    "findClinic": "Find a Clinic",
+    "cancelBtn": "Cancel Appointment",
+    "cancelTitle": "Cancel Appointment?",
+    "cancelMsg": "Are you sure you want to cancel your appointment with",
+    "cancelMsgAt": "at",
+    "keepBtn": "Keep It",
+    "confirmCancelBtn": "Cancel It",
+    "cancelling": "Cancelling...",
+    "toastCancelSuccess": "Appointment cancelled successfully.",
+    "toastCancelError": "Cannot cancel this appointment.",
+    "errorLoad": "Failed to load bookings. Please make sure the server is running.",
+    "statusConfirmed": "Confirmed",
+    "statusPending": "Pending",
+    "statusCancelled": "Cancelled",
+    "statusNoShow": "No Show"
+  },
+  "bookAppointment": {
+    "backToClinics": "Back to Clinics",
+    "bookSubtitle": "Book an appointment",
+    "selectDoctorLabel": "Select Doctor",
+    "chooseDoctorPlaceholder": "Choose a doctor...",
+    "selectDateLabel": "Select Date",
+    "today": "Today",
+    "selectTimeLabel": "Select Time",
+    "loadingDoctors": "Loading doctors...",
+    "loadingSlots": "Loading available times...",
+    "noSlots": "No available slots for this date. Try another day.",
+    "confirmBtn": "Confirm Appointment",
+    "booking": "Booking...",
+    "successTitle": "Booking Confirmed!",
+    "successMsg": "Your appointment has been booked successfully.",
+    "viewBookings": "View My Bookings",
+    "errorBook": "Booking failed. Please try again.",
+    "errorDoctors": "Failed to load doctors.",
+    "errorSlots": "Failed to load slots."
+  },
+  "contact": {
+    "title": "Contact Support",
+    "subtitle": "Have a question or ran into an issue? We're here to help.",
+    "infoEmail": "Email Us",
+    "infoPhone": "Call Us",
+    "infoHours": "Support Hours",
+    "infoHoursValue": "Sun – Thu, 9 AM – 6 PM (Cairo time)",
+    "formHeading": "Send us a message",
+    "formSubheading": "We typically respond within one business day.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "What's this about?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us more about your issue or question...",
+    "sendBtn": "Send Message",
+    "sending": "Sending...",
+    "sentTitle": "Message Sent!",
+    "sentMsg": "Thanks for reaching out. Our support team will get back to you within 1–2 business days.",
+    "sendAnother": "Send another message",
+    "errorName": "Please enter your name",
+    "errorEmail": "Please enter a valid email",
+    "errorSubject": "Please enter a subject",
+    "errorMessage": "Message must be at least 10 characters",
+    "faqHeading": "Frequently Asked Questions",
+    "faqSubheading": "Quick answers to common questions.",
+    "faqs": [
+      {
+        "q": "How do I book an appointment?",
+        "a": "Go to \"Find a Clinic\", choose a clinic, pick a doctor, select an available date and time slot, then confirm. You'll see your appointment immediately under \"My Bookings\"."
+      },
+      {
+        "q": "Why didn't I receive my OTP code?",
+        "a": "OTP delivery can occasionally be delayed by a few minutes depending on your carrier. If it doesn't arrive, use the \"Resend OTP\" button on the verification screen. Make sure the phone number you entered is correct and able to receive SMS."
+      },
+      {
+        "q": "Can I cancel or reschedule an appointment?",
+        "a": "You can cancel an upcoming appointment anytime from the \"My Bookings\" page. To reschedule, cancel the existing booking and create a new one for your preferred time."
+      },
+      {
+        "q": "I forgot my password. What should I do?",
+        "a": "On the Login page, tap \"Forgot Password?\" and enter your registered phone number. We'll send you a verification code to set a new password."
+      },
+      {
+        "q": "Is my personal and medical information safe?",
+        "a": "Yes. We use encrypted password storage and secure authentication tokens, and only share your booking details with the specific clinic you book with. See our Privacy Policy for full details."
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: June 2026",
+    "sections": [
+      {
+        "title": "Introduction",
+        "body": "SehhaTech (\"we,\" \"our,\" or \"us\") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains what information we collect through the Patient Portal, how we use it, and the choices you have regarding your data."
+      },
+      {
+        "title": "Information We Collect",
+        "body": "We collect the information you provide directly, such as your full name, phone number, and password during registration. We also collect information generated through your use of the platform, including appointment bookings, selected clinics and doctors, booking history, and OTP verification records. We may collect basic technical data such as device type and IP address for security and fraud prevention."
+      },
+      {
+        "title": "How We Use Your Information",
+        "body": "We use your information to: create and manage your account; verify your identity via SMS one-time passcodes; process and confirm appointment bookings with partner clinics; send booking confirmations, reminders, and account-related notifications; improve and secure our platform; and comply with legal obligations."
+      },
+      {
+        "title": "SMS & OTP Communications",
+        "body": "Your phone number is used to send one-time passcodes (OTP) for registration, login verification, and password reset, as well as appointment confirmations and reminders. These messages are sent via our SMS provider and are necessary for the functioning of the service; they are not used for marketing without your separate consent."
+      },
+      {
+        "title": "Sharing With Partner Clinics",
+        "body": "When you book an appointment, your name, phone number, and booking details are shared with the relevant partner clinic and doctor solely for the purpose of managing that appointment. Partner clinics are responsible for safeguarding any information shared with them in accordance with applicable healthcare data regulations."
+      },
+      {
+        "title": "Data Storage & Security",
+        "body": "We implement reasonable technical and organizational measures — including encrypted password storage, token-based authentication, and access controls — to protect your data against unauthorized access, alteration, or disclosure. However, no method of transmission or storage is completely secure, and we cannot guarantee absolute security."
+      },
+      {
+        "title": "Data Retention",
+        "body": "We retain your account and booking information for as long as your account remains active, and for a reasonable period afterward as required for legal, accounting, or legitimate business purposes. You may request deletion of your account as described below."
+      },
+      {
+        "title": "Your Rights",
+        "body": "You may access, update, or request correction of your personal information at any time through your account, or by contacting our support team. You may also request deletion of your account, subject to any legal retention requirements for booking and medical-appointment records."
+      },
+      {
+        "title": "Cookies & Local Storage",
+        "body": "The Patient Portal uses browser local storage to keep you signed in between visits (storing your session tokens) and session storage to temporarily hold information during multi-step flows such as registration and booking. These are technical mechanisms required for the application to function and are not used for third-party advertising tracking."
+      },
+      {
+        "title": "Children's Privacy",
+        "body": "SehhaTech is not intended for use by children under 16 without the involvement of a parent or legal guardian. We do not knowingly collect personal information from children without appropriate consent."
+      },
+      {
+        "title": "Changes to This Policy",
+        "body": "We may update this Privacy Policy periodically to reflect changes in our practices or for legal reasons. We will notify users of material changes through the platform. Your continued use of SehhaTech after such changes constitutes acceptance of the updated policy."
+      }
+    ],
+    "contactTitle": "Contact Us",
+    "contactBody": "If you have questions or concerns about this Privacy Policy or how your data is handled, please reach out via our <1>Contact Support</1> page."
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "lastUpdated": "Last updated: June 2026",
+    "sections": [
+      {
+        "title": "Acceptance of Terms",
+        "body": "By creating an account on SehhaTech, accessing the Patient Portal, or booking an appointment through our platform, you confirm that you have read, understood, and agree to be bound by these Terms & Conditions and our <1>Privacy Policy</1>. If you do not agree with any part of these terms, please discontinue use of the platform."
+      },
+      {
+        "title": "Eligibility",
+        "body": "You must be at least 16 years old to register an independent patient account. Accounts created on behalf of a minor or dependent must be managed by a parent or legal guardian who accepts full responsibility for the accuracy of the information provided and for all bookings made under that account."
+      },
+      {
+        "title": "Account Registration & Security",
+        "body": "You agree to provide accurate, current, and complete information during registration, including a valid Egyptian phone number used for identity verification via OTP. You are responsible for maintaining the confidentiality of your password and for all activity that occurs under your account. Notify us immediately of any unauthorized use of your credentials."
+      },
+      {
+        "title": "Appointment Bookings",
+        "body": "SehhaTech acts as a booking intermediary connecting patients with partner clinics and doctors. Confirmed bookings are subject to the availability and policies of the individual clinic. We reserve the right to cancel or reschedule appointments due to doctor unavailability, clinic closure, or technical issues, and will make reasonable efforts to notify you in advance via SMS or in-app notification."
+      },
+      {
+        "title": "Cancellations & No-Shows",
+        "body": "You may cancel an upcoming appointment from the \"My Bookings\" page. Repeated no-shows or late cancellations may result in restrictions on future bookings at the discretion of the partner clinic. SehhaTech is not responsible for any fees charged directly by a clinic for missed appointments."
+      },
+      {
+        "title": "Medical Disclaimer",
+        "body": "SehhaTech is a scheduling and practice-management platform. It does not provide medical advice, diagnosis, or treatment, and is not a substitute for professional medical care. Always consult a qualified healthcare provider regarding any medical condition. In case of a medical emergency, contact local emergency services immediately rather than using this platform."
+      },
+      {
+        "title": "Data & Privacy",
+        "body": "Your personal and health-related information is processed in accordance with our <1>Privacy Policy</1>. By using SehhaTech you consent to the collection and processing of your phone number, booking history, and related data for the purpose of providing and improving the service, including sending OTP and appointment-reminder SMS messages."
+      },
+      {
+        "title": "Acceptable Use",
+        "body": "You agree not to misuse the platform, including but not limited to: creating fraudulent bookings, impersonating another person, attempting to access another user's account, or interfering with the normal operation of the service. We reserve the right to suspend or terminate accounts that violate these terms."
+      },
+      {
+        "title": "Limitation of Liability",
+        "body": "To the fullest extent permitted by law, SehhaTech and its affiliates shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform, including but not limited to missed appointments, clinic-side errors, or service interruptions."
+      },
+      {
+        "title": "Termination",
+        "body": "We reserve the right to suspend or terminate your account at our discretion if we believe these Terms have been violated, without prior notice, to the extent permitted by applicable law."
+      },
+      {
+        "title": "Changes to These Terms",
+        "body": "We may update these Terms & Conditions from time to time. Material changes will be communicated through the platform. Continued use of SehhaTech after changes take effect constitutes acceptance of the revised terms."
+      },
+      {
+        "title": "Governing Law",
+        "body": "These Terms are governed by and construed in accordance with the laws of the Arab Republic of Egypt, without regard to its conflict-of-law provisions."
+      },
+      {
+        "title": "Contact",
+        "body": "For questions about these Terms & Conditions, please reach out via our <1>Contact Support</1> page."
+      }
+    ]
+  },
+  "termsModal": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "agree": "I Agree",
+    "closeBtn": "Close"
+  }
+}

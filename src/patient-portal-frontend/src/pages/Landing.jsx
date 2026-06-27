@@ -1,39 +1,22 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Footer from '../components/Footer'
 import HeartbeatLine from '../components/HeartbeatLine'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { useTilt } from '../hooks/useTilt'
 
-const FEATURES = [
-    {
-        icon: 'local_hospital',
-        title: 'Find a clinic',
-        desc: 'Search and filter clinics by specialty, city, and real-time availability.',
-        tag: '01',
-    },
-    {
-        icon: 'calendar_month',
-        title: 'Book in seconds',
-        desc: 'Pick your doctor, pick your slot, confirm. No phone calls, no waiting rooms.',
-        tag: '02',
-    },
-    {
-        icon: 'event_available',
-        title: 'Stay in control',
-        desc: 'Track every appointment, reschedule or cancel, all from one calm screen.',
-        tag: '03',
-    },
+// Non-translatable static data (icons & tags only)
+const FEATURE_META = [
+    { icon: 'local_hospital', tag: '01' },
+    { icon: 'calendar_month', tag: '02' },
+    { icon: 'event_available', tag: '03' },
 ]
 
-const STEPS = [
-    { n: '1', title: 'Create your account', desc: 'Register with your phone number and verify with a one-time code.', icon: 'person_add' },
-    { n: '2', title: 'Find your doctor', desc: 'Browse clinics across Egypt and pick the slot that fits your day.', icon: 'search' },
-    { n: '3', title: 'Show up and get care', desc: 'Walk in confirmed. Your visit history lives in your portal from now on.', icon: 'favorite' },
-]
-
-const TRUST_ITEMS = [
-    'Cairo', 'Alexandria', 'Giza', 'General Practice', 'Cardiology', 'Pediatrics', 'Dental', 'Orthopedics', 'Neurology',
+const STEP_META = [
+    { n: '1', icon: 'person_add' },
+    { n: '2', icon: 'search' },
+    { n: '3', icon: 'favorite' },
 ]
 
 function SplitWords({ text, className = '', delayStart = 0, stagger = 0.09 }) {
@@ -96,9 +79,22 @@ function FeatureCard({ f, index }) {
 
 export default function Landing() {
     const [mobileOpen, setMobileOpen] = useState(false)
+    const { t, i18n } = useTranslation()
+
     const featuresHeadingReveal = useScrollReveal()
     const ctaReveal = useScrollReveal()
     const howItWorksReveal = useScrollReveal()
+
+    // Merge translated text with static icon/tag data
+    const featureItems = t('features.items', { returnObjects: true })
+    const FEATURES = FEATURE_META.map((meta, i) => ({ ...meta, ...featureItems[i] }))
+
+    const stepItems = t('howItWorks.steps', { returnObjects: true })
+    const STEPS = STEP_META.map((meta, i) => ({ ...meta, ...stepItems[i] }))
+
+    const TRUST_ITEMS = t('trust.items', { returnObjects: true })
+
+    const isAr = i18n.language === 'ar'
 
     return (
         <div className="min-h-screen flex flex-col text-on-surface page-enter overflow-x-hidden">
@@ -114,17 +110,33 @@ export default function Landing() {
                     </Link>
 
                     <div className="hidden md:flex items-center gap-3">
-                        <Link to="/login" className="link-underline font-medium text-label-md text-primary">Login</Link>
+                        {/* Language switcher */}
+                        <button
+                            onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary hover:bg-primary/5 transition-all text-label-sm font-medium"
+                            aria-label="Switch language"
+                        >
+                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>
+                                language
+                            </span>
+                            {isAr ? 'English' : 'العربية'}
+                        </button>
+                        <Link to="/login" className="link-underline font-medium text-label-md text-primary">
+                            {t('nav.login')}
+                        </Link>
                         <Link
                             to="/register"
                             className="btn-press bg-primary-container text-on-primary font-medium text-label-md px-6 py-3 rounded-xl hover:bg-primary transition-colors"
-                        >Get Started</Link>
+                        >
+                            {t('nav.getStarted')}
+                        </Link>
                     </div>
 
                     <button
                         onClick={() => setMobileOpen(v => !v)}
                         className="md:hidden p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors w-10 h-10 flex items-center justify-center"
-                        aria-label="Toggle menu" aria-expanded={mobileOpen}
+                        aria-label={t('nav.toggleMenu')}
+                        aria-expanded={mobileOpen}
                     >
                         <span className="relative w-6 h-5 flex flex-col justify-between">
                             <span className={`block h-[2px] w-full bg-current rounded transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-[9px]' : ''}`} />
@@ -137,11 +149,24 @@ export default function Landing() {
                 {mobileOpen && (
                     <div className="md:hidden border-t border-outline-variant bg-surface menu-slide">
                         <div className="flex flex-col px-4 py-3 gap-1">
-                            <Link to="/login" className="px-3 py-3 rounded-xl text-body-md font-medium text-primary hover:bg-primary-container/15 transition-colors">
-                                Login
+                            {/* Language switcher — mobile */}
+                            <button
+                                onClick={() => { i18n.changeLanguage(isAr ? 'en' : 'ar'); setMobileOpen(false) }}
+                                className="px-3 py-3 rounded-xl text-body-md font-medium text-on-surface-variant hover:bg-surface-container transition-colors text-start"
+                            >
+                                {isAr ? 'English' : 'العربية'}
+                            </button>
+                            <Link
+                                to="/login"
+                                className="px-3 py-3 rounded-xl text-body-md font-medium text-primary hover:bg-primary-container/15 transition-colors"
+                            >
+                                {t('nav.login')}
                             </Link>
-                            <Link to="/register" className="px-3 py-3 rounded-xl text-body-md font-medium bg-primary-container text-on-primary text-center hover:bg-primary transition-colors">
-                                Get Started
+                            <Link
+                                to="/register"
+                                className="px-3 py-3 rounded-xl text-body-md font-medium bg-primary-container text-on-primary text-center hover:bg-primary transition-colors"
+                            >
+                                {t('nav.getStarted')}
                             </Link>
                         </div>
                     </div>
@@ -164,16 +189,16 @@ export default function Landing() {
                                 <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 pulse-ring" />
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                             </span>
-                            <span className="font-semibold text-label-sm text-primary tracking-wide">Trusted by clinics across Egypt</span>
+                            <span className="font-semibold text-label-sm text-primary tracking-wide">{t('hero.badge')}</span>
                         </div>
                     </div>
 
                     {/* headline with word-by-word reveal + serif display type */}
                     <h1 className="lp-serif text-center font-medium mb-6" style={{ fontSize: 'clamp(40px, 7vw, 80px)', lineHeight: 1.04, letterSpacing: '-0.02em' }}>
-                        <SplitWords text="Your health," delayStart={0.15} />
+                        <SplitWords text={t('hero.headline1')} delayStart={0.15} />
                         <br />
                         <span className="text-primary italic">
-                            <SplitWords text="on your schedule." delayStart={0.45} />
+                            <SplitWords text={t('hero.headline2')} delayStart={0.45} />
                         </span>
                     </h1>
 
@@ -183,7 +208,7 @@ export default function Landing() {
                     </div>
 
                     <p className="text-body-lg text-on-surface-variant mb-10 fade-up max-w-xl mx-auto text-center" style={{ animationDelay: '1.1s' }}>
-                        Find clinics, book appointments, and manage your healthcare journey — all in one calm, uncluttered place.
+                        {t('hero.subtitle')}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center fade-up" style={{ animationDelay: '1.25s' }}>
@@ -191,13 +216,15 @@ export default function Landing() {
                             to="/register"
                             className="lp-cta-glow btn-press bg-primary text-on-primary font-medium text-label-md px-10 py-4 rounded-full hover:bg-primary-container transition-all flex items-center justify-center gap-2"
                         >
-                            <span className="material-symbols-outlined text-[20px]">person_add</span>Create Free Account
+                            <span className="material-symbols-outlined text-[20px]">person_add</span>
+                            {t('hero.ctaPrimary')}
                         </Link>
                         <Link
                             to="/clinics"
                             className="btn-press bg-surface-container-lowest border border-outline-variant text-on-surface font-medium text-label-md px-10 py-4 rounded-full hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2"
                         >
-                            <span className="material-symbols-outlined text-[20px]">search</span>Browse Clinics
+                            <span className="material-symbols-outlined text-[20px]">search</span>
+                            {t('hero.ctaSecondary')}
                         </Link>
                     </div>
 
@@ -205,11 +232,11 @@ export default function Landing() {
                     <div className="hidden lg:block">
                         <div className="lp-bob absolute -left-4 top-16 bg-surface-container-lowest border border-outline-variant rounded-2xl px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)] fade-up" style={{ animationDelay: '1.5s' }}>
                             <p className="lp-serif text-headline-lg text-primary leading-none">2 min</p>
-                            <p className="text-label-sm text-on-surface-variant mt-1">average booking time</p>
+                            <p className="text-label-sm text-on-surface-variant mt-1">{t('hero.statBookingLabel')}</p>
                         </div>
                         <div className="lp-bob-delay absolute -right-2 top-40 bg-surface-container-lowest border border-outline-variant rounded-2xl px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)] fade-up" style={{ animationDelay: '1.65s' }}>
                             <p className="lp-serif text-headline-lg text-primary leading-none">24/7</p>
-                            <p className="text-label-sm text-on-surface-variant mt-1">always open to book</p>
+                            <p className="text-label-sm text-on-surface-variant mt-1">{t('hero.statAvailabilityLabel')}</p>
                         </div>
                     </div>
                 </div>
@@ -233,14 +260,16 @@ export default function Landing() {
             <section className="py-24 px-4 md:px-8 bg-surface-container-lowest relative">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-14 lp-reveal" ref={featuresHeadingReveal}>
-                        <span className="text-label-sm font-semibold text-primary tracking-[0.15em] uppercase">What you get</span>
+                        <span className="text-label-sm font-semibold text-primary tracking-[0.15em] uppercase">
+                            {t('features.eyebrow')}
+                        </span>
                         <h2 className="lp-serif font-medium text-on-surface mt-2" style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}>
-                            Everything you need,<br className="hidden sm:block" /> nothing you don't
+                            {t('features.heading')}
                         </h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {FEATURES.map((f, i) => (
-                            <FeatureCard key={f.title} f={f} index={i} />
+                            <FeatureCard key={f.tag} f={f} index={i} />
                         ))}
                     </div>
                 </div>
@@ -252,15 +281,17 @@ export default function Landing() {
 
                 <div className="max-w-3xl mx-auto relative z-10">
                     <div ref={howItWorksReveal} className="text-center mb-16 lp-reveal">
-                        <span className="text-label-sm font-semibold text-primary tracking-[0.15em] uppercase">The journey</span>
+                        <span className="text-label-sm font-semibold text-primary tracking-[0.15em] uppercase">
+                            {t('howItWorks.eyebrow')}
+                        </span>
                         <h2 className="lp-serif font-medium text-on-surface mt-2" style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}>
-                            Three steps to better care
+                            {t('howItWorks.heading')}
                         </h2>
                     </div>
 
                     <div className="relative">
                         {/* vertical timeline track */}
-                        <div className="absolute left-6 md:left-7 top-2 bottom-2 w-[2px] bg-outline-variant overflow-hidden">
+                        <div className="absolute start-6 md:start-7 top-2 bottom-2 w-[2px] bg-outline-variant overflow-hidden">
                             <div className="lp-timeline-fill w-full bg-primary origin-top" />
                         </div>
 
@@ -282,16 +313,17 @@ export default function Landing() {
 
                 <div ref={ctaReveal} className="lp-reveal max-w-2xl mx-auto text-center relative z-10">
                     <h2 className="lp-serif font-medium text-white mb-3" style={{ fontSize: 'clamp(28px, 5vw, 48px)' }}>
-                        Ready to take control<br />of your health?
+                        {t('cta.heading')}
                     </h2>
                     <p className="text-body-lg text-white/70 mb-10 max-w-md mx-auto">
-                        Join thousands of patients booking smarter across Egypt.
+                        {t('cta.subtitle')}
                     </p>
                     <Link
                         to="/register"
                         className="btn-press inline-flex items-center gap-2 bg-white text-primary font-medium text-label-md px-10 py-4 rounded-full hover:bg-surface-container-low transition-all shadow-[0_12px_32px_rgba(0,0,0,0.25)]"
                     >
-                        <span className="material-symbols-outlined text-[20px]">person_add</span>Get Started for Free
+                        <span className="material-symbols-outlined text-[20px]">person_add</span>
+                        {t('cta.button')}
                     </Link>
                 </div>
             </section>

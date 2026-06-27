@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 import Footer from '../components/Footer'
 
@@ -7,6 +8,8 @@ const TIMER_SECONDS = 120
 
 export default function VerifyOtp() {
     const navigate = useNavigate()
+    const { t, i18n } = useTranslation()
+    const isAr = i18n.language === 'ar'
     const phone = sessionStorage.getItem('registerPhone') || ''
 
     const [digits, setDigits] = useState(['', '', '', '', '', ''])
@@ -17,12 +20,10 @@ export default function VerifyOtp() {
     const [shake, setShake] = useState(false)
     const inputRefs = useRef([])
 
-    /* redirect if no phone in session */
     useEffect(() => {
         if (!phone) navigate('/register')
     }, [phone, navigate])
 
-    /* countdown */
     useEffect(() => {
         if (timeLeft <= 0) { setCanResend(true); return }
         const id = setTimeout(() => setTimeLeft(t => t - 1), 1000)
@@ -38,9 +39,7 @@ export default function VerifyOtp() {
         const next = [...digits]
         next[i] = v
         setDigits(next)
-        if (v && i < 5) {
-            inputRefs.current[i + 1]?.focus()
-        }
+        if (v && i < 5) inputRefs.current[i + 1]?.focus()
     }
 
     const handleKeyDown = (i, e) => {
@@ -62,7 +61,6 @@ export default function VerifyOtp() {
         if (!complete) return
         setLoading(true); setMsg(null)
         try {
-            // purpose: 0 = OTPPurpose.Register في الباك إند (enum: Register=0, Login=1, ResetPassword=2, VerifyEmail=3)
             const res = await api.post('/api/portal/auth/verify-otp', { phone, code, purpose: 0 })
             const { accessToken, refreshToken, fullName, phone: p } = res.data.data
             localStorage.setItem('accessToken', accessToken)
@@ -72,7 +70,7 @@ export default function VerifyOtp() {
             sessionStorage.removeItem('registerPhone')
             navigate('/clinics')
         } catch (err) {
-            setMsg({ text: err.response?.data?.message || 'Invalid OTP.', type: 'error' })
+            setMsg({ text: err.response?.data?.message || t('verifyOtp.invalidOtp'), type: 'error' })
             setShake(true)
             setTimeout(() => setShake(false), 500)
             setLoading(false)
@@ -82,15 +80,14 @@ export default function VerifyOtp() {
     const resend = async () => {
         if (!canResend) return
         try {
-            // purpose: 0 = OTPPurpose.Register (نفس الـ purpose بتاع التحقق فوق)
             await api.post('/api/portal/auth/resend-otp', { phone, purpose: 0 })
-            setMsg({ text: 'OTP resent successfully!', type: 'success' })
+            setMsg({ text: t('verifyOtp.resendSuccess'), type: 'success' })
             setTimeLeft(TIMER_SECONDS)
             setCanResend(false)
             setDigits(['', '', '', '', '', ''])
             inputRefs.current[0]?.focus()
         } catch {
-            setMsg({ text: 'Failed to resend OTP.', type: 'error' })
+            setMsg({ text: t('verifyOtp.resendError'), type: 'error' })
         }
     }
 
@@ -103,23 +100,33 @@ export default function VerifyOtp() {
                         <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
-                        <span className="material-symbols-outlined">help</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary hover:bg-primary/5 transition-all text-label-sm font-medium"
+                            aria-label="Switch language"
+                        >
+                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>language</span>
+                            {isAr ? 'English' : 'العربية'}
+                        </button>
+                        <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label={t('nav.help')}>
+                            <span className="material-symbols-outlined">help</span>
+                        </Link>
+                    </div>
                 </div>
             </header>
 
             <main className="flex-grow flex items-center justify-center p-4 md:p-8">
                 <div className={`bg-surface-container-lowest border border-outline-variant rounded-xl p-6 md:p-10 w-full max-w-md mx-auto text-center fade-up ${shake ? 'shake' : ''}`}>
                     <span className="material-symbols-outlined text-primary mb-3 block mx-auto text-[48px]">dialpad</span>
-                    <h1 className="font-semibold text-headline-md text-on-surface mb-1">Verify Your Number</h1>
+                    <h1 className="font-semibold text-headline-md text-on-surface mb-1">{t('verifyOtp.title')}</h1>
                     <p className="text-body-md text-on-surface-variant mb-6">
-                        We sent a 6-digit code to{' '}
+                        {t('verifyOtp.subtitle')}{' '}
                         <strong className="text-on-surface">{phone}</strong>
                     </p>
 
-                    {/* OTP inputs */}
-                    <div className="flex justify-center gap-1 md:gap-3 mb-6" onPaste={handlePaste}>
+                    {/* OTP inputs — always LTR regardless of page direction */}
+                    <div className="flex justify-center gap-1 md:gap-3 mb-6" onPaste={handlePaste} dir="ltr">
                         {digits.map((d, i) => (
                             <input
                                 key={i}
@@ -134,16 +141,16 @@ export default function VerifyOtp() {
 
                     {/* Timer / resend */}
                     <div className="flex flex-col items-center gap-3 mb-6">
-                        {!canResend ? (
+                        {!canResend && (
                             <p className="text-label-md text-on-surface-variant">
-                                Resend code in <span className="font-bold text-primary">{fmt(timeLeft)}</span>
+                                {t('verifyOtp.resendIn')} <span className="font-bold text-primary" dir="ltr">{fmt(timeLeft)}</span>
                             </p>
-                        ) : null}
+                        )}
                         <button
                             onClick={resend} disabled={!canResend}
                             className={`text-label-md transition-opacity ${canResend ? 'text-primary cursor-pointer hover:underline' : 'text-secondary cursor-not-allowed opacity-50'}`}
                         >
-                            Resend OTP
+                            {t('verifyOtp.resendBtn')}
                         </button>
                     </div>
 
@@ -160,9 +167,9 @@ export default function VerifyOtp() {
                         {loading ? (
                             <>
                                 <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
-                                Verifying...
+                                {t('verifyOtp.submitting')}
                             </>
-                        ) : 'Verify'}
+                        ) : t('verifyOtp.submitBtn')}
                     </button>
                 </div>
             </main>
