@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SehhaTech.Core.Models;
 using SehhaTech.Core.Models.Portal;
-using SehhaTech.Core.Models.Portal;
 
 namespace SehhaTech.Infrastructure.Data
 {
@@ -10,6 +9,8 @@ namespace SehhaTech.Infrastructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<PaymentInvoice> PaymentInvoices { get; set; }
+        public DbSet<MonthlyReport> MonthlyReports { get; set; }
+
         // Staff Tables
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
@@ -146,7 +147,6 @@ namespace SehhaTech.Infrastructure.Data
                 entity.Property(b => b.Status).HasConversion<string>();
                 entity.HasIndex(b => b.IdempotencyKey).IsUnique();
 
-                // Unique constraint - منع double booking
                 entity.HasIndex(b => new { b.DoctorId, b.SlotDate, b.SlotTime, b.TenantId })
                       .IsUnique()
                       .HasFilter("[Status] != 'Cancelled'");
@@ -166,39 +166,42 @@ namespace SehhaTech.Infrastructure.Data
                       .HasForeignKey(r => r.PortalUserId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
             modelBuilder.Entity<PaymentInvoice>(entity =>
             {
                 entity.HasKey(x => x.Id);
-
-                entity.Property(x => x.InvoiceNumber)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(x => x.ServiceName)
-                    .IsRequired()
-                    .HasMaxLength(150);
-
-                entity.Property(x => x.TotalAmount)
-                    .HasColumnType("decimal(18,2)");
-
-                entity.Property(x => x.PaidAmount)
-                    .HasColumnType("decimal(18,2)");
-
-                entity.Property(x => x.RemainingAmount)
-                    .HasColumnType("decimal(18,2)");
-
-                entity.Property(x => x.Notes)
-                    .HasMaxLength(500);
+                entity.Property(x => x.InvoiceNumber).IsRequired().HasMaxLength(50);
+                entity.Property(x => x.ServiceName).IsRequired().HasMaxLength(150);
+                entity.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(x => x.PaidAmount).HasColumnType("decimal(18,2)");
+                entity.Property(x => x.RemainingAmount).HasColumnType("decimal(18,2)");
+                entity.Property(x => x.Notes).HasMaxLength(500);
 
                 entity.HasOne(x => x.Patient)
-                    .WithMany()
-                    .HasForeignKey(x => x.PatientId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                      .WithMany()
+                      .HasForeignKey(x => x.PatientId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(x => x.Appointment)
-                    .WithMany()
-                    .HasForeignKey(x => x.AppointmentId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                      .WithMany()
+                      .HasForeignKey(x => x.AppointmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // MonthlyReport
+            modelBuilder.Entity<MonthlyReport>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.TotalRevenue).HasColumnType("decimal(18,2)");
+                entity.Property(r => r.PendingRevenue).HasColumnType("decimal(18,2)");
+
+                // منع تكرار التقرير لنفس العيادة في نفس الشهر
+                entity.HasIndex(r => new { r.TenantId, r.Month, r.Year }).IsUnique();
+
+                entity.HasOne(r => r.Tenant)
+                      .WithMany()
+                      .HasForeignKey(r => r.TenantId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
