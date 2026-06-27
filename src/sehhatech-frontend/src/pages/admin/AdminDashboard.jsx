@@ -1,17 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 
-const statusColors = {
-    Completed: 'text-green-700 bg-green-50',
-    NoShow: 'text-red-600 bg-red-50',
-    Scheduled: 'text-blue-700 bg-blue-50',
-};
-
 export default function AdminDashboard() {
+    const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [error, setError] = useState('');
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
+
+    const statusColors = {
+        Completed: 'text-green-700 bg-green-50',
+        NoShow: 'text-red-600 bg-red-50',
+        Scheduled: 'text-blue-700 bg-blue-50',
+    };
+
+    const statusLabels = {
+        Completed: t('admin.dashboard.statusCompleted'),
+        NoShow: t('admin.dashboard.statusNoShow'),
+        Scheduled: t('admin.dashboard.statusScheduled'),
+    };
 
     useEffect(() => { loadDashboard(); }, []);
 
@@ -29,7 +37,7 @@ export default function AdminDashboard() {
                 data: {
                     labels: sorted.map((x) => x.date || x.Date),
                     datasets: [{
-                        label: 'Appointments',
+                        label: t('admin.dashboard.statTodayAppointments'),
                         data: sorted.map((x) => x.count || x.Count || 0),
                         backgroundColor: '#002045',
                         borderRadius: 6,
@@ -53,24 +61,24 @@ export default function AdminDashboard() {
             const res = await api.get('/api/admin/dashboard');
             setData(res.data.data ?? res.data);
         } catch {
-            setError('Failed to load dashboard data.');
+            setError(t('admin.dashboard.error'));
         }
     }
 
     if (error) return <p className="text-red-500 text-sm">{error}</p>;
-    if (!data) return <p className="text-slate-400 text-sm">Loading...</p>;
+    if (!data) return <p className="text-slate-400 text-sm">{t('admin.dashboard.loading')}</p>;
 
     const stats = [
-        { label: 'Total Doctors', value: data.totalDoctors ?? data.TotalDoctors ?? '—', icon: 'medical_information', color: 'hover:bg-[#002045]' },
-        { label: 'Total Receptionists', value: data.totalReceptionists ?? data.TotalReceptionists ?? '—', icon: 'support_agent', color: 'hover:bg-teal-700' },
-        { label: "Today's Appointments", value: data.todayAppointments ?? data.TodayAppointments ?? '—', icon: 'calendar_today', color: 'hover:bg-green-700' },
+        { label: t('admin.dashboard.statTotalDoctors'), value: data.totalDoctors ?? data.TotalDoctors ?? '—', icon: 'medical_information', color: 'hover:bg-[#002045]' },
+        { label: t('admin.dashboard.statTotalReceptionists'), value: data.totalReceptionists ?? data.TotalReceptionists ?? '—', icon: 'support_agent', color: 'hover:bg-teal-700' },
+        { label: t('admin.dashboard.statTodayAppointments'), value: data.todayAppointments ?? data.TodayAppointments ?? '—', icon: 'calendar_today', color: 'hover:bg-green-700' },
     ];
 
     return (
         <div>
             <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Clinic Dashboard</h1>
-                <p className="text-slate-500 mt-1 text-sm">Welcome back, Admin. Here's what's happening today.</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{t('admin.dashboard.title')}</h1>
+                <p className="text-slate-500 mt-1 text-sm">{t('admin.dashboard.subtitle')}</p>
             </div>
 
             {/* Stats */}
@@ -94,16 +102,16 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                 {/* Chart */}
                 <div className="col-span-1 lg:col-span-7 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
-                    <h3 className="font-bold text-[#002045] mb-4">Activity — Last 7 Days</h3>
+                    <h3 className="font-bold text-[#002045] mb-4">{t('admin.dashboard.activityChartTitle')}</h3>
                     <canvas ref={chartRef} height={160} />
                 </div>
 
                 {/* Recent Registrations */}
                 <div className="col-span-1 lg:col-span-5 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
-                    <h3 className="font-bold text-[#002045] mb-4">Recent Registrations</h3>
+                    <h3 className="font-bold text-[#002045] mb-4">{t('admin.dashboard.recentRegistrationsTitle')}</h3>
                     <div className="space-y-3">
                         {(data.recentRegistrations || data.RecentRegistrations || []).length === 0 && (
-                            <p className="text-slate-400 text-sm">No recent registrations.</p>
+                            <p className="text-slate-400 text-sm">{t('admin.dashboard.noRecentRegistrations')}</p>
                         )}
                         {(data.recentRegistrations || data.RecentRegistrations || []).map((p, i) => {
                             const name = p.fullName || p.FullName || '?';
@@ -133,12 +141,18 @@ export default function AdminDashboard() {
 
                 {/* Upcoming Queue */}
                 <div className="col-span-1 lg:col-span-12 bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
-                    <h3 className="font-bold text-[#002045] mb-4">Upcoming Appointments Queue</h3>
+                    <h3 className="font-bold text-[#002045] mb-4">{t('admin.dashboard.upcomingQueueTitle')}</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-[560px] w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-slate-100">
-                                    {['Patient', 'Doctor', 'Date', 'Time', 'Status'].map((h) => (
+                                    {[
+                                        t('admin.dashboard.colPatient'),
+                                        t('admin.dashboard.colDoctor'),
+                                        t('admin.dashboard.colDate'),
+                                        t('admin.dashboard.colTime'),
+                                        t('admin.dashboard.colStatus'),
+                                    ].map((h) => (
                                         <th key={h} className="pb-3 text-xs font-bold text-slate-400 uppercase tracking-wider px-3 sm:px-4">
                                             {h}
                                         </th>
@@ -149,7 +163,7 @@ export default function AdminDashboard() {
                                 {(data.upcomingAppointments || data.UpcomingAppointments || []).length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-sm">
-                                            No upcoming appointments
+                                            {t('admin.dashboard.noUpcoming')}
                                         </td>
                                     </tr>
                                 ) : (
@@ -166,7 +180,7 @@ export default function AdminDashboard() {
                                                 <td className="px-3 sm:px-4 py-3 text-slate-500 text-xs sm:text-sm">{timeStr}</td>
                                                 <td className="px-3 sm:px-4 py-3">
                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${statusColors[status] || statusColors.Scheduled}`}>
-                                                        {status}
+                                                        {statusLabels[status] || statusLabels.Scheduled}
                                                     </span>
                                                 </td>
                                             </tr>
