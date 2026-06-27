@@ -12,9 +12,8 @@ namespace SehhaTech.Core.DTOs.Reception
         [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Patient phone must contain digits only and be between 10 and 15 digits")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Patient email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string Email { get; set; } = string.Empty;
+        [RegularExpression(@"^$|^[^\s@]+@[^\s@]+\.[^\s@]+$", ErrorMessage = "Invalid email format")]
+        public string? Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Patient date of birth is required")]
         public DateTime DateOfBirth { get; set; }

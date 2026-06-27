@@ -14,7 +14,7 @@ function getInitials(name) {
 
 function getStatusClass(status) {
     const s = String(status || "").toLowerCase();
-    if (s.includes("checkedin") || s.includes("confirmed")) return "bg-emerald-50 text-emerald-700";
+    if (s.includes("checkedin")) return "bg-emerald-50 text-emerald-700";
     if (s.includes("scheduled")) return "bg-blue-50 text-blue-600";
     if (s.includes("cancelled")) return "bg-red-50 text-red-600";
     if (s.includes("completed")) return "bg-slate-100 text-slate-500";
@@ -23,7 +23,7 @@ function getStatusClass(status) {
 
 function canCheckIn(status) {
     const s = String(status || "").toLowerCase();
-    return s.includes("scheduled") || s.includes("confirmed");
+    return s.includes("scheduled");
 }
 
 function StatCard({ icon, iconBg, iconColor, label, value, badge, badgeBg, badgeText, delay = 0 }) {
@@ -317,8 +317,8 @@ export default function ReceptionDashboard() {
                                         <tr
                                             key={item.appointmentId}
                                             className={`transition-all duration-500 ${isNew
-                                                    ? "bg-emerald-50/60 animate-pulse"
-                                                    : "hover:bg-slate-50/50"
+                                                ? "bg-emerald-50/60 animate-pulse"
+                                                : "hover:bg-slate-50/50"
                                                 }`}
                                         >
                                             <td className="px-6 py-4">

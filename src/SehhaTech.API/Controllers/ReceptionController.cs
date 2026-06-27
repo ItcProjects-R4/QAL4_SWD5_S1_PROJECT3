@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehhaTech.Infrastructure.Data;
+using SehhaTech.Infrastructure.Services.Portal;
 using SehhaTech.Core.Models;
 using SehhaTech.Core.DTOs.Reception;
+using System.Linq;
 
 namespace SehhaTech.API.Controllers;
 
@@ -14,10 +16,12 @@ namespace SehhaTech.API.Controllers;
 public class ReceptionController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly SlotService _slotService;
 
-    public ReceptionController(AppDbContext context)
+    public ReceptionController(AppDbContext context, SlotService slotService)
     {
         _context = context;
+        _slotService = slotService;
     }
 
     // ✅ COMPLETED: Dashboard now returns today's queue + available doctors
@@ -223,7 +227,8 @@ public class ReceptionController : ControllerBase
         var tenantId = (int)HttpContext.Items["TenantId"]!;
 
         var phone = request.Phone.Trim();
-        var email = request.Email.Trim().ToLower();
+        var emailRaw = (request.Email ?? string.Empty).Trim().ToLower();
+        var hasEmail = !string.IsNullOrWhiteSpace(emailRaw);
         var gender = request.Gender.Trim();
 
         var phoneExists = await _context.Patients
@@ -238,23 +243,29 @@ public class ReceptionController : ControllerBase
             });
         }
 
-        var emailExists = await _context.Patients
-            .AnyAsync(p => p.TenantId == tenantId && p.Email == email);
-
-        if (emailExists)
+        // ✅ Only check for a duplicate email when one was actually provided.
+        // Email is now optional — many patients can have a blank email,
+        // and that must never count as a "duplicate" against each other.
+        if (hasEmail)
         {
-            return Conflict(new
+            var emailExists = await _context.Patients
+                .AnyAsync(p => p.TenantId == tenantId && p.Email == emailRaw);
+
+            if (emailExists)
             {
-                success = false,
-                message = "A patient with this email already exists"
-            });
+                return Conflict(new
+                {
+                    success = false,
+                    message = "A patient with this email already exists"
+                });
+            }
         }
 
         var patient = new Patient
         {
             FullName = request.FullName.Trim(),
             Phone = phone,
-            Email = email,
+            Email = emailRaw,
             DateOfBirth = request.DateOfBirth.Date,
             Gender = gender,
             TenantId = tenantId
@@ -456,6 +467,41 @@ public class ReceptionController : ControllerBase
 
         var appointmentStart = request.AppointmentDate;
         var appointmentEnd = request.AppointmentDate.Add(request.Duration);
+
+        // ✅ Appointment must not cross midnight — slot templates are defined per single day,
+        // so a same-day window comparison below would be unreliable across day boundaries.
+        if (appointmentEnd.Date != appointmentStart.Date)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Appointment time cannot cross midnight. Please choose an earlier start time or shorter duration."
+            });
+        }
+
+        // ✅ Reception must respect the doctor's working-hours schedule (SlotTemplate),
+        // the same schedule the Admin sets up and the Patient Portal already honors.
+        // Without this, Reception could book a doctor at any time, even outside their hours.
+        var appointmentDayOfWeek = appointmentStart.DayOfWeek;
+        var appointmentStartTime = appointmentStart.TimeOfDay;
+        var appointmentEndTime = appointmentEnd.TimeOfDay;
+
+        var withinWorkingHours = await _context.SlotTemplates.AnyAsync(s =>
+            s.DoctorId == request.DoctorId &&
+            s.TenantId == tenantId &&
+            s.IsActive &&
+            s.DayOfWeek == appointmentDayOfWeek &&
+            s.StartTime <= appointmentStartTime &&
+            s.EndTime >= appointmentEndTime);
+
+        if (!withinWorkingHours)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "This time is outside the doctor's working hours. Please check the doctor's schedule before booking."
+            });
+        }
 
         var existingAppointments = await _context.Appointments
     .Where(a =>
@@ -702,6 +748,74 @@ public class ReceptionController : ControllerBase
                 : "No available doctors found",
             count = doctors.Count,
             data = doctors
+        });
+    }
+
+    // GET /api/Reception/doctors/{doctorId}/slots?date=2026-06-28
+    // ✅ Lets Reception preview the doctor's actual available time slots while booking,
+    // instead of finding out the time is invalid only after submitting.
+    // Reuses SlotService — the exact same availability logic the Patient Portal relies on,
+    // so both surfaces always agree on what's "available" for a doctor.
+    [HttpGet("doctors/{doctorId}/slots")]
+    public async Task<IActionResult> GetDoctorAvailableSlots(int doctorId, [FromQuery] DateTime? date = null)
+    {
+        if (doctorId <= 0)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Invalid doctor id"
+            });
+        }
+
+        var tenantId = (int)HttpContext.Items["TenantId"]!;
+
+        var targetDate = date?.Date ?? DateTime.Today;
+
+        if (targetDate < DateTime.Today)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Cannot view slots for past dates."
+            });
+        }
+
+        var doctorExists = await _context.Doctors
+            .AnyAsync(d => d.Id == doctorId && d.TenantId == tenantId && d.IsActive);
+
+        if (!doctorExists)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Doctor not found or inactive"
+            });
+        }
+
+        var slots = await _slotService.GetAvailableSlotsAsync(doctorId, tenantId, targetDate);
+
+        // ✅ Hide time slots that have already passed today, so Reception doesn't
+        // pick a time that the booking endpoint would reject anyway.
+        if (targetDate == DateTime.Today)
+        {
+            var now = DateTime.Now.TimeOfDay;
+            slots = slots.Where(s => s.Time > now).ToList();
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = slots.Any()
+                ? "Available slots retrieved successfully"
+                : "No working-hours slots are configured for this doctor on this day",
+            date = targetDate.ToString("yyyy-MM-dd"),
+            count = slots.Count,
+            data = slots.Select(s => new
+            {
+                time = s.Time.ToString(@"hh\:mm"),
+                isAvailable = s.IsAvailable
+            })
         });
     }
 

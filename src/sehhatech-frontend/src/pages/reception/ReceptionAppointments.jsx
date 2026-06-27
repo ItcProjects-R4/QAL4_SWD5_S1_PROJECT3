@@ -118,6 +118,11 @@ export default function ReceptionAppointments() {
     const [booking, setBooking] = useState(false);
     const [appointmentErrors, setAppointmentErrors] = useState({});
 
+    const [slotDate, setSlotDate] = useState(todayISO());
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [slotsError, setSlotsError] = useState("");
+
     const [form, setForm] = useState({
         patientId: "",
         doctorId: "",
@@ -178,17 +183,21 @@ export default function ReceptionAppointments() {
         loadAppointments();
     }, [loadAppointments]);
 
-    const filteredAppointments = search
-        ? appointments.filter((a) => {
-            const value = search.trim().toLowerCase();
-            return (
-                String(a.patientName || "").toLowerCase().includes(value) ||
-                String(a.doctorSpecialization || "").toLowerCase().includes(value) ||
-                String(a.status || "").toLowerCase().includes(value) ||
-                String(a.notes || "").toLowerCase().includes(value)
-            );
-        })
-        : appointments;
+    const filteredAppointments = appointments.filter((a) => {
+        if (quickDoctor && String(a.doctorId) !== String(quickDoctor)) {
+            return false;
+        }
+
+        if (!search) return true;
+
+        const value = search.trim().toLowerCase();
+        return (
+            String(a.patientName || "").toLowerCase().includes(value) ||
+            String(a.doctorSpecialization || "").toLowerCase().includes(value) ||
+            String(a.status || "").toLowerCase().includes(value) ||
+            String(a.notes || "").toLowerCase().includes(value)
+        );
+    });
 
     const scheduledCount = appointments.filter(
         (a) => String(a.status).toLowerCase() === "scheduled"
@@ -207,6 +216,42 @@ export default function ReceptionAppointments() {
     const avgWait = waitValues.length
         ? Math.round(waitValues.reduce((a, b) => a + b, 0) / waitValues.length)
         : 0;
+
+    useEffect(() => {
+        if (!modalOpen || !form.doctorId || !slotDate) {
+            setAvailableSlots([]);
+            setSlotsError("");
+            return;
+        }
+
+        let active = true;
+
+        (async () => {
+            setLoadingSlots(true);
+            setSlotsError("");
+            try {
+                const data = await receptionApi.getDoctorSlots(form.doctorId, slotDate);
+                if (active) setAvailableSlots(data.data || []);
+            } catch (err) {
+                if (active) {
+                    setAvailableSlots([]);
+                    setSlotsError(err.message || t("reception.appointments.errSlotsLoad"));
+                }
+            } finally {
+                if (active) setLoadingSlots(false);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [modalOpen, form.doctorId, slotDate, t]);
+
+    function pickSlot(slot) {
+        if (!slot.isAvailable) return;
+        setForm((prev) => ({ ...prev, appointmentDate: `${slotDate}T${slot.time}` }));
+        setAppointmentErrors((prev) => ({ ...prev, appointmentDate: "", form: "" }));
+    }
 
     function updateAppointmentField(field, value) {
         setForm((prev) => ({ ...prev, [field]: value }));
@@ -276,12 +321,17 @@ export default function ReceptionAppointments() {
 
     function openAppointmentModal() {
         setAppointmentErrors({});
+        setSlotDate(todayISO());
+        setAvailableSlots([]);
+        setSlotsError("");
         setModalOpen(true);
     }
 
     function closeAppointmentModal() {
         setModalOpen(false);
         setAppointmentErrors({});
+        setAvailableSlots([]);
+        setSlotsError("");
     }
 
     async function checkInAppointment(appointmentId) {
@@ -339,6 +389,8 @@ export default function ReceptionAppointments() {
             });
 
             setAppointmentErrors({});
+            setAvailableSlots([]);
+            setSlotsError("");
             setCurrentPage(1);
 
             await Promise.all([loadAppointments(), loadStaticData()]);
@@ -468,6 +520,21 @@ export default function ReceptionAppointments() {
                                     {loading
                                         ? t("reception.appointments.loadingEntries")
                                         : `${t("reception.dashboard.loading").replace("جارٍ التحميل...", "")}${filteredAppointments.length} ${t("reception.appointments.showingAppointments")}`}
+                                    {quickDoctor && (
+                                        <>
+                                            {" · "}
+                                            <span className="font-semibold text-blue-600">
+                                                {doctors.find((d) => String(d.id) === String(quickDoctor))?.user?.fullName || t("reception.appointments.doctor")}
+                                            </span>
+                                            {" "}
+                                            <button
+                                                onClick={() => setQuickDoctor("")}
+                                                className="underline hover:text-blue-700"
+                                            >
+                                                ({i18n.language === "ar" ? "إلغاء الفلتر" : "clear"})
+                                            </button>
+                                        </>
+                                    )}
                                 </p>
                             </div>
 
@@ -813,23 +880,98 @@ export default function ReceptionAppointments() {
                                     )}
                                 </label>
 
+                                {form.doctorId && (
+                                    <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                                            <span className="text-sm font-bold text-slate-700">
+                                                {t("reception.appointments.availableSlots")}
+                                            </span>
+
+                                            <input
+                                                type="date"
+                                                value={slotDate}
+                                                min={todayISO()}
+                                                onChange={(e) => setSlotDate(e.target.value)}
+                                                className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#002045] w-full sm:w-auto"
+                                            />
+                                        </div>
+
+                                        {loadingSlots ? (
+                                            <p className="text-sm text-slate-400">{t("reception.appointments.loadingSlots")}</p>
+                                        ) : slotsError ? (
+                                            <p className="text-sm text-red-500">{slotsError}</p>
+                                        ) : availableSlots.length === 0 ? (
+                                            <p className="text-sm text-slate-400">{t("reception.appointments.noSlotsForDay")}</p>
+                                        ) : (
+                                            <div className="flex flex-wrap gap-2">
+                                                {availableSlots.map((slot) => {
+                                                    const isSelected = form.appointmentDate === `${slotDate}T${slot.time}`;
+                                                    return (
+                                                        <button
+                                                            key={slot.time}
+                                                            type="button"
+                                                            disabled={!slot.isAvailable}
+                                                            onClick={() => pickSlot(slot)}
+                                                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${
+                                                                !slot.isAvailable
+                                                                    ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed line-through"
+                                                                    : isSelected
+                                                                    ? "bg-[#002045] text-white border-[#002045]"
+                                                                    : "bg-white text-slate-700 border-slate-200 hover:border-[#002045] hover:text-[#002045]"
+                                                            }`}
+                                                        >
+                                                            {slot.time}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        <p className="text-xs text-slate-400 mt-3">
+                                            {t("reception.appointments.slotsHint")}
+                                        </p>
+                                    </div>
+                                )}
+
                                 <label>
                                     <span className="mb-2 block text-sm font-bold text-slate-700">
                                         {t("reception.appointments.appointmentDateTime")}
                                     </span>
 
-                                    <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
-                                            calendar_month
-                                        </span>
+                                    {form.doctorId ? (
+                                        <div
+                                            className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm ${
+                                                appointmentErrors.appointmentDate
+                                                    ? "border-red-300 bg-red-50"
+                                                    : form.appointmentDate
+                                                    ? "border-slate-200 bg-white text-slate-800 font-semibold"
+                                                    : "border-slate-200 bg-slate-50 text-slate-400"
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[20px] text-slate-400">
+                                                calendar_month
+                                            </span>
+                                            {form.appointmentDate
+                                                ? new Date(form.appointmentDate).toLocaleString(
+                                                      i18n.language === "ar" ? "ar-EG" : "en-GB",
+                                                      { dateStyle: "medium", timeStyle: "short" }
+                                                  )
+                                                : t("reception.appointments.pickSlotPrompt")}
+                                        </div>
+                                    ) : (
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
+                                                calendar_month
+                                            </span>
 
-                                        <input
-                                            type="datetime-local"
-                                            value={form.appointmentDate}
-                                            onChange={(e) => updateAppointmentField("appointmentDate", e.target.value)}
-                                            className={getAppointmentInputClass(appointmentErrors.appointmentDate)}
-                                        />
-                                    </div>
+                                            <input
+                                                type="datetime-local"
+                                                value={form.appointmentDate}
+                                                onChange={(e) => updateAppointmentField("appointmentDate", e.target.value)}
+                                                className={getAppointmentInputClass(appointmentErrors.appointmentDate)}
+                                            />
+                                        </div>
+                                    )}
 
                                     {appointmentErrors.appointmentDate && (
                                         <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.appointmentDate}</p>
