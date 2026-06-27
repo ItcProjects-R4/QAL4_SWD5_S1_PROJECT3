@@ -43,7 +43,7 @@ namespace SehhaTech.API.Controllers
                 if (existingSubscription != null)
                 {
                     var existingAuthToken = await _paymobService.GetAuthTokenAsync();
-                    var existingOrderId = int.Parse(existingSubscription.PaymobOrderId);
+                    var existingOrderId = int.Parse(existingSubscription.PaymobOrderId!);
                     var existingPaymentKey = await _paymobService.GetPaymentKeyAsync(existingAuthToken, existingOrderId, amount, tenantId);
                     var existingIframeUrl = await _paymobService.GetIframeUrlAsync(existingPaymentKey);
                     return Ok(new { iframeUrl = existingIframeUrl });
