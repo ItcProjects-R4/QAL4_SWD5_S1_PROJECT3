@@ -307,10 +307,12 @@
         "title": "System Status & Configuration",
         "note": "These settings are local to this browser only and are not saved on the server yet.",
         "maintenance": {
-          "notifications": {
-            "title": "System-wide Notifications",
-            "desc": "Enable broadcast notifications for all active clinic administrators."
-          }
+          "title": "Maintenance Mode",
+          "desc": "Temporarily disable all clinic access during scheduled maintenance."
+        },
+        "notifications": {
+          "title": "System-wide Notifications",
+          "desc": "Enable broadcast notifications for all active clinic administrators."
         },
         "auditLogging": {
           "title": "Audit Logging",
@@ -630,7 +632,7 @@
       "navReceptionists": "Receptionists",
       "navSettings": "Settings",
       "logout": "Logout",
-      "roleLabel": "مسؤول العيادة"
+      "defaultUserName": "Admin"
     },
     "settings": {
       "title": "Settings",
