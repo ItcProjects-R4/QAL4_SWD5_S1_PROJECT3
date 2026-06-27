@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 
 export default function AdminSettings() {
+    const { t } = useTranslation();
     const [form, setForm] = useState({ clinicName: '', phone: '', address: '' });
     const [sub, setSub] = useState({ active: false, expiry: '—' });
     const [saving, setSaving] = useState(false);
@@ -23,7 +25,7 @@ export default function AdminSettings() {
             const isActive = s.isSubscriptionActive ?? s.IsSubscriptionActive ?? false;
             setSub({ active: isActive, expiry: expiry ? new Date(expiry).toLocaleDateString('en-GB') : '—' });
             localStorage.setItem('clinicName', s.clinicName || s.ClinicName || 'SehhaTech');
-        } catch { setError('Failed to load settings.'); }
+        } catch { setError(t('admin.settings.profile.errorLoad')); }
     }
 
     async function saveSettings() {
@@ -35,30 +37,36 @@ export default function AdminSettings() {
                 address: form.address || null,
             });
             localStorage.setItem('clinicName', form.clinicName || 'SehhaTech');
-            setMsg('Settings saved successfully!');
-        } catch (e) { setError(e.response?.data?.message || 'Failed to save settings.'); }
+            setMsg(t('admin.settings.profile.successMsg'));
+        } catch (e) { setError(e.response?.data?.message || t('admin.settings.profile.errorSave')); }
         finally { setSaving(false); }
     }
+
+    const formFields = [
+        { id: 'clinicName', label: t('admin.settings.profile.labelClinicName'), placeholder: t('admin.settings.profile.placeholderClinicName') },
+        { id: 'phone', label: t('admin.settings.profile.labelPhone'), placeholder: t('admin.settings.profile.placeholderPhone') },
+        { id: 'address', label: t('admin.settings.profile.labelAddress'), placeholder: t('admin.settings.profile.placeholderAddress') },
+    ];
 
     return (
         <div className="max-w-2xl">
             <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002045]">Clinic Settings</h1>
-                <p className="text-slate-500 text-sm mt-1">Update your clinic profile and view subscription details.</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002045]">
+                    {t('admin.settings.title')}
+                </h1>
+                <p className="text-slate-500 text-sm mt-1">
+                    {t('admin.settings.subtitle')}
+                </p>
             </div>
 
             {/* Clinic Profile */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
                 <h3 className="font-bold text-[#002045] mb-4 sm:mb-5 flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg">business</span>
-                    Clinic Profile
+                    {t('admin.settings.profile.title')}
                 </h3>
                 <div className="space-y-4">
-                    {[
-                        { id: 'clinicName', label: 'Clinic Name', placeholder: 'My Clinic' },
-                        { id: 'phone', label: 'Phone', placeholder: '+20 1xx xxx xxxx' },
-                        { id: 'address', label: 'Address', placeholder: '123 Street, Cairo, Egypt' },
-                    ].map((f) => (
+                    {formFields.map((f) => (
                         <div key={f.id}>
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">{f.label}</label>
                             <input
@@ -80,7 +88,7 @@ export default function AdminSettings() {
                     disabled={saving}
                     className="mt-5 sm:mt-6 px-5 sm:px-6 py-2.5 bg-[#002045] text-white font-bold rounded-lg hover:bg-[#1a365d] transition-colors disabled:opacity-50 text-sm"
                 >
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('admin.settings.profile.saving') : t('admin.settings.profile.saveBtn')}
                 </button>
             </div>
 
@@ -88,17 +96,21 @@ export default function AdminSettings() {
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-6">
                 <h3 className="font-bold text-[#002045] mb-4 sm:mb-5 flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg">verified</span>
-                    Subscription
+                    {t('admin.settings.subscription.title')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-slate-50 rounded-lg p-4">
-                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Status</p>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">
+                            {t('admin.settings.subscription.statusLabel')}
+                        </p>
                         <span className={`text-sm font-bold ${sub.active ? 'text-green-600' : 'text-red-500'}`}>
-                            {sub.active ? '✓ Active' : '✗ Inactive'}
+                            {sub.active ? t('admin.settings.subscription.statusActive') : t('admin.settings.subscription.statusInactive')}
                         </span>
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4">
-                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">Expires</p>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">
+                            {t('admin.settings.subscription.expiresLabel')}
+                        </p>
                         <p className="font-bold text-slate-900">{sub.expiry}</p>
                     </div>
                 </div>

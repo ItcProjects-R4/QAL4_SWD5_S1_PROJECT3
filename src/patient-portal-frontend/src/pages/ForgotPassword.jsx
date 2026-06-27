@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 import Footer from '../components/Footer'
 
 export default function ForgotPassword() {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const [phone, setPhone] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -15,19 +17,16 @@ export default function ForgotPassword() {
         e.preventDefault()
         setError('')
         if (!phoneRe.test(phone)) {
-            setError('Invalid Egyptian phone number')
+            setError(t('forgotPassword.errorInvalidPhone'))
             return
         }
         setLoading(true)
         try {
-            // ✅ الـ endpoint الصحيح من الباك إند الحقيقي هو resetpassword/request
-            // (مش resend-otp - ده endpoint منفصل تماماً مخصوص بس لـ OTP الـ registration)
-            // وده بيبعت الـ OTP لوحده، مفيش حاجة تانية لازم تتبعت
             await api.post('/api/portal/auth/resetpassword/request', { phone })
             sessionStorage.setItem('resetPhone', phone)
             navigate('/reset-password')
         } catch (err) {
-            setError(err.response?.data?.message || 'Could not send reset code. Please check the number and try again.')
+            setError(err.response?.data?.message || t('forgotPassword.errorFallback'))
         } finally {
             setLoading(false)
         }
@@ -41,7 +40,7 @@ export default function ForgotPassword() {
                         <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
+                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label={t('nav.help')}>
                         <span className="material-symbols-outlined">help</span>
                     </Link>
                 </div>
@@ -53,16 +52,18 @@ export default function ForgotPassword() {
                         <div className="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-4 scale-in">
                             <span className="material-symbols-outlined text-on-primary text-[28px]">lock_reset</span>
                         </div>
-                        <h1 className="font-semibold text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">Forgot Password?</h1>
+                        <h1 className="font-semibold text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">
+                            {t('forgotPassword.title')}
+                        </h1>
                         <p className="text-body-md text-on-surface-variant">
-                            Enter your registered phone number and we'll send you a verification code to reset your password.
+                            {t('forgotPassword.subtitle')}
                         </p>
                     </div>
 
                     <form className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
                         <div className="flex flex-col gap-1">
                             <label className="font-medium text-label-md text-on-surface" htmlFor="phone">
-                                Phone Number <span className="text-error">*</span>
+                                {t('forgotPassword.phoneLabel')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -74,8 +75,8 @@ export default function ForgotPassword() {
                                     placeholder="01xxxxxxxxx"
                                     autoComplete="tel"
                                     className={`w-full pl-10 pr-3 py-3 border rounded-xl bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${error
-                                            ? 'border-error focus:border-error focus:ring-error'
-                                            : 'border-outline-variant focus:border-primary focus:ring-primary'
+                                        ? 'border-error focus:border-error focus:ring-error'
+                                        : 'border-outline-variant focus:border-primary focus:ring-primary'
                                         }`}
                                 />
                             </div>
@@ -89,16 +90,16 @@ export default function ForgotPassword() {
                             {loading ? (
                                 <>
                                     <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
-                                    Sending code...
+                                    {t('forgotPassword.sending')}
                                 </>
-                            ) : 'Send Reset Code'}
+                            ) : t('forgotPassword.sendBtn')}
                         </button>
                     </form>
 
                     <div className="mt-6 text-center">
                         <Link to="/login" className="text-primary hover:underline font-medium text-body-md inline-flex items-center gap-1">
                             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                            Back to Login
+                            {t('forgotPassword.backToLogin')}
                         </Link>
                     </div>
                 </div>

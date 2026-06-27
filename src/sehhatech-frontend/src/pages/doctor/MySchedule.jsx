@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import Layout from "../../components/Layout";
 import api from "../../api/axios";
 
@@ -22,6 +23,7 @@ const card =
     "bg-white rounded-2xl border border-slate-200 shadow-subtle transition-all duration-300 ease-out hover:shadow-xl hover:border-slate-300";
 
 export default function MySchedule() {
+    const { t, i18n } = useTranslation("common");
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState(null);
@@ -54,12 +56,17 @@ export default function MySchedule() {
         }
     }
 
+    const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+
     const today = new Date();
     const count = appointments.length;
     const scheduleInfo =
-        today.toLocaleDateString("en-US", {
+        today.toLocaleDateString(locale, {
             weekday: "long", month: "long", day: "numeric", year: "numeric",
-        }) + ` — ${count} ${count === 1 ? "Appointment Remaining" : "Appointments Remaining"}`;
+        }) +
+        ` — ${count} ${count === 1
+            ? t("doctor.schedule.appointmentRemaining")
+            : t("doctor.schedule.appointmentsRemaining")}`;
 
     const apptDate = selected ? new Date(selected.appointmentDate) : null;
 
@@ -72,8 +79,12 @@ export default function MySchedule() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
             >
-                <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-1">Daily Schedule</h2>
-                <p className="text-sm sm:text-base text-slate-500 font-medium">{loading ? "Loading…" : scheduleInfo}</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-1">
+                    {t("doctor.schedule.title")}
+                </h2>
+                <p className="text-sm sm:text-base text-slate-500 font-medium">
+                    {loading ? t("doctor.schedule.loading") : scheduleInfo}
+                </p>
             </motion.header>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
@@ -87,7 +98,7 @@ export default function MySchedule() {
                             ))}
                         </div>
                     ) : !appointments.length ? (
-                        <p className="text-slate-400 text-sm px-2">No upcoming appointments.</p>
+                        <p className="text-slate-400 text-sm px-2">{t("doctor.schedule.noUpcoming")}</p>
                     ) : (
                         <motion.div
                             className="space-y-3"
@@ -125,9 +136,11 @@ export default function MySchedule() {
                                                 <span className="text-[10px] font-bold uppercase">{ampm}</span>
                                             </div>
                                             <div className="min-w-0">
-                                                <h3 className="font-bold text-slate-900 text-sm truncate">{app.patientName ?? "Unknown"}</h3>
+                                                <h3 className="font-bold text-slate-900 text-sm truncate">
+                                                    {app.patientName ?? t("doctor.unknown")}
+                                                </h3>
                                                 <p className="text-xs sm:text-sm text-slate-500">{app.status}</p>
-                                                <p className="text-xs text-slate-400">{date.toLocaleDateString()}</p>
+                                                <p className="text-xs text-slate-400">{date.toLocaleDateString(locale)}</p>
                                             </div>
                                         </div>
                                         <span className={`
@@ -160,10 +173,10 @@ export default function MySchedule() {
                                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                                         <div className="min-w-0">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                                                Selected Appointment
+                                                {t("doctor.schedule.selectedAppointment")}
                                             </p>
                                             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">
-                                                {selected.patientName ?? "Unknown"}
+                                                {selected.patientName ?? t("doctor.unknown")}
                                             </h3>
                                         </div>
                                         <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 flex-shrink-0 self-start">
@@ -171,9 +184,9 @@ export default function MySchedule() {
                                         </span>
                                     </div>
                                     <p className="text-sm text-slate-500 leading-relaxed">
-                                        Appointment scheduled for{" "}
+                                        {t("doctor.schedule.scheduledForText")}{" "}
                                         <span className="font-semibold text-slate-700">
-                                            {apptDate?.toLocaleDateString("en-US", {
+                                            {apptDate?.toLocaleDateString(locale, {
                                                 weekday: "long", year: "numeric",
                                                 month: "long", day: "numeric",
                                             })}
@@ -186,24 +199,24 @@ export default function MySchedule() {
                                     <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
                                         <div className="flex-1 space-y-2">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                Scheduled For
+                                                {t("doctor.schedule.scheduledFor")}
                                             </p>
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-primary text-[20px]">event</span>
                                                 <p className="font-bold text-primary text-sm sm:text-base">
-                                                    {apptDate ? apptDate.toLocaleDateString() : "—"}
+                                                    {apptDate ? apptDate.toLocaleDateString(locale) : "—"}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex-1 space-y-2">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                Appointment Time
+                                                {t("doctor.schedule.appointmentTime")}
                                             </p>
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-primary text-[20px]">schedule</span>
                                                 <p className="font-bold text-primary text-sm sm:text-base">
                                                     {apptDate
-                                                        ? apptDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                                                        ? apptDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })
                                                         : "—"}
                                                 </p>
                                             </div>
@@ -222,7 +235,7 @@ export default function MySchedule() {
                                                 transition-opacity duration-200 hover:opacity-90"
                                         >
                                             <span className="material-symbols-outlined text-[20px]">person</span>
-                                            View Patient Profile
+                                            {t("doctor.schedule.viewPatientProfile")}
                                         </motion.button>
                                     </div>
                                 </div>
@@ -235,7 +248,7 @@ export default function MySchedule() {
                                 initial="hidden"
                                 animate="show"
                             >
-                                Select an appointment to view details
+                                {t("doctor.schedule.selectPrompt")}
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -261,7 +274,9 @@ export default function MySchedule() {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-5 sm:mb-6">
-                                <h2 className="text-lg sm:text-xl font-bold text-primary">Patient Details</h2>
+                                <h2 className="text-lg sm:text-xl font-bold text-primary">
+                                    {t("doctor.schedule.patientDetails")}
+                                </h2>
                                 <button
                                     onClick={() => setShowModal(false)}
                                     className="text-slate-400 hover:text-slate-700 transition-colors p-1"
@@ -274,14 +289,14 @@ export default function MySchedule() {
                                 <div className="space-y-3">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         {[
-                                            { label: "Name", value: patientDetails.data?.fullName },
-                                            { label: "Phone", value: patientDetails.data?.phone },
-                                            { label: "Email", value: patientDetails.data?.email },
-                                            { label: "Gender", value: patientDetails.data?.gender },
+                                            { label: t("doctor.schedule.labelName"), value: patientDetails.data?.fullName },
+                                            { label: t("doctor.schedule.labelPhone"), value: patientDetails.data?.phone },
+                                            { label: t("doctor.schedule.labelEmail"), value: patientDetails.data?.email },
+                                            { label: t("doctor.schedule.labelGender"), value: patientDetails.data?.gender },
                                             {
-                                                label: "Date of Birth",
+                                                label: t("doctor.schedule.labelDob"),
                                                 value: patientDetails.data?.dateOfBirth
-                                                    ? new Date(patientDetails.data.dateOfBirth).toLocaleDateString()
+                                                    ? new Date(patientDetails.data.dateOfBirth).toLocaleDateString(locale)
                                                     : null,
                                             },
                                         ].map(({ label, value }) => (
@@ -294,7 +309,9 @@ export default function MySchedule() {
 
                                     {patientDetails.data?.medicalHistory && (
                                         <div className="mt-4 p-3 bg-slate-50 rounded-xl">
-                                            <p className="text-xs text-slate-400 uppercase font-bold mb-1">Medical History</p>
+                                            <p className="text-xs text-slate-400 uppercase font-bold mb-1">
+                                                {t("doctor.schedule.medicalHistory")}
+                                            </p>
                                             <p className="text-sm text-slate-700">{patientDetails.data.medicalHistory}</p>
                                         </div>
                                     )}
@@ -302,7 +319,7 @@ export default function MySchedule() {
                                     {patientDetails.appointmentHistory?.length > 0 && (
                                         <div className="mt-4">
                                             <p className="text-xs text-slate-400 uppercase font-bold mb-2">
-                                                Appointment History
+                                                {t("doctor.schedule.appointmentHistory")}
                                             </p>
                                             <div className="space-y-2 max-h-40 overflow-y-auto">
                                                 {patientDetails.appointmentHistory.map((h, i) => (
@@ -311,7 +328,7 @@ export default function MySchedule() {
                                                         className="flex justify-between items-center p-2 bg-slate-50 rounded-lg text-sm gap-2"
                                                     >
                                                         <span className="text-slate-700 text-xs sm:text-sm">
-                                                            {new Date(h.appointmentDate).toLocaleDateString()}
+                                                            {new Date(h.appointmentDate).toLocaleDateString(locale)}
                                                         </span>
                                                         <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-600 flex-shrink-0">
                                                             {h.status}

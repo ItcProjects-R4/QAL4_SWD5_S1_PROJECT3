@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 import Footer from '../components/Footer'
 
 export default function Login() {
     const navigate = useNavigate()
     const canvasRef = useRef(null)
+    const { t, i18n } = useTranslation()
+    const isAr = i18n.language === 'ar'
 
     const [phone, setPhone] = useState('')
     const [password, setPassword] = useState('')
@@ -95,8 +98,8 @@ export default function Login() {
     const phoneRe = /^(01[0125][0-9]{8})$/
     const validate = () => {
         const e = {}
-        if (!phoneRe.test(phone)) e.phone = 'Invalid Egyptian phone number'
-        if (password.length < 8) e.password = 'Password must be at least 8 characters'
+        if (!phoneRe.test(phone)) e.phone = t('validation.phoneInvalid')
+        if (password.length < 8) e.password = t('validation.passwordMin')
         setErrors(e)
         return Object.keys(e).length === 0
     }
@@ -120,18 +123,16 @@ export default function Login() {
             localStorage.setItem('patientPhone', p)
             navigate('/clinics')
         } catch (err) {
-            const msg = err.response?.data?.message || 'Login failed. Please try again.'
+            const msg = err.response?.data?.message || t('login.errorFallback')
             setGeneral(msg)
             setShakeForm(true)
             setTimeout(() => setShakeForm(false), 500)
 
-            // ✅ لو الرقم مش متحقق منه، روحه تلقائياً لصفحة OTP بعد ما نبعت كود جديد
             if (msg.toLowerCase().includes('not verified')) {
                 try {
-                    // purpose: 0 = OTPPurpose.Register (نفس purpose التحقق من رقم التليفون عند التسجيل)
                     await api.post('/api/portal/auth/resend-otp', { phone, purpose: 0 })
                 } catch {
-                    // تجاهل فشل الـ resend هنا - صفحة OTP نفسها فيها زرار resend تاني لو احتاج
+                    // ignore — verify page has its own resend
                 }
                 sessionStorage.setItem('registerPhone', phone)
                 navigate('/verify-otp')
@@ -141,15 +142,15 @@ export default function Login() {
         }
     }
 
+    // RTL-aware: use logical padding (ps/pe) for input icons
     const fieldCls = (key) =>
-        `w-full pl-10 pr-3 py-3 border rounded-xl bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${errors[key]
+        `w-full ps-10 pe-3 py-3 border rounded-xl bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${errors[key]
             ? 'border-error focus:border-error focus:ring-error'
             : 'border-outline-variant focus:border-primary focus:ring-primary'
         }`
 
     return (
         <div className="bg-background text-on-surface min-h-screen flex flex-col relative overflow-hidden page-enter">
-            {/* Animated background */}
             <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-0" style={{ backgroundColor: '#f8f9ff' }} />
 
             {/* Header */}
@@ -159,9 +160,19 @@ export default function Login() {
                         <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
-                        <span className="material-symbols-outlined">help</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary hover:bg-primary/5 transition-all text-label-sm font-medium"
+                            aria-label="Switch language"
+                        >
+                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>language</span>
+                            {isAr ? 'English' : 'العربية'}
+                        </button>
+                        <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label={t('nav.help')}>
+                            <span className="material-symbols-outlined">help</span>
+                        </Link>
+                    </div>
                 </div>
             </header>
 
@@ -169,25 +180,25 @@ export default function Login() {
             <main className="flex-grow flex items-center justify-center p-4 md:p-8 relative z-10">
                 <div className={`bg-surface-container-lowest w-full max-w-md border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-6 md:p-10 fade-up ${shakeForm ? 'shake' : ''}`}>
                     <div className="text-center mb-6">
-                        <h1 className="font-semibold text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">Welcome Back</h1>
-                        <p className="text-body-md text-on-surface-variant">Please sign in to access your patient portal.</p>
+                        <h1 className="font-semibold text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">{t('login.title')}</h1>
+                        <p className="text-body-md text-on-surface-variant">{t('login.subtitle')}</p>
                     </div>
 
                     <form className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
                         {/* Phone */}
                         <div className="flex flex-col gap-1">
                             <label className="font-medium text-label-md text-on-surface" htmlFor="phone">
-                                Phone Number <span className="text-error">*</span>
+                                {t('login.phoneLabel')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-outline">phone</span>
                                 </div>
                                 <input
                                     id="phone" type="tel" value={phone}
                                     onChange={e => setPhone(e.target.value)}
                                     onBlur={() => {
-                                        if (!phoneRe.test(phone)) setErrors(p => ({ ...p, phone: 'Invalid Egyptian phone number' }))
+                                        if (!phoneRe.test(phone)) setErrors(p => ({ ...p, phone: t('validation.phoneInvalid') }))
                                         else setErrors(p => { const n = { ...p }; delete n.phone; return n })
                                     }}
                                     placeholder="01xxxxxxxxx"
@@ -201,28 +212,28 @@ export default function Login() {
                         {/* Password */}
                         <div className="flex flex-col gap-1">
                             <label className="font-medium text-label-md text-on-surface" htmlFor="password">
-                                Password <span className="text-error">*</span>
+                                {t('login.passwordLabel')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-outline">lock</span>
                                 </div>
                                 <input
                                     id="password" type={showPw ? 'text' : 'password'} value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     onBlur={() => {
-                                        if (password.length < 8) setErrors(p => ({ ...p, password: 'Password must be at least 8 characters' }))
+                                        if (password.length < 8) setErrors(p => ({ ...p, password: t('validation.passwordMin') }))
                                         else setErrors(p => { const n = { ...p }; delete n.password; return n })
                                     }}
                                     placeholder="••••••••"
                                     autoComplete="current-password"
-                                    className={fieldCls('password') + ' pr-10'}
+                                    className={fieldCls('password') + ' pe-10'}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPw(v => !v)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-primary"
-                                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                                    className="absolute inset-y-0 end-0 pe-3 flex items-center text-on-surface-variant hover:text-primary"
+                                    aria-label={showPw ? t('login.hidePassword') : t('login.showPassword')}
                                 >
                                     <span className="material-symbols-outlined">{showPw ? 'visibility_off' : 'visibility'}</span>
                                 </button>
@@ -230,7 +241,7 @@ export default function Login() {
                             {errors.password && <p className="text-label-sm text-error fade-in">{errors.password}</p>}
                             <div className="flex justify-end mt-1">
                                 <Link className="text-label-sm text-primary hover:text-primary-container transition-colors hover:underline" to="/forgot-password">
-                                    Forgot Password?
+                                    {t('login.forgotPassword')}
                                 </Link>
                             </div>
                         </div>
@@ -245,16 +256,16 @@ export default function Login() {
                             {loading ? (
                                 <>
                                     <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
-                                    Logging in...
+                                    {t('login.submitting')}
                                 </>
-                            ) : 'Login'}
+                            ) : t('login.submitBtn')}
                         </button>
                     </form>
 
                     <div className="mt-6 text-center">
                         <p className="text-body-md text-on-surface-variant">
-                            Don't have an account?{' '}
-                            <Link className="text-primary hover:underline font-medium" to="/register">Register</Link>
+                            {t('login.noAccount')}{' '}
+                            <Link className="text-primary hover:underline font-medium" to="/register">{t('login.registerLink')}</Link>
                         </p>
                     </div>
                 </div>
