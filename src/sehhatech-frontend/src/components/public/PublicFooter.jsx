@@ -1,13 +1,16 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 export default function PublicFooter({ activePage }) {
+    const { t } = useTranslation();
+
     const links = [
-        { to: "/privacy", label: "Privacy Policy", key: "privacy" },
-        { to: "/terms", label: "Terms of Service", key: "terms" },
-        { to: "/security", label: "Security", key: "security" },
-        { to: "/status", label: "Status", key: "status" },
-        { to: "/contact", label: "Contact Us", key: "contact" },
+        { to: "/privacy", label: t("publicFooter.privacy"), key: "privacy" },
+        { to: "/terms", label: t("publicFooter.terms"), key: "terms" },
+        { to: "/security", label: t("publicFooter.security"), key: "security" },
+        { to: "/status", label: t("publicFooter.status"), key: "status" },
+        { to: "/contact", label: t("publicFooter.contact"), key: "contact" },
     ];
 
     return (
@@ -23,7 +26,7 @@ export default function PublicFooter({ activePage }) {
                         SehhaTech
                     </div>
                     <p className="public-footer__copy">
-                        © 2026 SehhaTech Clinical Systems. Helping clinics care for patients.
+                        {t("publicFooter.copy")}
                     </p>
                 </div>
                 <div className="public-footer__links">

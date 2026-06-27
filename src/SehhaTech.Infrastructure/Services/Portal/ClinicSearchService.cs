@@ -38,7 +38,7 @@ public class ClinicSearchService
                 Specialization = t.Specialization,
                 Phone = t.Phone,
                 Address = t.Address,
-                IsActive = t.IsActive            // ✅ كان مش موجود! ده سبب ظهور "Inactive" في كل الكروت
+                IsActive = t.IsActive
             }).ToListAsync();
     }
 
@@ -72,7 +72,7 @@ public class ClinicSearchService
             Phone = tenant.Phone,
             Address = tenant.Address,
             Email = tenant.Email,
-            IsActive = tenant.IsActive,          // ✅ كان مش موجود برضو هنا
+            IsActive = tenant.IsActive,
             Doctors = doctors
         };
     }
