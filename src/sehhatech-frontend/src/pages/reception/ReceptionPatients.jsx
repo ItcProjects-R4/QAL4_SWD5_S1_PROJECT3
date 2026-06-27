@@ -7,6 +7,10 @@ import { useToast } from "../../hooks/useToast";
 import ReceptionTopbar from "../../components/ReceptionTopbar";
 import Toast from "../../components/Toast";
 
+function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+}
+
 function getInitials(name) {
     if (!name) return "PT";
     return String(name)
@@ -26,8 +30,8 @@ function formatDate(value, locale) {
 
 function getPatientInputClass(hasError) {
     return `h-12 w-full rounded-2xl border bg-slate-50 pl-12 pr-4 text-sm font-medium text-slate-800 outline-none transition focus:bg-white focus:ring-4 ${hasError
-            ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-            : "border-slate-200 focus:border-blue-600 focus:ring-blue-600/10"
+        ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+        : "border-slate-200 focus:border-blue-600 focus:ring-blue-600/10"
         }`;
 }
 
@@ -71,7 +75,13 @@ export default function ReceptionPatients() {
         notes: "",
     });
 
+    const [appointmentErrors, setAppointmentErrors] = useState({});
     const [bookingAppointment, setBookingAppointment] = useState(false);
+
+    const [slotDate, setSlotDate] = useState(todayISO());
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [slotsError, setSlotsError] = useState("");
 
     const loadAll = useCallback(async () => {
         setLoading(true);
@@ -233,9 +243,7 @@ export default function ReceptionPatients() {
             errors.phone = t("reception.patients.errPhoneFormat");
         }
 
-        if (!email) {
-            errors.email = t("reception.patients.errEmail");
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             errors.email = t("reception.patients.errEmailFormat");
         }
 
@@ -356,9 +364,136 @@ export default function ReceptionPatients() {
         }
     }
 
+    useEffect(() => {
+        if (!appointmentModalOpen || !appointmentForm.doctorId || !slotDate) {
+            setAvailableSlots([]);
+            setSlotsError("");
+            return;
+        }
+
+        let active = true;
+
+        (async () => {
+            setLoadingSlots(true);
+            setSlotsError("");
+            try {
+                const data = await receptionApi.getDoctorSlots(appointmentForm.doctorId, slotDate);
+                if (active) setAvailableSlots(data.data || []);
+            } catch (err) {
+                if (active) {
+                    setAvailableSlots([]);
+                    setSlotsError(err.message || t("reception.appointments.errSlotsLoad"));
+                }
+            } finally {
+                if (active) setLoadingSlots(false);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [appointmentModalOpen, appointmentForm.doctorId, slotDate, t]);
+
+    function pickSlot(slot) {
+        if (!slot.isAvailable) return;
+        setAppointmentForm((prev) => ({ ...prev, appointmentDate: `${slotDate}T${slot.time}` }));
+        setAppointmentErrors((prev) => ({ ...prev, appointmentDate: "", form: "" }));
+    }
+
+    function updateApptField(field, value) {
+        setAppointmentForm((prev) => ({ ...prev, [field]: value }));
+        setAppointmentErrors((prev) => ({ ...prev, [field]: "", form: "" }));
+    }
+
+    function validateAppointmentForm(currentForm) {
+        const errors = {};
+
+        if (!currentForm.patientId) {
+            errors.patientId = t("reception.appointments.errSelectPatient");
+        }
+
+        if (!currentForm.doctorId) {
+            errors.doctorId = t("reception.appointments.errSelectDoctor");
+        }
+
+        if (!currentForm.appointmentDate) {
+            errors.appointmentDate = t("reception.appointments.errDateRequired");
+        } else {
+            const selectedDate = new Date(currentForm.appointmentDate);
+            const now = new Date();
+
+            if (Number.isNaN(selectedDate.getTime())) {
+                errors.appointmentDate = t("reception.appointments.errDateInvalid");
+            } else if (selectedDate <= now) {
+                errors.appointmentDate = t("reception.appointments.errDatePast");
+            }
+        }
+
+        if (!currentForm.duration) {
+            errors.duration = t("reception.appointments.errDuration");
+        }
+
+        if (currentForm.notes && currentForm.notes.length > 500) {
+            errors.notes = t("reception.appointments.errNotesTooLong");
+        }
+
+        return errors;
+    }
+
+    function mapAppointmentBackendError(message) {
+        const lowerMessage = String(message || "").toLowerCase();
+
+        if (lowerMessage.includes("patient")) {
+            return { patientId: message };
+        }
+
+        if (lowerMessage.includes("doctor already has an appointment")) {
+            return { form: t("reception.appointments.errDoctorBusy") };
+        }
+
+        if (lowerMessage.includes("doctor")) {
+            return { doctorId: message };
+        }
+
+        if (lowerMessage.includes("date") || lowerMessage.includes("time")) {
+            return { appointmentDate: message };
+        }
+
+        if (lowerMessage.includes("duration")) {
+            return { duration: message };
+        }
+
+        return { form: message || t("reception.appointments.errGeneral") };
+    }
+
+    function openAppointmentModal() {
+        setAppointmentErrors({});
+        setSlotDate(todayISO());
+        setAvailableSlots([]);
+        setSlotsError("");
+        setAppointmentModalOpen(true);
+    }
+
+    function closeAppointmentModal() {
+        setAppointmentModalOpen(false);
+        setAppointmentErrors({});
+        setAvailableSlots([]);
+        setSlotsError("");
+    }
+
     async function handleBookAppointment(e) {
         e.preventDefault();
+
+        const validationErrors = validateAppointmentForm(appointmentForm);
+
+        if (Object.keys(validationErrors).length > 0) {
+            setAppointmentErrors(validationErrors);
+            showToast(t("reception.appointments.validationFix"), "error");
+            return;
+        }
+
         setBookingAppointment(true);
+        setAppointmentErrors({});
 
         try {
             const result = await receptionApi.bookAppointment({
@@ -370,7 +505,7 @@ export default function ReceptionPatients() {
             });
 
             showToast(result?.message || t("reception.patients.bookBtn"));
-            setAppointmentModalOpen(false);
+            closeAppointmentModal();
             setAppointmentForm({
                 patientId: "",
                 doctorId: "",
@@ -381,7 +516,9 @@ export default function ReceptionPatients() {
 
             await loadAll();
         } catch (err) {
-            showToast(err.message || t("reception.patients.failedLoad"), "error");
+            const message = err.message || t("reception.patients.failedLoad");
+            setAppointmentErrors(mapAppointmentBackendError(message));
+            showToast(message, "error");
         } finally {
             setBookingAppointment(false);
         }
@@ -399,7 +536,7 @@ export default function ReceptionPatients() {
                 </button>
 
                 <button
-                    onClick={() => setAppointmentModalOpen(true)}
+                    onClick={openAppointmentModal}
                     className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 inline-flex items-center justify-center gap-2"
                 >
                     <span className="material-symbols-outlined text-lg">event_available</span>
@@ -738,7 +875,8 @@ export default function ReceptionPatients() {
 
                                 <label>
                                     <span className="mb-2 block text-sm font-bold text-slate-700">
-                                        {t("reception.patients.email")}
+                                        {t("reception.patients.email")}{" "}
+                                        <span className="font-normal text-slate-400">({t("reception.patients.optional")})</span>
                                     </span>
 
                                     <div className="relative">
@@ -835,115 +973,266 @@ export default function ReceptionPatients() {
 
             {/* Book Appointment Modal */}
             {appointmentModalOpen && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-2xl">
-                        <div className="flex justify-between items-center mb-5">
-                            <div>
-                                <h3 className="text-xl font-extrabold">{t("reception.patients.bookApptTitle")}</h3>
-                                <p className="text-sm text-slate-500">
-                                    {t("reception.patients.bookApptEndpoint")}
-                                </p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-7 py-6">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                                    <span className="material-symbols-outlined text-[26px]">event_available</span>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                        {t("reception.patients.bookApptTitle")}
+                                    </h3>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        {t("reception.appointments.bookAppointmentDesc")}
+                                    </p>
+                                </div>
                             </div>
 
                             <button
-                                onClick={() => setAppointmentModalOpen(false)}
-                                className="text-slate-400 hover:text-slate-900 text-xl"
+                                type="button"
+                                onClick={closeAppointmentModal}
+                                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
                             >
-                                ✕
+                                <span className="material-symbols-outlined text-[22px]">close</span>
                             </button>
                         </div>
 
-                        <form
-                            onSubmit={handleBookAppointment}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        >
-                            <label className="md:col-span-2">
-                                <span className="text-sm font-bold text-slate-600">
-                                    {t("reception.patients.patients")}
-                                </span>
+                        <form onSubmit={handleBookAppointment} noValidate className="px-7 py-6">
+                            {appointmentErrors.form && (
+                                <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                    {appointmentErrors.form}
+                                </div>
+                            )}
 
-                                <select
-                                    required
-                                    value={appointmentForm.patientId}
-                                    onChange={(e) => setAppointmentForm({ ...appointmentForm, patientId: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border-slate-300"
+                            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                <label className="md:col-span-2">
+                                    <span className="mb-2 block text-sm font-bold text-slate-700">
+                                        {t("reception.patients.patients")}
+                                    </span>
+
+                                    <div className="relative">
+                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
+                                            person
+                                        </span>
+
+                                        <select
+                                            value={appointmentForm.patientId}
+                                            onChange={(e) => updateApptField("patientId", e.target.value)}
+                                            className={getPatientInputClass(appointmentErrors.patientId)}
+                                        >
+                                            <option value="">{t("reception.patients.selectPatient")}</option>
+                                            {patients.map((p) => (
+                                                <option key={p.id} value={p.id}>
+                                                    {p.fullName} - {p.phone}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {appointmentErrors.patientId && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.patientId}</p>
+                                    )}
+                                </label>
+
+                                <label className="md:col-span-2">
+                                    <span className="mb-2 block text-sm font-bold text-slate-700">
+                                        {t("reception.patients.colDoctor")}
+                                    </span>
+
+                                    <div className="relative">
+                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
+                                            stethoscope
+                                        </span>
+
+                                        <select
+                                            value={appointmentForm.doctorId}
+                                            onChange={(e) => updateApptField("doctorId", e.target.value)}
+                                            className={getPatientInputClass(appointmentErrors.doctorId)}
+                                        >
+                                            <option value="">{t("reception.patients.selectDoctor")}</option>
+                                            {doctors.map((d) => (
+                                                <option key={d.id} value={d.id}>
+                                                    {d.user?.fullName || "Doctor"} - {d.specialization || "-"}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {appointmentErrors.doctorId && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.doctorId}</p>
+                                    )}
+                                </label>
+
+                                {appointmentForm.doctorId && (
+                                    <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                                            <span className="text-sm font-bold text-slate-700">
+                                                {t("reception.appointments.availableSlots")}
+                                            </span>
+
+                                            <input
+                                                type="date"
+                                                value={slotDate}
+                                                min={todayISO()}
+                                                onChange={(e) => setSlotDate(e.target.value)}
+                                                className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 w-full sm:w-auto"
+                                            />
+                                        </div>
+
+                                        {loadingSlots ? (
+                                            <p className="text-sm text-slate-400">{t("reception.appointments.loadingSlots")}</p>
+                                        ) : slotsError ? (
+                                            <p className="text-sm text-red-500">{slotsError}</p>
+                                        ) : availableSlots.length === 0 ? (
+                                            <p className="text-sm text-slate-400">{t("reception.appointments.noSlotsForDay")}</p>
+                                        ) : (
+                                            <div className="flex flex-wrap gap-2">
+                                                {availableSlots.map((slot) => {
+                                                    const isSelected = appointmentForm.appointmentDate === `${slotDate}T${slot.time}`;
+                                                    return (
+                                                        <button
+                                                            key={slot.time}
+                                                            type="button"
+                                                            disabled={!slot.isAvailable}
+                                                            onClick={() => pickSlot(slot)}
+                                                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${!slot.isAvailable
+                                                                    ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed line-through"
+                                                                    : isSelected
+                                                                        ? "bg-blue-600 text-white border-blue-600"
+                                                                        : "bg-white text-slate-700 border-slate-200 hover:border-blue-600 hover:text-blue-600"
+                                                                }`}
+                                                        >
+                                                            {slot.time}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        <p className="text-xs text-slate-400 mt-3">
+                                            {t("reception.appointments.slotsHint")}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <label>
+                                    <span className="mb-2 block text-sm font-bold text-slate-700">
+                                        {t("reception.patients.appointmentDate")}
+                                    </span>
+
+                                    {appointmentForm.doctorId ? (
+                                        <div
+                                            className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm ${appointmentErrors.appointmentDate
+                                                    ? "border-red-300 bg-red-50"
+                                                    : appointmentForm.appointmentDate
+                                                        ? "border-slate-200 bg-white text-slate-800 font-semibold"
+                                                        : "border-slate-200 bg-slate-50 text-slate-400"
+                                                }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[20px] text-slate-400">
+                                                calendar_month
+                                            </span>
+                                            {appointmentForm.appointmentDate
+                                                ? new Date(appointmentForm.appointmentDate).toLocaleString(
+                                                    i18n.language === "ar" ? "ar-EG" : "en-GB",
+                                                    { dateStyle: "medium", timeStyle: "short" }
+                                                )
+                                                : t("reception.appointments.pickSlotPrompt")}
+                                        </div>
+                                    ) : (
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
+                                                calendar_month
+                                            </span>
+
+                                            <input
+                                                type="datetime-local"
+                                                value={appointmentForm.appointmentDate}
+                                                onChange={(e) => updateApptField("appointmentDate", e.target.value)}
+                                                className={getPatientInputClass(appointmentErrors.appointmentDate)}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {appointmentErrors.appointmentDate && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.appointmentDate}</p>
+                                    )}
+                                </label>
+
+                                <label>
+                                    <span className="mb-2 block text-sm font-bold text-slate-700">
+                                        {t("reception.patients.duration")}
+                                    </span>
+
+                                    <div className="relative">
+                                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-slate-400">
+                                            schedule
+                                        </span>
+
+                                        <select
+                                            value={appointmentForm.duration}
+                                            onChange={(e) => updateApptField("duration", e.target.value)}
+                                            className={getPatientInputClass(appointmentErrors.duration)}
+                                        >
+                                            <option value="00:30:00">{t("reception.patients.duration30")}</option>
+                                            <option value="01:00:00">{t("reception.patients.duration60")}</option>
+                                            <option value="01:30:00">{t("reception.patients.duration90")}</option>
+                                        </select>
+                                    </div>
+
+                                    {appointmentErrors.duration && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.duration}</p>
+                                    )}
+                                </label>
+
+                                <label className="md:col-span-2">
+                                    <span className="mb-2 block text-sm font-bold text-slate-700">
+                                        {t("reception.patients.notes")}
+                                    </span>
+
+                                    <div className="relative">
+                                        <span className="material-symbols-outlined absolute left-4 top-4 text-[22px] text-slate-400">
+                                            notes
+                                        </span>
+
+                                        <textarea
+                                            rows={4}
+                                            value={appointmentForm.notes}
+                                            onChange={(e) => updateApptField("notes", e.target.value)}
+                                            placeholder={t("reception.appointments.notesPlaceholder")}
+                                            className={`w-full resize-none rounded-2xl border bg-slate-50 py-3 pl-12 pr-4 text-sm font-medium text-slate-800 outline-none transition focus:bg-white focus:ring-4 ${appointmentErrors.notes
+                                                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                                                    : "border-slate-200 focus:border-blue-600 focus:ring-blue-600/10"
+                                                }`}
+                                        />
+                                    </div>
+
+                                    {appointmentErrors.notes && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{appointmentErrors.notes}</p>
+                                    )}
+                                </label>
+                            </div>
+
+                            <div className="mt-7 flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+                                <button
+                                    type="button"
+                                    onClick={closeAppointmentModal}
+                                    className="h-12 rounded-2xl border border-slate-200 px-6 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
                                 >
-                                    <option value="">{t("reception.patients.selectPatient")}</option>
-                                    {patients.map((p) => (
-                                        <option key={p.id} value={p.id}>
-                                            {p.fullName} - {p.phone}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
+                                    {t("reception.patients.cancel")}
+                                </button>
 
-                            <label className="md:col-span-2">
-                                <span className="text-sm font-bold text-slate-600">
-                                    {t("reception.patients.colDoctor")}
-                                </span>
-
-                                <select
-                                    required
-                                    value={appointmentForm.doctorId}
-                                    onChange={(e) => setAppointmentForm({ ...appointmentForm, doctorId: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border-slate-300"
+                                <button
+                                    type="submit"
+                                    disabled={bookingAppointment}
+                                    className="h-12 rounded-2xl bg-emerald-600 px-8 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    <option value="">{t("reception.patients.selectDoctor")}</option>
-                                    {doctors.map((d) => (
-                                        <option key={d.id} value={d.id}>
-                                            {d.user?.fullName || "Doctor"} - {d.specialization || "-"}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-
-                            <label>
-                                <span className="text-sm font-bold text-slate-600">
-                                    {t("reception.patients.appointmentDate")}
-                                </span>
-
-                                <input
-                                    required
-                                    type="datetime-local"
-                                    value={appointmentForm.appointmentDate}
-                                    onChange={(e) => setAppointmentForm({ ...appointmentForm, appointmentDate: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border-slate-300"
-                                />
-                            </label>
-
-                            <label>
-                                <span className="text-sm font-bold text-slate-600">
-                                    {t("reception.patients.duration")}
-                                </span>
-
-                                <select
-                                    required
-                                    value={appointmentForm.duration}
-                                    onChange={(e) => setAppointmentForm({ ...appointmentForm, duration: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border-slate-300"
-                                >
-                                    <option value="00:30:00">{t("reception.patients.duration30")}</option>
-                                    <option value="01:00:00">{t("reception.patients.duration60")}</option>
-                                    <option value="01:30:00">{t("reception.patients.duration90")}</option>
-                                </select>
-                            </label>
-
-                            <label className="md:col-span-2">
-                                <span className="text-sm font-bold text-slate-600">{t("reception.patients.notes")}</span>
-
-                                <textarea
-                                    value={appointmentForm.notes}
-                                    onChange={(e) => setAppointmentForm({ ...appointmentForm, notes: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border-slate-300"
-                                />
-                            </label>
-
-                            <button
-                                disabled={bookingAppointment}
-                                className="md:col-span-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-60"
-                            >
-                                {bookingAppointment ? t("reception.patients.bookingBtn") : t("reception.patients.bookBtn")}
-                            </button>
+                                    {bookingAppointment ? t("reception.patients.bookingBtn") : t("reception.patients.bookBtn")}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

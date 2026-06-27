@@ -1,13 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using SehhaTech.Infrastructure.Data;
-using SehhaTech.Core.Interfaces;
-using SehhaTech.Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
-using SehhaTech.Core.Models;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using SehhaTech.Core.Interfaces;
+using SehhaTech.Core.Models;
+using SehhaTech.Infrastructure.Data;
+using SehhaTech.Infrastructure.Services;
+using SehhaTech.Infrastructure.Services.Portal;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Services
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<ChatBotService>();
 
 // JWT Auth

@@ -1,29 +1,32 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axiosInstance from "../../api/axios";
 
 const STORAGE_KEY = "sehhatech_chat_history";
 
+// quickReplySets: text = what goes to the AI (intentionally bilingual).
+// labels are rendered via t() in the JSX below.
 const quickReplySets = {
     initial: [
-        { label: "Features ✨", text: "What features does SehhaTech offer?" },
-        { label: "السعر 💰", text: "كم سعر الاشتراك؟" },
-        { label: "Get Started 🚀", text: "How do I register my clinic?" },
+        { key: "features", text: "What features does SehhaTech offer?" },
+        { key: "pricing", text: "كم سعر الاشتراك؟" },
+        { key: "getStarted", text: "How do I register my clinic?" },
     ],
     afterFeatures: [
-        { label: "Pricing? 💰", text: "How much does it cost?" },
-        { label: "للأطباء 👨‍⚕️", text: "إيه المميزات للأطباء؟" },
-        { label: "Security? 🔒", text: "How secure is my data?" },
+        { key: "pricingQ", text: "How much does it cost?" },
+        { key: "forDoctors", text: "إيه المميزات للأطباء؟" },
+        { key: "securityQ", text: "How secure is my data?" },
     ],
     afterPricing: [
-        { label: "Register now 🚀", text: "How do I sign up?" },
-        { label: "Trial? 🎁", text: "Is there a free trial?" },
-        { label: "المميزات ✨", text: "إيه مميزات النظام؟" },
+        { key: "registerNow", text: "How do I sign up?" },
+        { key: "trial", text: "Is there a free trial?" },
+        { key: "featuresAr", text: "إيه مميزات النظام؟" },
     ],
     afterRegister: [
-        { label: "Features ✨", text: "What can I do after registering?" },
-        { label: "Support? 🤝", text: "Do you offer customer support?" },
-        { label: "الأدوار 👥", text: "إيه الأدوار المتاحة في النظام؟" },
+        { key: "featuresPost", text: "What can I do after registering?" },
+        { key: "support", text: "Do you offer customer support?" },
+        { key: "roles", text: "إيه الأدوار المتاحة في النظام؟" },
     ],
 };
 
@@ -80,6 +83,8 @@ function loadHistory() {
 }
 
 export default function ChatbotWidget() {
+    const { t } = useTranslation();
+
     const [isOpen, setIsOpen] = useState(false);
     const [hasUnread, setHasUnread] = useState(false);
     const [messages, setMessages] = useState(() => {
@@ -165,7 +170,7 @@ export default function ChatbotWidget() {
             const data = res.data;
             const reply = data.success
                 ? data.reply
-                : "Sorry, something went wrong. / عذراً، حدث خطأ.";
+                : t("chatbot.errorGeneral");
 
             setMessages((prev) => [
                 ...prev,
@@ -190,7 +195,7 @@ export default function ChatbotWidget() {
                 ...prev,
                 {
                     role: "bot",
-                    text: "Connection error. / خطأ في الاتصال.",
+                    text: t("chatbot.errorConnection"),
                     time: new Date().toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -208,7 +213,7 @@ export default function ChatbotWidget() {
             <button
                 className="chatbot-toggle"
                 onClick={toggleChat}
-                aria-label="Open chat assistant"
+                aria-label={t("chatbot.openChat")}
             >
                 <span className="chatbot-toggle__pulse" />
                 {!isOpen ? (
@@ -264,19 +269,19 @@ export default function ChatbotWidget() {
                         </svg>
                     </div>
                     <div style={{ flex: 1 }}>
-                        <p className="chatbot-window__title">SehhaTech Assistant</p>
+                        <p className="chatbot-window__title">{t("chatbot.title")}</p>
                         <div className="chatbot-window__status">
                             <span className="chatbot-window__status-dot" />
                             <p className="chatbot-window__status-text">
-                                Online · Replies instantly
+                                {t("chatbot.statusOnline")}
                             </p>
                         </div>
                     </div>
                     <button
                         className="chatbot-window__action"
                         onClick={clearHistory}
-                        title="Clear chat"
-                        aria-label="Clear chat"
+                        title={t("chatbot.clearChat")}
+                        aria-label={t("chatbot.clearChat")}
                     >
                         <svg
                             viewBox="0 0 24 24"
@@ -296,7 +301,7 @@ export default function ChatbotWidget() {
                     <button
                         className="chatbot-window__action"
                         onClick={toggleChat}
-                        aria-label="Close chat"
+                        aria-label={t("chatbot.closeChat")}
                     >
                         <svg
                             viewBox="0 0 24 24"
@@ -351,7 +356,7 @@ export default function ChatbotWidget() {
                                             <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" />
                                             <path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" />
                                         </svg>
-                                        Register Now — 500 EGP/year
+                                        {t("chatbot.registerCta")}
                                     </Link>
                                 )}
                                 {msg.time && (
@@ -391,11 +396,11 @@ export default function ChatbotWidget() {
                 <div className="chatbot-quick-replies">
                     {quickReplies.map((reply) => (
                         <button
-                            key={reply.label}
+                            key={reply.key}
                             className="chatbot-quick-reply"
                             onClick={() => handleSend(reply.text)}
                         >
-                            {reply.label}
+                            {t(`chatbot.quickLabels.${reply.key}`)}
                         </button>
                     ))}
                 </div>
@@ -404,7 +409,7 @@ export default function ChatbotWidget() {
                     <input
                         type="text"
                         className="chatbot-window__input"
-                        placeholder="Ask anything... / اسأل أي حاجة..."
+                        placeholder={t("chatbot.placeholder")}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {
@@ -415,7 +420,7 @@ export default function ChatbotWidget() {
                         className="chatbot-window__send"
                         onClick={() => handleSend()}
                         disabled={isLoading}
-                        aria-label="Send message"
+                        aria-label={t("chatbot.sendMessage")}
                     >
                         <svg
                             viewBox="0 0 24 24"
