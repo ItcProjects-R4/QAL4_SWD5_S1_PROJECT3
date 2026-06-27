@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useDoctorProfile } from "../hooks/useDoctorProfile";
 
 export default function Layout({ children }) {
     const { profile } = useDoctorProfile();
+    const { i18n } = useTranslation();
+    const isRTL = i18n.language === "ar";
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -32,6 +36,9 @@ export default function Layout({ children }) {
         }
     }
 
+    const sidebarVisible = sidebarOpen && !isMobile;
+    const marginValue = sidebarVisible ? "16rem" : "0";
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Overlay (mobile only) */}
@@ -48,7 +55,7 @@ export default function Layout({ children }) {
             {/* Header */}
             <Header
                 profile={profile}
-                sidebarOpen={sidebarOpen && !isMobile}
+                sidebarOpen={sidebarVisible}
                 isMobile={isMobile}
                 onMenuClick={toggleSidebar}
             />
@@ -56,7 +63,11 @@ export default function Layout({ children }) {
             {/* Main Content */}
             <main
                 className="pt-16 min-h-screen transition-all duration-300"
-                style={{ marginLeft: sidebarOpen && !isMobile ? "16rem" : "0" }}
+                style={
+                    isRTL
+                        ? { marginRight: marginValue }
+                        : { marginLeft: marginValue }
+                }
             >
                 <div className="p-4 sm:p-6 md:p-8 lg:p-10 max-w-[1400px] mx-auto space-y-6">
                     {children}
