@@ -227,14 +227,19 @@
         "inactive": "Inactive",
         "deactivate": "Deactivate",
         "activate": "Activate",
-        "delete": "Delete"
+        "delete": "Delete",
+        "loadError": "Failed to load clinics. Please try again.",
+        "deleteSuccess": "Clinic deleted successfully.",
+        "deleteError": "Failed to delete clinic.",
+        "toggleSuccess": "Clinic status updated.",
+        "toggleError": "Failed to update clinic status."
       },
       "pagination": {
         "showing": "Showing {{from}}–{{to}} of {{total}} Clinics"
       },
       "deleteModal": {
         "title": "Delete Clinic",
-        "message": "Are you sure you want to delete <1>{{name}}</1>? All doctors, patients, and appointments will be permanently removed.",
+        "message": "Are you sure you want to delete {{name}}? All doctors, patients, and appointments will be permanently removed.",
         "cancel": "Cancel",
         "confirm": "Delete"
       }
@@ -307,10 +312,12 @@
         "title": "System Status & Configuration",
         "note": "These settings are local to this browser only and are not saved on the server yet.",
         "maintenance": {
-          "notifications": {
-            "title": "System-wide Notifications",
-            "desc": "Enable broadcast notifications for all active clinic administrators."
-          }
+          "title": "Maintenance Mode",
+          "desc": "Temporarily block clinic logins while you perform system maintenance."
+        },
+        "notifications": {
+          "title": "System-wide Notifications",
+          "desc": "Enable broadcast notifications for all active clinic administrators."
         },
         "auditLogging": {
           "title": "Audit Logging",

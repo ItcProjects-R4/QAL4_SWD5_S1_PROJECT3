@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { superadmin } from "../../api/superadmin";
+import { showToast } from "../../components/Toast";
 
 // ── Eye Icon (SVG بسيط، بدون أي مكتبة خارجية) ──────────────────
 function EyeIcon({ open }) {
@@ -76,7 +77,7 @@ export default function Settings() {
       .catch(() => {
         if (cancelled) return;
         setProfile({
-          name: t("superadmin.settings.profile.roleValue"),
+          name: "—",
           role: t("superadmin.settings.profile.roleValue"),
           email: "—",
         });
@@ -99,16 +100,16 @@ export default function Settings() {
     try {
       await superadmin.changePassword(passwords.old, passwords.new);
       setPwMsg({ type: "success", text: t("superadmin.settings.security.successMsg") });
+      showToast(t("superadmin.settings.security.successMsg"), "success");
       setPasswords({ old: "", new: "" });
       setShowOld(false);
       setShowNew(false);
     } catch (err) {
       // الباك إند بيرجع 400 لو الباسورد القديمة غلط
       const serverMsg = err?.response?.data?.message;
-      setPwMsg({
-        type: "error",
-        text: serverMsg || t("superadmin.settings.security.errorMsg"),
-      });
+      const text = serverMsg || t("superadmin.settings.security.errorMsg");
+      setPwMsg({ type: "error", text });
+      showToast(text, "error");
     } finally {
       setPwLoading(false);
       setTimeout(() => setPwMsg(null), 4000);
