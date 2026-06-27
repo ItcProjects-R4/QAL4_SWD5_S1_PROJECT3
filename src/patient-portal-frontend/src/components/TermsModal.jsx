@@ -1,6 +1,16 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
+// Modal reuses the same terms.sections.* keys as the full Terms page.
+// Unlike the Terms page, links here render as plain text (no <Link> — this is a modal,
+// not a route), and section 12 ("Governing Law") is intentionally omitted to keep the
+// modal shorter than the full page.
+const MODAL_SECTION_NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13]
 
 export default function TermsModal({ open, onClose, onAccept, mode = 'view' }) {
+    const { t } = useTranslation()
+    const allSections = t('terms.sections', { returnObjects: true })
+
     /* lock body scroll while open + close on Escape */
     useEffect(() => {
         if (!open) return
@@ -33,12 +43,12 @@ export default function TermsModal({ open, onClose, onAccept, mode = 'view' }) {
                             <span className="material-symbols-outlined text-[20px]">gavel</span>
                         </div>
                         <h2 id="terms-modal-title" className="font-semibold text-headline-md text-on-surface">
-                            Terms &amp; Conditions
+                            {t('terms.title')}
                         </h2>
                     </div>
                     <button
                         onClick={onClose}
-                        aria-label="Close"
+                        aria-label={t('termsModal.close')}
                         className="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors"
                     >
                         <span className="material-symbols-outlined">close</span>
@@ -47,85 +57,16 @@ export default function TermsModal({ open, onClose, onAccept, mode = 'view' }) {
 
                 {/* Scrollable body */}
                 <div className="flex-grow overflow-y-auto px-6 md:px-8 py-6 flex flex-col gap-6 text-on-surface-variant">
-                    <p className="text-label-sm text-outline">Last updated: June 2026</p>
+                    <p className="text-label-sm text-outline">{t('terms.lastUpdated')}</p>
 
-                    <TermsSection num="1" title="Acceptance of Terms">
-                        By creating an account on SehhaTech, accessing the Patient Portal, or booking an
-                        appointment through our platform, you confirm that you have read, understood, and
-                        agree to be bound by these Terms &amp; Conditions and our Privacy Policy. If you do
-                        not agree with any part of these terms, please discontinue use of the platform.
-                    </TermsSection>
-
-                    <TermsSection num="2" title="Eligibility">
-                        You must be at least 16 years old to register an independent patient account.
-                        Accounts created on behalf of a minor or dependent must be managed by a parent or
-                        legal guardian who accepts full responsibility for the accuracy of the information
-                        provided and for all bookings made under that account.
-                    </TermsSection>
-
-                    <TermsSection num="3" title="Account Registration & Security">
-                        You agree to provide accurate, current, and complete information during
-                        registration, including a valid Egyptian phone number used for identity
-                        verification via OTP. You are responsible for maintaining the confidentiality of
-                        your password and for all activity that occurs under your account. Notify us
-                        immediately of any unauthorized use of your credentials.
-                    </TermsSection>
-
-                    <TermsSection num="4" title="Appointment Bookings">
-                        SehhaTech acts as a booking intermediary connecting patients with partner clinics
-                        and doctors. Confirmed bookings are subject to the availability and policies of the
-                        individual clinic. We reserve the right to cancel or reschedule appointments due to
-                        doctor unavailability, clinic closure, or technical issues, and will make reasonable
-                        efforts to notify you in advance via SMS or in-app notification.
-                    </TermsSection>
-
-                    <TermsSection num="5" title="Cancellations & No-Shows">
-                        You may cancel an upcoming appointment from the "My Bookings" page. Repeated
-                        no-shows or late cancellations may result in restrictions on future bookings at the
-                        discretion of the partner clinic. SehhaTech is not responsible for any fees charged
-                        directly by a clinic for missed appointments.
-                    </TermsSection>
-
-                    <TermsSection num="6" title="Medical Disclaimer">
-                        SehhaTech is a scheduling and practice-management platform. It does not provide
-                        medical advice, diagnosis, or treatment, and is not a substitute for professional
-                        medical care. Always consult a qualified healthcare provider regarding any medical
-                        condition. In case of a medical emergency, contact local emergency services
-                        immediately rather than using this platform.
-                    </TermsSection>
-
-                    <TermsSection num="7" title="Data & Privacy">
-                        Your personal and health-related information is processed in accordance with our
-                        Privacy Policy. By using SehhaTech you consent to the collection and processing of
-                        your phone number, booking history, and related data for the purpose of providing
-                        and improving the service, including sending OTP and appointment-reminder SMS
-                        messages.
-                    </TermsSection>
-
-                    <TermsSection num="8" title="Acceptable Use">
-                        You agree not to misuse the platform, including but not limited to: creating
-                        fraudulent bookings, impersonating another person, attempting to access another
-                        user's account, or interfering with the normal operation of the service. We reserve
-                        the right to suspend or terminate accounts that violate these terms.
-                    </TermsSection>
-
-                    <TermsSection num="9" title="Limitation of Liability">
-                        To the fullest extent permitted by law, SehhaTech and its affiliates shall not be
-                        liable for any indirect, incidental, or consequential damages arising from your use
-                        of the platform, including but not limited to missed appointments, clinic-side
-                        errors, or service interruptions.
-                    </TermsSection>
-
-                    <TermsSection num="10" title="Changes to These Terms">
-                        We may update these Terms &amp; Conditions from time to time. Material changes will
-                        be communicated through the platform. Continued use of SehhaTech after changes take
-                        effect constitutes acceptance of the revised terms.
-                    </TermsSection>
-
-                    <TermsSection num="11" title="Contact">
-                        For questions about these Terms &amp; Conditions, please reach out via our Contact
-                        Support page.
-                    </TermsSection>
+                    {MODAL_SECTION_NUMS.map((num, i) => {
+                        const s = allSections[num - 1]
+                        return (
+                            <TermsSection key={num} num={i + 1} title={s.title}>
+                                {s.body}
+                            </TermsSection>
+                        )
+                    })}
                 </div>
 
                 {/* Footer actions */}
@@ -136,14 +77,14 @@ export default function TermsModal({ open, onClose, onAccept, mode = 'view' }) {
                                 onClick={onClose}
                                 className="btn-press flex-1 bg-surface-container text-on-surface font-medium text-label-md py-3 rounded-xl hover:bg-surface-container-high transition-colors"
                             >
-                                Cancel
+                                {t('termsModal.cancel')}
                             </button>
                             <button
                                 onClick={() => { onAccept?.(); onClose() }}
                                 className="btn-press flex-1 bg-primary text-on-primary font-medium text-label-md py-3 rounded-xl hover:bg-primary-container transition-colors flex items-center justify-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-[18px]">check</span>
-                                I Agree
+                                {t('termsModal.agree')}
                             </button>
                         </>
                     ) : (
@@ -151,7 +92,7 @@ export default function TermsModal({ open, onClose, onAccept, mode = 'view' }) {
                             onClick={onClose}
                             className="btn-press w-full bg-primary text-on-primary font-medium text-label-md py-3 rounded-xl hover:bg-primary-container transition-colors"
                         >
-                            Close
+                            {t('termsModal.closeBtn')}
                         </button>
                     )}
                 </div>
