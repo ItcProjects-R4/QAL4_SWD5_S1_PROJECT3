@@ -629,7 +629,8 @@
       "navDoctors": "Doctors",
       "navReceptionists": "Receptionists",
       "navSettings": "Settings",
-      "logout": "Logout"
+      "logout": "Logout",
+      "roleLabel": "مسؤول العيادة"
     },
     "settings": {
       "title": "Settings",
