@@ -30,46 +30,43 @@ public class SmsService : ISmsService
 
     public async Task<bool> SendOtpAsync(string phone, string code)
     {
-        // ✅ Vonage محتاج الرقم بصيغة دولية بدون + أو 00
-        // لو الرقم جاي بصيغة مصرية محلية (01xxxxxxxxx) لازم نحوله لـ 20xxxxxxxxxx
+        var message = $"SehhaTech: Your verification code is {code}. Valid for 5 minutes.";
+        return await SendSmsAsync(phone, message);
+    }
+
+    public async Task<bool> SendSmsAsync(string phone, string message)
+    {
         var formattedPhone = FormatToInternational(phone);
 
         var request = new SendSmsRequest
         {
             To = formattedPhone,
             From = _senderId,
-            Text = $"SehhaTech: Your verification code is {code}. Valid for 5 minutes."
+            Text = message
         };
 
         try
         {
             var response = await _vonageClient.SmsClient.SendAnSmsAsync(request);
-
-            // Vonage بيرجع status "0" لو الرسالة اتقبلت للإرسال
             var success = response.Messages.All(m => m.Status == "0");
 
             if (success)
-            {
-                _logger.LogInformation("OTP SMS sent successfully to {Phone}", phone);
-            }
+                _logger.LogInformation("SMS sent successfully to {Phone}", phone);
             else
             {
                 var errorText = string.Join(", ", response.Messages.Select(m => m.ErrorText));
-                _logger.LogWarning("Failed to send OTP SMS to {Phone}: {Error}", phone, errorText);
+                _logger.LogWarning("Failed to send SMS to {Phone}: {Error}", phone, errorText);
             }
 
             return success;
         }
         catch (Exception ex)
         {
-            // ✅ ميكسرش الـ flow لو الـ SMS فشل (مثلاً مفيش انترنت أو رصيد خلص)
-            // بس يسجل اللوج - الـ OTP يفضل محفوظ في الـ DB وممكن يتطلب resend
-            _logger.LogError(ex, "Exception while sending OTP SMS to {Phone}", phone);
+            _logger.LogError(ex, "Exception while sending SMS to {Phone}", phone);
             return false;
         }
     }
 
-    // ✅ يحول 01012345678 → 201012345678 (الصيغة اللي Vonage يحتاجها لمصر)
     private static string FormatToInternational(string phone)
     {
         phone = phone.Trim();
@@ -81,8 +78,8 @@ public class SmsService : ISmsService
             return phone[2..];
 
         if (phone.StartsWith("0"))
-            return "20" + phone[1..];   // مصر: 0 → 20
+            return "20" + phone[1..];
 
-        return phone; // افتراض إنه already بصيغة دولية
+        return phone;
     }
 }
