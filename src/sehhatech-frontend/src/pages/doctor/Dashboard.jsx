@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import Layout from "../../components/Layout";
 import api from "../../api/axios";
 
@@ -34,6 +35,7 @@ function SkeletonRows() {
 
 export default function Dashboard() {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation("common");
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -50,7 +52,9 @@ export default function Dashboard() {
         })();
     }, []);
 
-    const today = new Date().toLocaleDateString("en-US", {
+    const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+
+    const today = new Date().toLocaleDateString(locale, {
         year: "numeric", month: "long", day: "numeric",
     });
 
@@ -68,7 +72,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                Daily clinical overview for {today}
+                {t("doctor.dashboard.subtitle", { date: today })}
             </motion.p>
 
             {/* stat card */}
@@ -85,7 +89,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-start">
                         <div>
                             <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">
-                                Appointments Today
+                                {t("doctor.dashboard.appointmentsToday")}
                             </span>
                             <div className="mt-2">
                                 <span className="text-3xl sm:text-4xl font-extrabold text-slate-900">
@@ -130,13 +134,13 @@ export default function Dashboard() {
                         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex justify-between items-center gap-3">
                             <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-xl">event_list</span>
-                                <span>Upcoming Appointments</span>
+                                <span>{t("doctor.dashboard.upcomingAppointments")}</span>
                             </h2>
                             <button
                                 onClick={() => navigate("/doctor/schedule")}
                                 className="text-primary text-xs sm:text-sm font-bold transition-all duration-200 hover:opacity-80 whitespace-nowrap flex-shrink-0"
                             >
-                                View Schedule
+                                {t("doctor.dashboard.viewSchedule")}
                             </button>
                         </div>
 
@@ -151,10 +155,10 @@ export default function Dashboard() {
                                         className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors"
                                     >
                                         <div className="font-bold text-slate-900 text-sm sm:text-base">
-                                            {a.patientName ?? "Unknown"}
+                                            {a.patientName ?? t("doctor.unknown")}
                                         </div>
                                         <div className="text-xs sm:text-sm text-slate-500 mt-1">
-                                            {new Date(a.appointmentDate).toLocaleString()}
+                                            {new Date(a.appointmentDate).toLocaleString(locale)}
                                         </div>
                                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 mt-1 inline-block">
                                             {a.status}
@@ -163,7 +167,9 @@ export default function Dashboard() {
                                 ))}
                             </motion.div>
                         ) : (
-                            <p className="px-4 sm:px-6 py-5 text-slate-400 text-sm">No upcoming appointments.</p>
+                            <p className="px-4 sm:px-6 py-5 text-slate-400 text-sm">
+                                {t("doctor.dashboard.noUpcoming")}
+                            </p>
                         )}
                     </motion.section>
 
@@ -178,13 +184,13 @@ export default function Dashboard() {
                         <div className="flex justify-between items-center">
                             <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-xl">recent_actors</span>
-                                Recent Patients
+                                {t("doctor.dashboard.recentPatients")}
                             </h2>
                             <button
                                 onClick={() => navigate("/doctor/patients")}
                                 className="text-slate-500 text-xs font-bold hover:opacity-80 transition-opacity"
                             >
-                                See All
+                                {t("doctor.dashboard.seeAll")}
                             </button>
                         </div>
 
@@ -225,7 +231,7 @@ export default function Dashboard() {
                                 ))}
                             </motion.div>
                         ) : (
-                            <p className="text-slate-400 text-sm">No recent patients.</p>
+                            <p className="text-slate-400 text-sm">{t("doctor.dashboard.noRecentPatients")}</p>
                         )}
                     </motion.section>
                 </div>
@@ -242,7 +248,7 @@ export default function Dashboard() {
                         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
                             <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-xl">schedule</span>
-                                Daily Timeline
+                                {t("doctor.dashboard.dailyTimeline")}
                             </h2>
                         </div>
 
@@ -264,20 +270,20 @@ export default function Dashboard() {
                                         >
                                             <span className="absolute left-[-3px] top-1.5 w-2 h-2 rounded-full bg-primary block" />
                                             <div className="font-bold text-slate-900 text-sm">
-                                                {new Date(item.appointmentDate).toLocaleTimeString([], {
+                                                {new Date(item.appointmentDate).toLocaleTimeString(locale, {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
                                                 })}
                                             </div>
                                             <div className="text-sm text-slate-600 mt-0.5">
-                                                {item.patientName ?? "Unknown"}
+                                                {item.patientName ?? t("doctor.unknown")}
                                             </div>
                                             <div className="text-xs text-slate-400 mt-0.5">{item.status}</div>
                                         </motion.div>
                                     ))}
                                 </motion.div>
                             ) : (
-                                <p className="text-slate-400 text-sm">No appointments today.</p>
+                                <p className="text-slate-400 text-sm">{t("doctor.dashboard.noAppointmentsToday")}</p>
                             )}
                         </div>
                     </motion.section>

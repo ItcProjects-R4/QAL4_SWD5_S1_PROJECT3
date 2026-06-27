@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../../api/axios";
+import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 
 const STRENGTH_CONFIG = [
     { width: "0%", color: "", text: "—" },
@@ -165,7 +166,14 @@ export default function ResetPassword() {
 
             <header className="reset-header">
                 <div className="reset-header__inner">
-                    <div className="reset-brand">SehhaTech</div>
+                    <div className="reset-brand">
+                        <img
+                            src={sehhatechIcon}
+                            alt="SehhaTech"
+                            className="reset-brand__icon"
+                        />
+                        SehhaTech
+                    </div>
                     <Link to="/contact" className="reset-help" aria-label="Help">
                         <svg
                             className="icon icon-sm"

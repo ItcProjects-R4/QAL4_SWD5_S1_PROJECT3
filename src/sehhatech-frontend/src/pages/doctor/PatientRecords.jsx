@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import Layout from "../../components/Layout";
 import api from "../../api/axios";
 
@@ -22,6 +23,7 @@ const card =
     "bg-white rounded-2xl border border-slate-200 shadow-subtle transition-all duration-300 ease-out hover:shadow-xl hover:border-slate-300";
 
 export default function PatientRecords() {
+    const { t, i18n } = useTranslation("common");
     const [profile, setProfile] = useState(null);
     const [patients, setPatients] = useState([]);
     const [appointments, setAppointments] = useState([]);
@@ -45,6 +47,8 @@ export default function PatientRecords() {
             }
         })();
     }, []);
+
+    const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
 
     const d = profile;
     const name = d?.user?.fullName;
@@ -90,7 +94,7 @@ export default function PatientRecords() {
             {/* tab bar */}
             <nav className="flex border-b border-slate-200 overflow-x-auto">
                 <button className="px-5 sm:px-8 py-3 text-sm font-bold text-primary border-b-2 border-primary whitespace-nowrap">
-                    Patients & Appointments
+                    {t("doctor.patients.tab")}
                 </button>
             </nav>
 
@@ -106,9 +110,13 @@ export default function PatientRecords() {
                     transition={{ delay: 0.1 }}
                 >
                     <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex justify-between items-center gap-3">
-                        <h2 className="text-base sm:text-lg font-extrabold text-primary">My Patients</h2>
+                        <h2 className="text-base sm:text-lg font-extrabold text-primary">
+                            {t("doctor.patients.title")}
+                        </h2>
                         <span className="text-xs text-slate-400 font-semibold flex-shrink-0">
-                            {!loading && patients.count !== undefined ? `${patients.count} patients` : ""}
+                            {!loading && patients.count !== undefined
+                                ? `${patients.count} ${t("doctor.patients.countSuffix")}`
+                                : ""}
                         </span>
                     </div>
 
@@ -116,7 +124,12 @@ export default function PatientRecords() {
                         <table className="min-w-[500px] w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100">
-                                    {["Patient", "Phone", "Email", "Gender"].map((h) => (
+                                    {[
+                                        t("doctor.patients.colPatient"),
+                                        t("doctor.patients.colPhone"),
+                                        t("doctor.patients.colEmail"),
+                                        t("doctor.patients.colGender"),
+                                    ].map((h) => (
                                         <th
                                             key={h}
                                             className="px-4 sm:px-6 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider"
@@ -141,7 +154,7 @@ export default function PatientRecords() {
                                 ) : !patients.data?.length ? (
                                     <tr>
                                         <td colSpan={4} className="px-6 py-6 text-slate-400 text-sm">
-                                            No patients found.
+                                            {t("doctor.patients.noPatients")}
                                         </td>
                                     </tr>
                                 ) : (
@@ -164,7 +177,9 @@ export default function PatientRecords() {
                                                             person
                                                         </span>
                                                     </div>
-                                                    <span className="text-xs sm:text-sm font-semibold text-primary truncate max-w-[100px] sm:max-w-none">{p.fullName}</span>
+                                                    <span className="text-xs sm:text-sm font-semibold text-primary truncate max-w-[100px] sm:max-w-none">
+                                                        {p.fullName}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600">{p.phone ?? "—"}</td>
@@ -189,7 +204,9 @@ export default function PatientRecords() {
                     <div className={`${card} p-4 sm:p-6`}>
                         <div className="flex items-center gap-2 mb-4 sm:mb-5">
                             <span className="material-symbols-outlined text-primary text-[20px]">event</span>
-                            <h2 className="text-base sm:text-lg font-extrabold text-primary">Upcoming</h2>
+                            <h2 className="text-base sm:text-lg font-extrabold text-primary">
+                                {t("doctor.patients.upcoming")}
+                            </h2>
                         </div>
 
                         {loading ? (
@@ -199,7 +216,7 @@ export default function PatientRecords() {
                                 ))}
                             </div>
                         ) : !appointments.length ? (
-                            <p className="text-slate-400 text-sm">No upcoming appointments.</p>
+                            <p className="text-slate-400 text-sm">{t("doctor.patients.noUpcoming")}</p>
                         ) : (
                             <motion.div
                                 className="space-y-3"
@@ -217,14 +234,14 @@ export default function PatientRecords() {
                                         >
                                             <div className="flex justify-between mb-1 gap-2">
                                                 <span className="text-sm font-bold text-primary">
-                                                    {date.toLocaleDateString()}
+                                                    {date.toLocaleDateString(locale)}
                                                 </span>
                                                 <span className="text-[12px] font-bold text-slate-500 flex-shrink-0">
-                                                    {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                    {date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
                                                 </span>
                                             </div>
                                             <p className="text-sm font-medium text-slate-600 truncate">
-                                                {a.patientName ?? "Unknown"}
+                                                {a.patientName ?? t("doctor.unknown")}
                                             </p>
                                             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 mt-1 inline-block">
                                                 {a.status}

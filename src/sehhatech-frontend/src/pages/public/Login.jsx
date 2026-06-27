@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
@@ -7,18 +8,17 @@ import sehhatechIcon from "../../assets/images/sehhatech-icon.png";
 export default function Login() {
     const navigate = useNavigate();
     const { login } = useAuth();
+    const { t } = useTranslation();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [toast, setToast] = useState(null); // { message, type }
+    const [toast, setToast] = useState(null);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Trigger entrance animation on next frame so the initial
-        // (hidden) state actually paints first.
         const id = requestAnimationFrame(() => setMounted(true));
         return () => cancelAnimationFrame(id);
     }, []);
@@ -30,20 +30,11 @@ export default function Login() {
 
     function redirectByRole(role) {
         switch (role) {
-            case "SuperAdmin":
-                navigate("/superadmin/dashboard");
-                break;
-            case "ClinicAdmin":
-                navigate("/admin/dashboard");
-                break;
-            case "Doctor":
-                navigate("/doctor/dashboard");
-                break;
-            case "Reception":
-                navigate("/reception/dashboard");
-                break;
-            default:
-                navigate("/dashboard");
+            case "SuperAdmin": navigate("/superadmin/dashboard"); break;
+            case "ClinicAdmin": navigate("/admin/dashboard"); break;
+            case "Doctor": navigate("/doctor/dashboard"); break;
+            case "Reception": navigate("/reception/dashboard"); break;
+            default: navigate("/dashboard");
         }
     }
 
@@ -51,7 +42,7 @@ export default function Login() {
         e.preventDefault();
 
         if (!email.trim() || !password) {
-            showToast("Please enter your email and password.", "error");
+            showToast(t("login.toastEmpty"), "error");
             return;
         }
 
@@ -72,11 +63,10 @@ export default function Login() {
             }
 
             login(data, remember);
-            showToast("Login successful! Redirecting...", "success");
+            showToast(t("login.toastSuccess"), "success");
             setTimeout(() => redirectByRole(data.role), 800);
         } catch (err) {
-            const message =
-                err.response?.data?.message || "Login failed. Please try again.";
+            const message = err.response?.data?.message || t("login.toastError");
             showToast(message, "error");
         } finally {
             setLoading(false);
@@ -121,7 +111,7 @@ export default function Login() {
                             className="inline-flex items-center gap-2 text-sm font-semibold text-primary/70 hover:text-primary transition-colors"
                         >
                             <span className="material-symbols-outlined text-lg">arrow_back</span>
-                            Back to Home
+                            {t("login.backToHome")}
                         </Link>
                     </div>
 
@@ -141,7 +131,7 @@ export default function Login() {
                             SehhaTech
                         </h1>
                         <p className="font-body text-on-surface-variant mt-2 font-medium tracking-wide">
-                            Enter your credentials to access the portal
+                            {t("login.tagline")}
                         </p>
                     </div>
 
@@ -154,7 +144,7 @@ export default function Login() {
                             {/* Email */}
                             <div className="space-y-2 group">
                                 <label className="block font-label text-xs font-bold uppercase tracking-widest text-primary-container">
-                                    Email Address
+                                    {t("login.emailLabel")}
                                 </label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline transition-all duration-200 group-focus-within:text-primary group-focus-within:scale-110">
@@ -162,7 +152,7 @@ export default function Login() {
                                     </span>
                                     <input
                                         className="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest text-on-surface rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all duration-200 border-none placeholder:text-outline/60 focus:-translate-y-0.5"
-                                        placeholder="dr.ahmed@yourclinic.com"
+                                        placeholder={t("login.emailPlaceholder")}
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
@@ -174,13 +164,13 @@ export default function Login() {
                             <div className="space-y-2 group">
                                 <div className="flex justify-between items-center">
                                     <label className="block font-label text-xs font-bold uppercase tracking-widest text-primary-container">
-                                        Password
+                                        {t("login.passwordLabel")}
                                     </label>
                                     <Link
                                         to="/reset-password"
                                         className="text-xs font-semibold text-secondary hover:text-on-secondary-container transition-colors"
                                     >
-                                        Forgot password?
+                                        {t("login.forgotPassword")}
                                     </Link>
                                 </div>
                                 <div className="relative">
@@ -219,7 +209,7 @@ export default function Login() {
                                     htmlFor="remember"
                                     className="ml-2 text-sm font-medium text-on-surface-variant cursor-pointer select-none hover:text-primary transition-colors duration-200"
                                 >
-                                    Stay logged in on this device
+                                    {t("login.rememberMe")}
                                 </label>
                             </div>
 
@@ -229,11 +219,8 @@ export default function Login() {
                                 disabled={loading}
                                 className="w-full bg-gradient-to-br from-[#002045] to-[#1a365d] text-on-primary font-headline font-bold py-4 rounded-lg shadow-lg hover:shadow-xl hover:shadow-primary/25 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0"
                             >
-                                <span>{loading ? "Please wait..." : "Login"}</span>
-                                <span
-                                    className={`material-symbols-outlined text-xl ${loading ? "animate-spin" : ""
-                                        }`}
-                                >
+                                <span>{loading ? t("login.loading") : t("login.submit")}</span>
+                                <span className={`material-symbols-outlined text-xl ${loading ? "animate-spin" : ""}`}>
                                     {loading ? "progress_activity" : "login"}
                                 </span>
                             </button>
@@ -250,19 +237,19 @@ export default function Login() {
                             to="/contact"
                         >
                             <span className="material-symbols-outlined text-lg">help</span>
-                            Need help?
+                            {t("login.needHelp")}
                         </Link>
                         <div className="flex items-center gap-6 opacity-60">
                             <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">verified_user</span>
                                 <span className="font-label text-[10px] font-extrabold uppercase tracking-widest">
-                                    HIPAA Compliant
+                                    {t("login.hipaa")}
                                 </span>
                             </div>
                             <div className="flex items-center gap-1.5 grayscale hover:grayscale-0 hover:opacity-100 hover:scale-105 transition-all duration-300 cursor-default">
                                 <span className="material-symbols-outlined text-sm">lock_person</span>
                                 <span className="font-label text-[10px] font-extrabold uppercase tracking-widest">
-                                    SSL Secured
+                                    {t("login.ssl")}
                                 </span>
                             </div>
                         </div>
@@ -272,7 +259,7 @@ export default function Login() {
 
             <footer className="relative z-20 w-full py-8 text-center border-t border-outline-variant/10">
                 <p className="text-xs font-medium text-on-surface-variant/40">
-                    © 2026 SehhaTech Clinical Systems. All Patient Data Encrypted.
+                    {t("login.footer")}
                 </p>
             </footer>
         </div>

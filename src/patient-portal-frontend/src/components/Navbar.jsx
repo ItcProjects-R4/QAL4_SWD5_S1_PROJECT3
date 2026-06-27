@@ -1,38 +1,39 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 
 export default function Navbar() {
     const location = useLocation()
+    const { t, i18n } = useTranslation()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [loggingOut, setLoggingOut] = useState(false)
     const name = localStorage.getItem('patientName')
     const token = localStorage.getItem('accessToken')
 
-    /* close mobile menu whenever route changes */
     useEffect(() => { setMobileOpen(false) }, [location.pathname])
 
-    /* lock scroll while mobile menu open */
     useEffect(() => {
         document.body.style.overflow = mobileOpen ? 'hidden' : ''
         return () => { document.body.style.overflow = '' }
     }, [mobileOpen])
 
+    // sync dir on language change
+    useEffect(() => {
+        document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
+        document.documentElement.lang = i18n.language
+    }, [i18n.language])
+
     const handleLogout = async () => {
         if (loggingOut) return
         setLoggingOut(true)
-
-        // ✅ نبعت /api/portal/auth/logout عشان الباك إند يلغي (Revoke) الـ refresh token المخزن في الـ DB
-        // من غير الخطوة دي، الـ refresh token فاضل صالح فعلياً حتى بعد ما المستخدم "يعمل logout"
-        // محلياً - وده ثغرة أمنية لو حد قدر يوصل للتوكن القديم بعدين
         const refreshToken = localStorage.getItem('refreshToken')
         try {
             if (refreshToken) {
                 await api.post('/api/portal/auth/logout', { refreshToken })
             }
         } catch {
-            // مش مشكلة لو الـ request فشل (مثلاً مفيش انترنت) - برضو لازم نمسح الجلسة محلياً
-            // عشان المستخدم مايفضلش عالق وهو ضاغط "Logout" وهي مش بتعمل حاجة
+            // silent
         } finally {
             localStorage.clear()
             window.location.href = '/'
@@ -40,12 +41,13 @@ export default function Navbar() {
     }
 
     const navLinks = [
-        { to: '/clinics', label: 'Find Clinic', icon: 'local_hospital' },
-        { to: '/my-bookings', label: 'My Bookings', icon: 'event_available' },
+        { to: '/clinics', label: t('navbar.findClinic'), icon: 'local_hospital' },
+        { to: '/my-bookings', label: t('navbar.myBookings'), icon: 'event_available' },
     ]
 
     const isActive = (to) => location.pathname === to
 
+    const firstName = name?.split(' ')[0]
 
     return (
         <header className="bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-50">
@@ -62,7 +64,7 @@ export default function Navbar() {
                     <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                 </Link>
 
-                {/* Nav links – hidden on mobile */}
+                {/* Nav links – desktop */}
                 <nav className="hidden md:flex items-center gap-6">
                     {navLinks.map(link => (
                         <Link
@@ -83,7 +85,7 @@ export default function Navbar() {
                     {token && name ? (
                         <>
                             <span className="text-label-md font-medium text-on-surface-variant hidden md:block">
-                                Hi, {name.split(' ')[0]}
+                                {t('navbar.hi')}, {firstName}
                             </span>
                             <button
                                 onClick={handleLogout}
@@ -93,7 +95,7 @@ export default function Navbar() {
                                 <span className={`material-symbols-outlined text-[16px] ${loggingOut ? 'spinner' : ''}`}>
                                     {loggingOut ? 'progress_activity' : 'logout'}
                                 </span>
-                                Logout
+                                {loggingOut ? t('navbar.loggingOut') : t('navbar.logout')}
                             </button>
                         </>
                     ) : (
@@ -101,7 +103,7 @@ export default function Navbar() {
                             to="/login"
                             className="btn-press hidden md:inline-flex bg-primary-container text-on-primary text-label-md font-medium px-3 py-1.5 rounded-lg hover:bg-primary transition-colors"
                         >
-                            Sign In
+                            {t('navbar.signIn')}
                         </Link>
                     )}
 
@@ -109,7 +111,7 @@ export default function Navbar() {
                     <button
                         onClick={() => setMobileOpen(v => !v)}
                         className="md:hidden p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors relative w-10 h-10 flex items-center justify-center"
-                        aria-label="Toggle menu"
+                        aria-label={t('navbar.toggleMenu')}
                         aria-expanded={mobileOpen}
                     >
                         <span className="relative w-6 h-5 flex flex-col justify-between">
@@ -142,7 +144,7 @@ export default function Navbar() {
                             <>
                                 <div className="flex items-center gap-3 px-3 py-3 text-body-md text-on-surface-variant">
                                     <span className="material-symbols-outlined text-[20px] text-primary">account_circle</span>
-                                    Hi, {name.split(' ')[0]}
+                                    {t('navbar.hi')}, {firstName}
                                 </div>
                                 <button
                                     onClick={handleLogout}
@@ -152,7 +154,7 @@ export default function Navbar() {
                                     <span className={`material-symbols-outlined text-[20px] ${loggingOut ? 'spinner' : ''}`}>
                                         {loggingOut ? 'progress_activity' : 'logout'}
                                     </span>
-                                    Logout
+                                    {loggingOut ? t('navbar.loggingOut') : t('navbar.logout')}
                                 </button>
                             </>
                         ) : (
@@ -161,7 +163,7 @@ export default function Navbar() {
                                 className="flex items-center gap-3 px-3 py-3 rounded-xl text-body-md font-medium text-primary hover:bg-primary-container/15 transition-colors"
                             >
                                 <span className="material-symbols-outlined text-[20px]">login</span>
-                                Sign In
+                                {t('navbar.signIn')}
                             </Link>
                         )}
                     </nav>

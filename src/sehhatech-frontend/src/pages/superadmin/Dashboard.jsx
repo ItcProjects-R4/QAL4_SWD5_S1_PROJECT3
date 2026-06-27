@@ -1,11 +1,20 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import { superadmin } from "../../api/superadmin";
 import DateRangePicker from "../../components/DateRangePicker";
+
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
+
 
 function calcGrowthPct(growthChart) {
   if (!growthChart || growthChart.length < 2) return null;
@@ -46,17 +55,52 @@ function KpiCard({ icon, iconBg, iconColor, badge, badgeBg, badgeText, label, va
 }
 
 // ✅ أضفنا scheduled و checkedin
-function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, completed = 0, cancelled = 0, noshow = 0 }) {
-  const total = scheduled + confirmed + checkedin + completed + cancelled + noshow;
+function AppointmentDonut({
+  scheduled = 0,
+  confirmed = 0,
+  checkedin = 0,
+  completed = 0,
+  cancelled = 0,
+  noshow = 0,
+}) {
+  const { t } = useTranslation();
+
+  const total =
+    scheduled + confirmed + checkedin + completed + cancelled + noshow;
+
   const pct = (n) => (total ? (n / total) * 100 : 0);
 
   const segments = [
-    { value: checkedin,  color: "#10B981", label: "Checked In" },
-    { value: completed,  color: "#2563EB", label: "Completed"  },
-    { value: scheduled,  color: "#6366F1", label: "Scheduled"  },
-    { value: confirmed,  color: "#F59E0B", label: "Confirmed"  },
-    { value: cancelled,  color: "#EF4444", label: "Cancelled"  },
-    { value: noshow,     color: "#94A3B8", label: "No Show"    },
+    {
+      value: checkedin,
+      color: "#10B981",
+      label: t("superadmin.dashboard.appointmentStatus.checkedIn"),
+    },
+    {
+      value: completed,
+      color: "#2563EB",
+      label: t("superadmin.dashboard.appointmentStatus.completed"),
+    },
+    {
+      value: scheduled,
+      color: "#6366F1",
+      label: t("superadmin.dashboard.appointmentStatus.scheduled"),
+    },
+    {
+      value: confirmed,
+      color: "#F59E0B",
+      label: t("superadmin.dashboard.appointmentStatus.confirmed"),
+    },
+    {
+      value: cancelled,
+      color: "#EF4444",
+      label: t("superadmin.dashboard.appointmentStatus.cancelled"),
+    },
+    {
+      value: noshow,
+      color: "#94A3B8",
+      label: t("superadmin.dashboard.appointmentStatus.noShow"),
+    },
   ];
 
   let offset = 0;
@@ -69,18 +113,29 @@ function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, complet
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-      <h3 className="text-xl font-semibold text-slate-900 mb-6">Appointment Status</h3>
+      <h3 className="text-xl font-semibold text-slate-900 mb-6">
+        {t("superadmin.dashboard.appointmentStatus.title")}
+      </h3>
+
       <div className="flex flex-col items-center">
         <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
             <circle
-              className="stroke-slate-100" cx="18" cy="18"
-              fill="none" r="15.915" strokeWidth="3"
+              className="stroke-slate-100"
+              cx="18"
+              cy="18"
+              fill="none"
+              r="15.915"
+              strokeWidth="3"
             />
+
             {rendered.map((seg) => (
               <circle
                 key={seg.label}
-                cx="18" cy="18" fill="none" r="15.915"
+                cx="18"
+                cy="18"
+                fill="none"
+                r="15.915"
                 stroke={seg.color}
                 strokeDasharray={`${seg.pct} ${100 - seg.pct}`}
                 strokeDashoffset={-seg.offset}
@@ -88,9 +143,15 @@ function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, complet
               />
             ))}
           </svg>
+
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-slate-900">{total || "—"}</span>
-            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total</span>
+            <span className="text-2xl font-bold text-slate-900">
+              {total || "—"}
+            </span>
+
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+              {t("superadmin.dashboard.appointmentStatus.total")}
+            </span>
           </div>
         </div>
 
@@ -98,10 +159,18 @@ function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, complet
           {rendered.map(({ color, label, value }) => (
             <div key={label} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-sm font-medium text-slate-600">{label}</span>
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-sm font-medium text-slate-600">
+                  {label}
+                </span>
               </div>
-              <span className="text-sm font-bold text-slate-900">{value}</span>
+
+              <span className="text-sm font-bold text-slate-900">
+                {value}
+              </span>
             </div>
           ))}
         </div>
@@ -109,13 +178,14 @@ function AppointmentDonut({ scheduled = 0, confirmed = 0, checkedin = 0, complet
     </div>
   );
 }
-
 function GrowthChart({ data = [] }) {
+  const { t } = useTranslation();
+
   if (!data.length) {
     return (
       <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-        <h3 className="text-xl font-semibold">Clinics Growth</h3>
-        <p className="text-slate-400 mt-6">No data available</p>
+        <h3 className="text-xl font-semibold">{t("superadmin.dashboard.growth.title")}</h3>
+        <p className="text-slate-400 mt-6">{t("superadmin.dashboard.growth.noData")}</p>
       </div>
     );
   }
@@ -128,8 +198,8 @@ function GrowthChart({ data = [] }) {
   return (
     <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-slate-900">Clinics Growth</h3>
-        <p className="text-sm text-slate-500">Monthly onboarding trends</p>
+        <h3 className="text-xl font-semibold text-slate-900">{t("superadmin.dashboard.growth.title")}</h3>
+        <p className="text-sm text-slate-500">{t("superadmin.dashboard.growth.subtitle")}</p>
       </div>
       <div style={{ width: "100%", height: 280 }}>
         <ResponsiveContainer>
@@ -154,35 +224,44 @@ function GrowthChart({ data = [] }) {
 }
 
 function RecentClinicsTable({ clinics = [], loading }) {
+  const { t } = useTranslation();
+
+  const headers = [
+    { key: "colName", label: t("superadmin.dashboard.recentClinics.colName") },
+    { key: "colEmail", label: t("superadmin.dashboard.recentClinics.colEmail") },
+    { key: "colOnboarding", label: t("superadmin.dashboard.recentClinics.colOnboarding") },
+    { key: "colStatus", label: t("superadmin.dashboard.recentClinics.colStatus") },
+  ];
+
   return (
     <div className="mt-8 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">Recent Clinics</h3>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{t("superadmin.dashboard.recentClinics.title")}</h3>
         <Link to="/superadmin/clinics" className="text-sm text-slate-600 font-semibold hover:underline whitespace-nowrap">
-          View All
+          {t("superadmin.dashboard.recentClinics.viewAll")}
         </Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              {["Name", "Email", "Onboarding", "Status"].map((h) => (
+              {headers.map((h) => (
                 <th
-                  key={h}
+                  key={h.key}
                   className={`px-4 sm:px-6 py-3 text-[12px] font-semibold text-slate-500 uppercase tracking-wider ${
-                    h === "Status" ? "text-right" : ""
-                  } ${h === "Email" ? "hidden sm:table-cell" : ""}`}
+                    h.key === "colStatus" ? "text-right" : ""
+                  } ${h.key === "colEmail" ? "hidden sm:table-cell" : ""}`}
                 >
-                  {h}
+                  {h.label}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
-              <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
+              <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">{t("superadmin.dashboard.recentClinics.loading")}</td></tr>
             ) : clinics.length === 0 ? (
-              <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">No clinics found.</td></tr>
+              <tr><td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-sm">{t("superadmin.dashboard.recentClinics.empty")}</td></tr>
             ) : clinics.map((c, i) => (
               <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">{c.name}</td>
@@ -194,7 +273,9 @@ function RecentClinicsTable({ clinics = [], loading }) {
                   <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${
                     c.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
                   }`}>
-                    {c.isActive ? "Active" : "Inactive"}
+                    {c.isActive
+                      ? t("superadmin.dashboard.recentClinics.active")
+                      : t("superadmin.dashboard.recentClinics.inactive")}
                   </span>
                 </td>
               </tr>
@@ -206,12 +287,25 @@ function RecentClinicsTable({ clinics = [], loading }) {
   );
 }
 
-function formatRangeLabel(start, end) {
-  if (!start || !end) return "Last 30 Days";
-  const opts = { month: "short", day: "numeric" };
+function formatRangeLabel(start, end, t, language) {
+  if (!start || !end) return t("superadmin.dashboard.dateRange");
+
+  const locale = language === "ar" ? "ar-EG" : "en-US";
+
+  const opts = {
+    month: "short",
+    day: "numeric",
+  };
+
   const sameYear = start.getFullYear() === end.getFullYear();
-  const startStr = start.toLocaleDateString("en-US", opts);
-  const endStr = end.toLocaleDateString("en-US", { ...opts, year: sameYear ? undefined : "numeric" });
+
+  const startStr = start.toLocaleDateString(locale, opts);
+
+  const endStr = end.toLocaleDateString(locale, {
+    ...opts,
+    year: sameYear ? undefined : "numeric",
+  });
+
   return `${startStr} - ${endStr}`;
 }
 
@@ -222,10 +316,14 @@ function toISO(date) {
   return `${y}-${m}-${d}`;
 }
 
+
 export default function SuperAdminDashboard() {
+  const { t, i18n } = useTranslation();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
+
 
   const [dateRange, setDateRange] = useState(() => {
     const end = new Date();
@@ -277,9 +375,12 @@ export default function SuperAdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
-            Executive Overview
+            {t("superadmin.dashboard.title")}
           </h2>
-          <p className="text-sm text-slate-500 mt-1">Real-time operational status across the clinic network.</p>
+
+          <p className="text-sm text-slate-500 mt-1">
+            {t("superadmin.dashboard.subtitle")}
+          </p>
         </div>
 
         <div className="relative self-start sm:self-auto">
@@ -288,7 +389,7 @@ export default function SuperAdminDashboard() {
             className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all"
           >
             <span className="material-symbols-outlined text-lg">calendar_today</span>
-            {formatRangeLabel(dateRange.start, dateRange.end)}
+           {formatRangeLabel(dateRange.start, dateRange.end, t, i18n.language)}
           </button>
 
           {pickerOpen && (
@@ -308,28 +409,28 @@ export default function SuperAdminDashboard() {
           badge={loading ? "..." : growthBadge}
           badgeBg={growthPositive ? "bg-emerald-50" : "bg-red-50"}
           badgeText={growthPositive ? "text-emerald-600" : "text-red-600"}
-          label="Total Clinics"
+          label={t("superadmin.dashboard.kpi.totalClinics")}
           value={loading ? null : data?.totalClinics}
         />
         <KpiCard
           icon="check_circle" iconBg="bg-emerald-50" iconColor="text-emerald-600"
-          badge={loading ? "..." : `${data?.activeClinics ?? 0} Active`}
+          badge={loading ? "..." : t("superadmin.dashboard.kpi.badgeActive", { count: data?.activeClinics ?? 0 })}
           badgeBg="bg-emerald-50" badgeText="text-emerald-600"
-          label="Active Clinics"
+          label={t("superadmin.dashboard.kpi.activeClinics")}
           value={loading ? null : data?.activeClinics}
         />
         <KpiCard
           icon="group" iconBg="bg-purple-50" iconColor="text-purple-600"
-          badge="Doctors"
+          badge={t("superadmin.dashboard.kpi.badgeDoctors")}
           badgeBg="bg-blue-50" badgeText="text-blue-600"
-          label="Total Doctors"
+          label={t("superadmin.dashboard.kpi.totalDoctors")}
           value={loading ? null : data?.totalDoctors}
         />
         <KpiCard
           icon="event_note" iconBg="bg-orange-50" iconColor="text-orange-600"
-          badge="Today"
+          badge={t("superadmin.dashboard.kpi.badgeToday")}
           badgeBg="bg-orange-50" badgeText="text-orange-600"
-          label="Appointments Today"
+          label={t("superadmin.dashboard.kpi.appointmentsToday")}
           value={loading ? null : data?.todayAppointments}
         />
       </div>

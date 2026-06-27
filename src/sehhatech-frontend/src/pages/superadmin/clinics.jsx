@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_URL ?? "";
 const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -12,38 +13,43 @@ async function apiFetch(path, options = {}) {
   return res.json();
 }
 
-// ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ isActive }) {
+  const { t } = useTranslation();
   return (
     <span className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${
       isActive ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
     }`}>
-      {isActive ? "Active" : "Inactive"}
+      {isActive
+        ? t("superadmin.clinics.table.active")
+        : t("superadmin.clinics.table.inactive")}
     </span>
   );
 }
 
-// ── Delete Modal ──────────────────────────────────────────────────────────────
 function DeleteModal({ clinic, onCancel, onConfirm }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-[360px] flex flex-col items-center gap-4">
         <div className="p-3 bg-red-50 rounded-full">
           <span className="material-symbols-outlined text-red-500 text-3xl">delete</span>
         </div>
-        <h3 className="text-xl font-semibold text-slate-900">Delete Clinic</h3>
+        <h3 className="text-xl font-semibold text-slate-900">
+          {t("superadmin.clinics.deleteModal.title")}
+        </h3>
         <p className="text-sm text-slate-500 text-center">
-          Are you sure you want to delete <span className="font-semibold text-slate-900">{clinic?.name}</span>?
-          This will delete all doctors, patients, and appointments.
+          {t("superadmin.clinics.deleteModal.message", { name: "" }).split(clinic?.name ?? "")[0]}
+          <span className="font-semibold text-slate-900">{clinic?.name}</span>
+          {t("superadmin.clinics.deleteModal.message", { name: "" }).split(clinic?.name ?? "")[1]}
         </p>
         <div className="flex gap-3 w-full mt-2">
           <button onClick={onCancel}
             className="flex-1 border border-slate-200 text-slate-700 font-semibold py-2 rounded-xl hover:bg-slate-50 transition-all">
-            Cancel
+            {t("superadmin.clinics.deleteModal.cancel")}
           </button>
           <button onClick={onConfirm}
             className="flex-1 bg-red-500 text-white font-semibold py-2 rounded-xl hover:bg-red-600 transition-all">
-            Delete
+            {t("superadmin.clinics.deleteModal.confirm")}
           </button>
         </div>
       </div>
@@ -51,19 +57,18 @@ function DeleteModal({ clinic, onCancel, onConfirm }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
 
 export default function Clinics() {
+  const { t } = useTranslation();
   const [allClinics, setAllClinics] = useState([]);
   const [stats, setStats]           = useState({ total: 0, active: 0, inactive: 0 });
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState("");
-  const [statusFilter, setStatus]   = useState("All Statuses");
+  const [statusFilter, setStatus]   = useState("All");
   const [page, setPage]             = useState(1);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // Fetch clinics
   const fetchClinics = useCallback(async () => {
     setLoading(true);
     try {
@@ -82,16 +87,15 @@ export default function Clinics() {
 
   useEffect(() => { fetchClinics(); }, [fetchClinics]);
 
-  // Filter + paginate
   const filtered = allClinics.filter((c) => {
     const matchSearch =
       !search ||
       c.name?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase());
     const matchStatus =
-  statusFilter === "All Statuses" ||
-  (statusFilter === "Active" && c.isActive === true) ||
-  (statusFilter === "Inactive" && c.isActive === false);
+      statusFilter === "All" ||
+      (statusFilter === "Active" && c.isActive === true) ||
+      (statusFilter === "Inactive" && c.isActive === false);
     return matchSearch && matchStatus;
   });
 
@@ -110,13 +114,22 @@ export default function Clinics() {
   }
 
   async function toggleStatus(clinic) {
-  try {
-    await apiFetch(`/api/SuperAdmin/tenants/${clinic.id}/toggle`, { method: "PUT" });
-    fetchClinics();
-  } catch (e) {
-    console.error(e);
+    try {
+      await apiFetch(`/api/SuperAdmin/tenants/${clinic.id}/toggle`, { method: "PUT" });
+      fetchClinics();
+    } catch (e) {
+      console.error(e);
+    }
   }
-}
+
+  const statsConfig = [
+    { icon: "apartment",       bg: "bg-blue-50",    iconColor: "text-blue-600",   label: t("superadmin.clinics.stats.total"),    value: stats.total },
+    { icon: "check_circle",    bg: "bg-emerald-50", iconColor: "text-emerald-600", label: t("superadmin.clinics.stats.active"),   value: stats.active },
+    { icon: "pending_actions", bg: "bg-amber-50",   iconColor: "text-amber-600",  label: t("superadmin.clinics.stats.inactive"), value: stats.inactive },
+  ];
+
+  const from = filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(page * PAGE_SIZE, filtered.length);
 
   return (
     <div>
@@ -124,21 +137,15 @@ export default function Clinics() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
-            Clinics Management
+            {t("superadmin.clinics.title")}
           </h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Configure and monitor all medical facilities within the network.
-          </p>
+          <p className="text-slate-500 mt-1 text-sm">{t("superadmin.clinics.subtitle")}</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3">
-        {[
-          { icon: "apartment",       bg: "bg-blue-50",   iconColor: "text-blue-600",   label: "Total Clinics", value: stats.total },
-          { icon: "check_circle",    bg: "bg-emerald-50", iconColor: "text-emerald-600", label: "Active",       value: stats.active },
-          { icon: "pending_actions", bg: "bg-amber-50",  iconColor: "text-amber-600",  label: "Inactive",      value: stats.inactive },
-        ].map(({ icon, bg, iconColor, label, value }) => (
+        {statsConfig.map(({ icon, bg, iconColor, label, value }) => (
           <div key={label} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
             <div className={`w-12 h-12 ${bg} flex items-center justify-center rounded-lg shrink-0`}>
               <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
@@ -154,11 +161,12 @@ export default function Clinics() {
       {/* Filter Bar */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 whitespace-nowrap">
-          <span className="material-symbols-outlined text-slate-400">filter_list</span> Filter by:
+          <span className="material-symbols-outlined text-slate-400">filter_list</span>
+          {t("superadmin.clinics.filter.label")}
         </div>
         <input
           type="text"
-          placeholder="Search by name or email..."
+          placeholder={t("superadmin.clinics.filter.searchPlaceholder")}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 w-full sm:w-auto sm:min-w-[200px]"
@@ -168,15 +176,15 @@ export default function Clinics() {
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}
           className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300 w-full sm:w-auto sm:min-w-[140px]"
         >
-          <option>All Statuses</option>
-          <option>Active</option>
-          <option>Inactive</option>
+          <option value="All">{t("superadmin.clinics.filter.allStatuses")}</option>
+          <option value="Active">{t("superadmin.clinics.filter.active")}</option>
+          <option value="Inactive">{t("superadmin.clinics.filter.inactive")}</option>
         </select>
         <button
-          onClick={() => { setSearch(""); setStatus("All Statuses"); setPage(1); }}
+          onClick={() => { setSearch(""); setStatus("All"); setPage(1); }}
           className="sm:ml-auto text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors text-left sm:text-right"
         >
-          Clear Filters
+          {t("superadmin.clinics.filter.clear")}
         </button>
       </div>
 
@@ -186,23 +194,28 @@ export default function Clinics() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                {["Clinic Name", "Phone", "Email", "Status", "Actions"].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-4 sm:px-6 py-4 text-sm font-semibold text-slate-600 ${
-                      h === "Actions" ? "text-right" : ""
-                    } ${h === "Email" || h === "Phone" ? "hidden sm:table-cell" : ""}`}
-                  >
-                    {h}
+                {[
+                  { key: "colName",    cls: "" },
+                  { key: "colPhone",   cls: "hidden sm:table-cell" },
+                  { key: "colEmail",   cls: "hidden sm:table-cell" },
+                  { key: "colStatus",  cls: "" },
+                  { key: "colActions", cls: "text-right" },
+                ].map(({ key, cls }) => (
+                  <th key={key} className={`px-4 sm:px-6 py-4 text-sm font-semibold text-slate-600 ${cls}`}>
+                    {t(`superadmin.clinics.table.${key}`)}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-sm">
+                  {t("superadmin.clinics.table.loading")}
+                </td></tr>
               ) : paginated.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-sm">No clinics found.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-400 text-sm">
+                  {t("superadmin.clinics.table.empty")}
+                </td></tr>
               ) : paginated.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-4 sm:px-6 py-4">
@@ -213,18 +226,20 @@ export default function Clinics() {
                   <td className="px-4 sm:px-6 py-4"><StatusBadge isActive={c.isActive} /></td>
                   <td className="px-4 sm:px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                     <button
-  onClick={() => toggleStatus(c)}
-  title={c.isActive ? "Deactivate" : "Activate"}
-  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
->
-  <span className="material-symbols-outlined text-sm">
-    {c.isActive ? "pause_circle" : "play_circle"}
-  </span>
-</button>
+                      <button
+                        onClick={() => toggleStatus(c)}
+                        title={c.isActive
+                          ? t("superadmin.clinics.table.deactivate")
+                          : t("superadmin.clinics.table.activate")}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-sm">
+                          {c.isActive ? "pause_circle" : "play_circle"}
+                        </span>
+                      </button>
                       <button
                         onClick={() => setDeleteTarget(c)}
-                        title="Delete"
+                        title={t("superadmin.clinics.table.delete")}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
                       >
                         <span className="material-symbols-outlined text-sm">delete</span>
@@ -240,8 +255,7 @@ export default function Clinics() {
         {/* Pagination */}
         <div className="px-4 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center sm:justify-between gap-3">
           <p className="text-sm text-slate-500 text-center sm:text-left">
-            Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
-            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} clinics
+            {t("superadmin.clinics.pagination.showing", { from, to, total: filtered.length })}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -263,7 +277,6 @@ export default function Clinics() {
         </div>
       </div>
 
-      {/* Delete Modal */}
       {deleteTarget && (
         <DeleteModal
           clinic={deleteTarget}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 import Footer from '../components/Footer'
 
@@ -7,6 +8,7 @@ const TIMER_SECONDS = 120
 
 export default function ResetPassword() {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const phone = sessionStorage.getItem('resetPhone') || ''
 
     const [digits, setDigits] = useState(['', '', '', '', '', ''])
@@ -27,7 +29,7 @@ export default function ResetPassword() {
 
     useEffect(() => {
         if (timeLeft <= 0) { setCanResend(true); return }
-        const id = setTimeout(() => setTimeLeft(t => t - 1), 1000)
+        const id = setTimeout(() => setTimeLeft(s => s - 1), 1000)
         return () => clearTimeout(id)
     }, [timeLeft])
 
@@ -56,9 +58,9 @@ export default function ResetPassword() {
 
     const validate = () => {
         const e = {}
-        if (!codeComplete) e.code = 'Enter the 6-digit code'
-        if (newPw.length < 8) e.newPw = 'Password must be at least 8 characters'
-        if (confirmPw !== newPw) e.confirmPw = 'Passwords do not match'
+        if (!codeComplete) e.code = t('resetPassword.errorCode')
+        if (newPw.length < 8) e.newPw = t('resetPassword.errorPwMin')
+        if (confirmPw !== newPw) e.confirmPw = t('resetPassword.errorPwMatch')
         setErrors(e)
         return Object.keys(e).length === 0
     }
@@ -69,15 +71,13 @@ export default function ResetPassword() {
         if (!validate()) return
         setLoading(true)
         try {
-            // ✅ الـ endpoint الصحيح هو resetpassword/confirm (مطابق لـ ResetPasswordRequest في الباك إند:
-            // phone + code + newPassword)
             await api.post('/api/portal/auth/resetpassword/confirm', {
                 phone, code, newPassword: newPw,
             })
             sessionStorage.removeItem('resetPhone')
             setSuccess(true)
         } catch (err) {
-            setMsg({ text: err.response?.data?.message || 'Could not reset password. The code may be invalid or expired.', type: 'error' })
+            setMsg({ text: err.response?.data?.message || t('resetPassword.errorFallback'), type: 'error' })
         } finally {
             setLoading(false)
         }
@@ -86,17 +86,14 @@ export default function ResetPassword() {
     const resend = async () => {
         if (!canResend) return
         try {
-            // ✅ بنستخدم resetpassword/request تاني هنا، مش resend-otp
-            // resend-otp في الباك إند مش مرتبط بالـ purpose اللي بنحتاجه هنا بنفس الـ flow بتاع
-            // resetpassword - استخدام endpoint الـ reset نفسه أضمن وأقرب لمنطق الباك إند الحقيقي
             await api.post('/api/portal/auth/resetpassword/request', { phone })
-            setMsg({ text: 'A new code has been sent.', type: 'success' })
+            setMsg({ text: t('resetPassword.resendSuccess'), type: 'success' })
             setTimeLeft(TIMER_SECONDS)
             setCanResend(false)
             setDigits(['', '', '', '', '', ''])
             inputRefs.current[0]?.focus()
         } catch {
-            setMsg({ text: 'Failed to resend code.', type: 'error' })
+            setMsg({ text: t('resetPassword.resendError'), type: 'error' })
         }
     }
 
@@ -114,10 +111,10 @@ export default function ResetPassword() {
                         <span className="absolute inset-0 rounded-full bg-success ring-expand" />
                         <span className="material-symbols-outlined text-success text-[32px] check-pop">check_circle</span>
                     </div>
-                    <h2 className="font-semibold text-headline-md text-on-surface mb-1">Password Reset!</h2>
-                    <p className="text-body-md text-on-surface-variant mb-10">Your password has been updated. You can now log in with your new password.</p>
+                    <h2 className="font-semibold text-headline-md text-on-surface mb-1">{t('resetPassword.successTitle')}</h2>
+                    <p className="text-body-md text-on-surface-variant mb-10">{t('resetPassword.successMsg')}</p>
                     <Link to="/login" className="btn-press inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-medium text-label-md px-8 py-3 rounded-xl hover:bg-primary-container transition-colors">
-                        Go to Login
+                        {t('resetPassword.goToLogin')}
                     </Link>
                 </div>
             </main>
@@ -133,7 +130,7 @@ export default function ResetPassword() {
                         <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
-                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label="Help">
+                    <Link to="/contact" className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors" aria-label={t('nav.help')}>
                         <span className="material-symbols-outlined">help</span>
                     </Link>
                 </div>
@@ -143,9 +140,9 @@ export default function ResetPassword() {
                 <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 md:p-10 w-full max-w-md mx-auto fade-up">
                     <div className="text-center mb-6">
                         <span className="material-symbols-outlined text-primary mb-3 block mx-auto text-[48px]">dialpad</span>
-                        <h1 className="font-semibold text-headline-md text-on-surface mb-1">Reset Your Password</h1>
+                        <h1 className="font-semibold text-headline-md text-on-surface mb-1">{t('resetPassword.title')}</h1>
                         <p className="text-body-md text-on-surface-variant">
-                            Enter the 6-digit code sent to <strong className="text-on-surface">{phone}</strong> and choose a new password.
+                            {t('resetPassword.subtitle')} <strong className="text-on-surface">{phone}</strong> {t('resetPassword.subtitleAnd')}
                         </p>
                     </div>
 
@@ -167,16 +164,16 @@ export default function ResetPassword() {
                             {errors.code && <p className="text-label-sm text-error text-center fade-in">{errors.code}</p>}
 
                             <div className="flex flex-col items-center gap-2 mt-3">
-                                {!canResend ? (
+                                {!canResend && (
                                     <p className="text-label-md text-on-surface-variant">
-                                        Resend code in <span className="font-bold text-primary">{fmt(timeLeft)}</span>
+                                        {t('resetPassword.resendIn')} <span className="font-bold text-primary">{fmt(timeLeft)}</span>
                                     </p>
-                                ) : null}
+                                )}
                                 <button
                                     type="button" onClick={resend} disabled={!canResend}
                                     className={`text-label-md transition-opacity ${canResend ? 'text-primary cursor-pointer hover:underline' : 'text-secondary cursor-not-allowed opacity-50'}`}
                                 >
-                                    Resend Code
+                                    {t('resetPassword.resendBtn')}
                                 </button>
                             </div>
                         </div>
@@ -184,7 +181,7 @@ export default function ResetPassword() {
                         {/* New password */}
                         <div className="flex flex-col gap-1">
                             <label className="font-medium text-label-md text-on-surface" htmlFor="newPw">
-                                New Password <span className="text-error">*</span>
+                                {t('resetPassword.newPwLabel')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -193,14 +190,14 @@ export default function ResetPassword() {
                                 <input
                                     id="newPw" type={showPw ? 'text' : 'password'} value={newPw}
                                     onChange={e => setNewPw(e.target.value)}
-                                    placeholder="Min 8 characters"
+                                    placeholder={t('resetPassword.newPwPlaceholder')}
                                     autoComplete="new-password"
                                     className={fieldCls('newPw')}
                                 />
                                 <button
                                     type="button" onClick={() => setShowPw(v => !v)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-primary"
-                                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                                    aria-label={showPw ? t('resetPassword.hidePassword') : t('resetPassword.showPassword')}
                                 >
                                     <span className="material-symbols-outlined">{showPw ? 'visibility_off' : 'visibility'}</span>
                                 </button>
@@ -211,7 +208,7 @@ export default function ResetPassword() {
                         {/* Confirm password */}
                         <div className="flex flex-col gap-1">
                             <label className="font-medium text-label-md text-on-surface" htmlFor="confirmPw">
-                                Confirm New Password <span className="text-error">*</span>
+                                {t('resetPassword.confirmPwLabel')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -220,7 +217,7 @@ export default function ResetPassword() {
                                 <input
                                     id="confirmPw" type={showPw ? 'text' : 'password'} value={confirmPw}
                                     onChange={e => setConfirmPw(e.target.value)}
-                                    placeholder="Repeat new password"
+                                    placeholder={t('resetPassword.confirmPwPlaceholder')}
                                     autoComplete="new-password"
                                     className={fieldCls('confirmPw').replace('pr-10', 'pr-3')}
                                 />
@@ -241,16 +238,16 @@ export default function ResetPassword() {
                             {loading ? (
                                 <>
                                     <span className="material-symbols-outlined text-[18px] spinner">progress_activity</span>
-                                    Resetting...
+                                    {t('resetPassword.submitting')}
                                 </>
-                            ) : 'Reset Password'}
+                            ) : t('resetPassword.submitBtn')}
                         </button>
                     </form>
 
                     <div className="mt-6 text-center">
                         <Link to="/login" className="text-primary hover:underline font-medium text-body-md inline-flex items-center gap-1">
                             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                            Back to Login
+                            {t('resetPassword.backToLogin')}
                         </Link>
                     </div>
                 </div>

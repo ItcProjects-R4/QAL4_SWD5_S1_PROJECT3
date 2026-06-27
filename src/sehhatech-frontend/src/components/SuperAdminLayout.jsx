@@ -1,16 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { superadmin } from "../api/superadmin";
 
-const navItems = [
-  { to: "/superadmin/dashboard", icon: "dashboard",        label: "Dashboard" },
-  { to: "/superadmin/clinics",   icon: "medical_services", label: "Clinics Management" },
-  { to: "/superadmin/reports",   icon: "analytics",        label: "Reports" },
-  { to: "/superadmin/settings",  icon: "settings",         label: "Settings" },
-];
-
 export default function SuperAdminLayout() {
+  const { t, i18n } = useTranslation();
   const [showLogoutModal, setShowLogoutModal]     = useState(false);
   const [showUserDropdown, setShowUserDropdown]   = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
@@ -22,6 +17,13 @@ export default function SuperAdminLayout() {
   const notifDropdownRef = useRef(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
+
+  const navItems = [
+    { to: "/superadmin/dashboard", icon: "dashboard",        label: t("superadmin.nav.dashboard") },
+    { to: "/superadmin/clinics",   icon: "medical_services", label: t("superadmin.nav.clinics") },
+    { to: "/superadmin/reports",   icon: "analytics",        label: t("superadmin.nav.reports") },
+    { to: "/superadmin/settings",  icon: "settings",         label: t("superadmin.nav.settings") },
+  ];
 
   useEffect(() => {
     superadmin.getProfile()
@@ -55,6 +57,11 @@ export default function SuperAdminLayout() {
     navigate("/login");
   }
 
+  function toggleLanguage() {
+    const next = i18n.language === "ar" ? "en" : "ar";
+    i18n.changeLanguage(next);
+  }
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const initials = adminName
     .split(" ")
@@ -66,7 +73,7 @@ export default function SuperAdminLayout() {
   return (
     <div className="flex min-h-screen bg-slate-50 font-manrope">
       {/* ── Sidebar ── */}
-      <aside className="bg-white w-[272px] h-screen fixed left-0 top-0 flex flex-col z-50 border-r border-slate-200/80">
+      <aside className="bg-white w-[272px] h-screen fixed start-0 top-0 flex flex-col z-50 border-e border-slate-200/80">
 
         {/* Logo / Brand */}
         <div className="px-6 pt-8 pb-6 flex items-center gap-3 group">
@@ -80,7 +87,7 @@ export default function SuperAdminLayout() {
               SehhaTech
             </h1>
             <p className="text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.12em] mt-0.5">
-              Super Admin
+              {t("superadmin.brand.superAdmin")}
             </p>
           </div>
         </div>
@@ -103,7 +110,7 @@ export default function SuperAdminLayout() {
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r-full" />
+                    <span className="absolute start-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-e-full" />
                   )}
                   <span
                     className={`material-symbols-outlined text-[22px] transition-transform duration-200 ${
@@ -127,11 +134,11 @@ export default function SuperAdminLayout() {
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
               <p className="text-slate-900 font-semibold truncate text-[13px]">{adminName}</p>
-              <p className="text-slate-400 text-[11px] truncate">System Controller</p>
+              <p className="text-slate-400 text-[11px] truncate">{t("superadmin.brand.systemController")}</p>
             </div>
             <button
               onClick={() => setShowLogoutModal(true)}
-              title="Logout"
+              title={t("superadmin.actions.logout")}
               className="text-slate-400 hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-red-50 shrink-0"
             >
               <span className="material-symbols-outlined text-[19px]">logout</span>
@@ -141,12 +148,24 @@ export default function SuperAdminLayout() {
       </aside>
 
       {/* ── Content area ── */}
-      <div className="flex-1 ml-[272px] flex flex-col min-h-screen">
+      <div className="flex-1 ms-[272px] flex flex-col min-h-screen">
 
         {/* Top Header */}
         <header className="bg-white/80 backdrop-blur-md h-[68px] w-full sticky top-0 z-40 border-b border-slate-200/70 flex items-center justify-between px-7">
           <div className="flex-1" />
           <div className="flex items-center gap-1.5">
+
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 hover:bg-slate-100 rounded-xl px-3 py-2.5 text-slate-500 text-sm font-semibold transition-all"
+              title={t("common.switchLanguage")}
+            >
+              <span className="material-symbols-outlined text-[20px]">language</span>
+              {i18n.language === "ar" ? "EN" : "AR"}
+            </button>
+
+            <div className="h-7 w-px bg-slate-200 mx-1" />
 
             {/* Notifications */}
             <div className="relative" ref={notifDropdownRef}>
@@ -159,27 +178,27 @@ export default function SuperAdminLayout() {
               >
                 <span className="material-symbols-outlined text-[22px]">notifications</span>
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+                  <span className="absolute top-2 end-2 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
                 )}
               </button>
 
               {showNotifDropdown && (
-                <div className="absolute right-0 top-14 w-80 bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 z-50 overflow-hidden">
+                <div className="absolute end-0 top-14 w-80 bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 z-50 overflow-hidden">
                   <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                    <span className="font-semibold text-slate-900 text-sm">Notifications</span>
+                    <span className="font-semibold text-slate-900 text-sm">{t("superadmin.notifications.title")}</span>
                     {unreadCount > 0 && (
                       <span className="text-[11px] bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full">
-                        {unreadCount} new
+                        {t("superadmin.notifications.newCount", { count: unreadCount })}
                       </span>
                     )}
                   </div>
                   <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
                     {notifsLoading ? (
-                      <div className="px-4 py-10 text-center text-slate-400 text-sm">Loading...</div>
+                      <div className="px-4 py-10 text-center text-slate-400 text-sm">{t("superadmin.notifications.loading")}</div>
                     ) : notifications.length === 0 ? (
                       <div className="px-4 py-10 text-center text-slate-400 text-sm flex flex-col items-center gap-2">
                         <span className="material-symbols-outlined text-3xl text-slate-300">notifications_off</span>
-                        No notifications yet
+                        {t("superadmin.notifications.empty")}
                       </div>
                     ) : notifications.map((n, i) => (
                       <div
@@ -209,7 +228,7 @@ export default function SuperAdminLayout() {
                   setShowUserDropdown((v) => !v);
                   setShowNotifDropdown(false);
                 }}
-                className="flex items-center gap-2.5 hover:bg-slate-100 rounded-xl pl-2 pr-3 py-1.5 transition-all"
+                className="flex items-center gap-2.5 hover:bg-slate-100 rounded-xl ps-2 pe-3 py-1.5 transition-all"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold">
                   {initials}
@@ -221,10 +240,10 @@ export default function SuperAdminLayout() {
               </button>
 
               {showUserDropdown && (
-                <div className="absolute right-0 top-14 w-56 bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 z-50 overflow-hidden">
+                <div className="absolute end-0 top-14 w-56 bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 z-50 overflow-hidden">
                   <div className="px-4 py-3.5 border-b border-slate-100">
                     <p className="font-semibold text-slate-900 text-sm">{adminName}</p>
-                    <p className="text-xs text-slate-400">System Controller</p>
+                    <p className="text-xs text-slate-400">{t("superadmin.brand.systemController")}</p>
                   </div>
                   <div className="py-1.5">
                     <button
@@ -232,14 +251,14 @@ export default function SuperAdminLayout() {
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px] text-slate-400">manage_accounts</span>
-                      Profile Settings
+                      {t("superadmin.actions.profileSettings")}
                     </button>
                     <button
                       onClick={() => { setShowLogoutModal(true); setShowUserDropdown(false); }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[18px]">logout</span>
-                      Logout
+                      {t("superadmin.actions.logout")}
                     </button>
                   </div>
                 </div>
@@ -261,22 +280,22 @@ export default function SuperAdminLayout() {
             <div className="p-3.5 bg-red-50 rounded-2xl">
               <span className="material-symbols-outlined text-red-500 text-3xl">logout</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Confirm Logout</h3>
+            <h3 className="text-lg font-bold text-slate-900">{t("superadmin.logoutModal.title")}</h3>
             <p className="text-sm text-slate-500 text-center leading-relaxed">
-              Are you sure you want to logout from your Super Admin session?
+              {t("superadmin.logoutModal.message")}
             </p>
             <div className="flex gap-3 w-full mt-2">
               <button
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 border border-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl hover:bg-slate-50 transition-all text-sm"
               >
-                Cancel
+                {t("superadmin.logoutModal.cancel")}
               </button>
               <button
                 onClick={handleLogout}
                 className="flex-1 bg-red-500 text-white font-semibold py-2.5 rounded-xl hover:bg-red-600 transition-all text-sm"
               >
-                Logout
+                {t("superadmin.logoutModal.confirm")}
               </button>
             </div>
           </div>

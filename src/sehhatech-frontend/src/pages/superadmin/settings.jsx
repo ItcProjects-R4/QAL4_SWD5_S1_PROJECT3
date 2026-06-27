@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { superadmin } from "../../api/superadmin";
+import { showToast } from "../../components/Toast";
 
-const API = import.meta.env.VITE_API_URL ?? "";
-const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
-
-async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json();
+// ── Eye Icon (SVG بسيط، بدون أي مكتبة خارجية) ──────────────────
+function EyeIcon({ open }) {
+  return open ? (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61C4.4 8.07 2 12 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <path d="M2 2l20 20" />
+    </svg>
+  );
 }
 
-// ── Toggle Switch ─────────────────────────────────────────────────────────────
+// ── Toggle Switch ─────────────────────────────────────────────
 function Toggle({ checked, onChange, activeColor = "bg-emerald-500" }) {
   return (
     <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -30,44 +37,100 @@ function Toggle({ checked, onChange, activeColor = "bg-emerald-500" }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Page ─────────────────────────────────────────────────────
 export default function Settings() {
+  const { t } = useTranslation();
+
   const [profile, setProfile] = useState({ name: "—", role: "—", email: "—" });
+  const [profileLoading, setProfileLoading] = useState(true);
+
   const [passwords, setPasswords] = useState({ old: "", new: "" });
-  const [pwMsg, setPwMsg]     = useState(null); // { type: "success"|"error", text }
+  const [pwMsg, setPwMsg] = useState(null);
+  const [pwLoading, setPwLoading] = useState(false);
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
+
+  // الـ toggles دلوقتي محلية بس (مفيش endpoint لها في الباك إند حاليًا)
   const [toggles, setToggles] = useState({
     maintenance: false,
     notifications: true,
     auditLogging: true,
   });
 
-  // Load profile
-  useEffect(() => {
-  const name  = localStorage.getItem("fullName");
-  const email = localStorage.getItem("email");
-  const role  = localStorage.getItem("role");
-  setProfile({
-    name:  name  ?? "Super Admin",
-    role:  role  ?? "Super Administrator",
-    email: email ?? "—",
-  });
-}, []);
+  const [dangerMsg, setDangerMsg] = useState(null);
 
+  // ── تحميل البروفايل من الـ API الحقيقي ───────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    setProfileLoading(true);
+    superadmin
+      .getProfile()
+      .then((res) => {
+        if (cancelled) return;
+        const data = res?.data ?? res; // الباك إند بيرجعها جوه data
+        setProfile({
+          name: data?.fullName ?? "—",
+          role: data?.role ?? "—",
+          email: data?.email ?? "—",
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProfile({
+          name: "—",
+          role: t("superadmin.settings.profile.roleValue"),
+          email: "—",
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setProfileLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
+
+  // ── تغيير كلمة المرور عبر superadmin.changePassword الحقيقي ──
   async function handleChangePassword() {
     if (!passwords.old || !passwords.new) {
-      setPwMsg({ type: "error", text: "Please fill in both fields." });
+      setPwMsg({ type: "error", text: t("superadmin.settings.security.errorEmpty") });
       return;
     }
+    setPwLoading(true);
     try {
       await superadmin.changePassword(passwords.old, passwords.new);
-      setPwMsg({ type: "success", text: "Password updated successfully." });
+      setPwMsg({ type: "success", text: t("superadmin.settings.security.successMsg") });
+      showToast(t("superadmin.settings.security.successMsg"), "success");
       setPasswords({ old: "", new: "" });
-    } catch {
-      setPwMsg({ type: "error", text: "Failed to update password. Check your current password." });
+      setShowOld(false);
+      setShowNew(false);
+    } catch (err) {
+      // الباك إند بيرجع 400 لو الباسورد القديمة غلط
+      const serverMsg = err?.response?.data?.message;
+      const text = serverMsg || t("superadmin.settings.security.errorMsg");
+      setPwMsg({ type: "error", text });
+      showToast(text, "error");
+    } finally {
+      setPwLoading(false);
+      setTimeout(() => setPwMsg(null), 4000);
     }
-    setTimeout(() => setPwMsg(null), 4000);
+  }
+
+  // ── Danger zone: لسه مفيش endpoint في الباك إند، فهي placeholders بـ confirm ──
+  function handleFlushCache() {
+    const ok = window.confirm(t("superadmin.settings.danger.confirmFlush"));
+    if (!ok) return;
+    // TODO: استبدلها بـ superadmin.flushCache() لما يتضاف الـ endpoint في الباك إند
+    setDangerMsg({ type: "info", text: t("superadmin.settings.danger.featureUnavailable") });
+    setTimeout(() => setDangerMsg(null), 4000);
+  }
+
+  function handleFactoryReset() {
+    const ok = window.confirm(t("superadmin.settings.danger.confirmReset"));
+    if (!ok) return;
+    // TODO: استبدلها بـ superadmin.factoryReset() لما يتضاف الـ endpoint في الباك إند
+    setDangerMsg({ type: "info", text: t("superadmin.settings.danger.featureUnavailable") });
+    setTimeout(() => setDangerMsg(null), 4000);
   }
 
   const systemToggles = [
@@ -76,8 +139,6 @@ export default function Settings() {
       icon: "engineering",
       iconBg: "bg-red-50",
       iconColor: "text-red-500",
-      title: "Maintenance Mode",
-      desc: "Prevent users from logging in during system updates.",
       activeColor: "bg-red-500",
     },
     {
@@ -85,8 +146,6 @@ export default function Settings() {
       icon: "notifications_active",
       iconBg: "bg-blue-50",
       iconColor: "text-blue-600",
-      title: "System-Wide Notifications",
-      desc: "Enable alert banners for all active clinic administrators.",
       activeColor: "bg-emerald-500",
     },
     {
@@ -94,8 +153,6 @@ export default function Settings() {
       icon: "list_alt",
       iconBg: "bg-amber-50",
       iconColor: "text-amber-600",
-      title: "Detailed Audit Logging",
-      desc: "Record all database read/write actions for compliance.",
       activeColor: "bg-emerald-500",
     },
   ];
@@ -104,10 +161,10 @@ export default function Settings() {
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h2 className="text-2xl sm:text-[30px] font-bold leading-tight sm:leading-[38px] tracking-tight text-slate-900">
-          System Settings
+          {t("superadmin.settings.title")}
         </h2>
         <p className="text-slate-500 text-sm mt-1">
-          Configure your medical network's global parameters and security protocols.
+          {t("superadmin.settings.subtitle")}
         </p>
       </div>
 
@@ -121,34 +178,42 @@ export default function Settings() {
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl mb-4 shadow-lg shadow-blue-600/20">
                 SA
               </div>
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">{profile.name}</h3>
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                {profileLoading ? "…" : profile.name}
+              </h3>
               <p className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider mb-4">
-                {profile.role}
+                {profileLoading ? "…" : profile.role}
               </p>
               <div className="w-full space-y-3 text-left">
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Email Address
+                    {t("superadmin.settings.profile.emailLabel")}
                   </label>
-                  <p className="text-sm text-slate-900 break-all">{profile.email}</p>
+                  <p className="text-sm text-slate-900 break-all">
+                    {profileLoading ? "…" : profile.email}
+                  </p>
                 </div>
                 <div>
                   <label className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Role
+                    {t("superadmin.settings.profile.roleLabel")}
                   </label>
-                  <p className="text-sm text-slate-900">Super Administrator</p>
+                  <p className="text-sm text-slate-900">
+                    {profileLoading ? "…" : profile.role}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Change Password */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">Security</h3>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-slate-900 mb-4">
+              {t("superadmin.settings.security.title")}
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
-                  Current Password
+                  {t("superadmin.settings.security.currentPassword")}
                 </label>
                 <div className="relative">
                   <input
@@ -164,20 +229,18 @@ export default function Settings() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     tabIndex={-1}
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showOld ? "visibility_off" : "visibility"}
-                    </span>
+                    <EyeIcon open={showOld} />
                   </button>
                 </div>
               </div>
               <div>
                 <label className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">
-                  New Password
+                  {t("superadmin.settings.security.newPassword")}
                 </label>
                 <div className="relative">
                   <input
                     type={showNew ? "text" : "password"}
-                    placeholder="Min. 6 characters"
+                    placeholder={t("superadmin.settings.security.newPasswordPlaceholder")}
                     value={passwords.new}
                     onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
                     className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 pr-10 focus:ring-2 focus:ring-slate-300 outline-none transition-all text-sm"
@@ -188,9 +251,7 @@ export default function Settings() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     tabIndex={-1}
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {showNew ? "visibility_off" : "visibility"}
-                    </span>
+                    <EyeIcon open={showNew} />
                   </button>
                 </div>
               </div>
@@ -201,9 +262,10 @@ export default function Settings() {
               )}
               <button
                 onClick={handleChangePassword}
-                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm"
+                disabled={pwLoading}
+                className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Update Password
+                {pwLoading ? "…" : t("superadmin.settings.security.updateButton")}
               </button>
             </div>
           </div>
@@ -215,10 +277,12 @@ export default function Settings() {
           {/* System Toggles */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">System Status & Toggles</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
+                {t("superadmin.settings.toggles.title")}
+              </h3>
             </div>
             <div className="divide-y divide-slate-100">
-              {systemToggles.map(({ key, icon, iconBg, iconColor, title, desc, activeColor }) => (
+              {systemToggles.map(({ key, icon, iconBg, iconColor, activeColor }) => (
                 <div
                   key={key}
                   className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/50 transition-colors"
@@ -228,18 +292,25 @@ export default function Settings() {
                       <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900 text-sm">{title}</p>
-                      <p className="text-slate-500 text-sm mt-0.5">{desc}</p>
+                      <p className="font-semibold text-slate-900 text-sm">
+                        {t(`superadmin.settings.toggles.${key}.title`)}
+                      </p>
+                      <p className="text-slate-500 text-sm mt-0.5">
+                        {t(`superadmin.settings.toggles.${key}.desc`)}
+                      </p>
                     </div>
                   </div>
                   <Toggle
                     checked={toggles[key]}
-                    onChange={() => setToggles((t) => ({ ...t, [key]: !t[key] }))}
+                    onChange={() => setToggles((prev) => ({ ...prev, [key]: !prev[key] }))}
                     activeColor={activeColor}
                   />
                 </div>
               ))}
             </div>
+            <p className="px-6 pb-4 text-xs text-slate-400">
+              {t("superadmin.settings.toggles.note")}
+            </p>
           </div>
 
           {/* Danger Zone */}
@@ -249,21 +320,33 @@ export default function Settings() {
                 <span className="material-symbols-outlined text-red-500">warning</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-red-600 mb-1">Danger Zone</h3>
+                <h3 className="font-bold text-red-600 mb-1">
+                  {t("superadmin.settings.danger.title")}
+                </h3>
                 <p className="text-sm text-slate-500 mb-4">
-                  Actions here are irreversible and will affect the entire network.
+                  {t("superadmin.settings.danger.subtitle")}
                 </p>
+                {dangerMsg && (
+                  <p className="text-sm font-medium text-slate-600 mb-3">{dangerMsg.text}</p>
+                )}
                 <div className="flex flex-wrap gap-3">
-                  <button className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-xl hover:bg-red-50 transition-all text-sm font-semibold">
-                    Flush System Cache
+                  <button
+                    onClick={handleFlushCache}
+                    className="w-full sm:w-auto bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-semibold"
+                  >
+                    {t("superadmin.settings.danger.flushCache")}
                   </button>
-                  <button className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-all text-sm font-semibold">
-                    Factory Reset Network
+                  <button
+                    onClick={handleFactoryReset}
+                    className="w-full sm:w-auto bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all text-sm font-semibold"
+                  >
+                    {t("superadmin.settings.danger.factoryReset")}
                   </button>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
