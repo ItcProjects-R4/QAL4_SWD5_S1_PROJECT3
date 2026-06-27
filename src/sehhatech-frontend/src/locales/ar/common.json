@@ -162,7 +162,6 @@
       "title": "لوحة التحكم",
       "subtitle": "متابعة حالة شبكة العيادات في الوقت الفعلي.",
       "dateRange": "آخر 30 يومًا",
-
       "kpi": {
         "totalClinics": "إجمالي العيادات",
         "activeClinics": "العيادات النشطة",
@@ -172,7 +171,6 @@
         "badgeDoctors": "طبيب",
         "badgeToday": "اليوم"
       },
-
       "appointmentStatus": {
         "title": "توزيع حالات المواعيد",
         "total": "الإجمالي",
@@ -183,13 +181,11 @@
         "cancelled": "ملغي",
         "noShow": "لم يحضر"
       },
-
       "growth": {
         "title": "نمو العيادات",
         "subtitle": "اتجاه انضمام العيادات شهريًا",
         "noData": "لا توجد بيانات"
       },
-
       "recentClinics": {
         "title": "العيادات المضافة حديثًا",
         "viewAll": "عرض الكل",
@@ -311,12 +307,11 @@
         "title": "إعدادات النظام",
         "note": "هذه الإعدادات مؤقتة في هذا المتصفح فقط ولا تُحفظ في الخادم حاليًا.",
         "maintenance": {
-        "notifications": {
-          "title": "إشعارات النظام",
-          "desc": "إرسال إشعارات لجميع مديري العيادات."
-        }
+          "notifications": {
+            "title": "إشعارات النظام",
+            "desc": "إرسال إشعارات لجميع مديري العيادات."
+          }
         },
-
         "auditLogging": {
           "title": "سجل التدقيق",
           "desc": "تسجيل جميع عمليات القراءة والكتابة في قاعدة البيانات."
@@ -547,6 +542,84 @@
       "operational": "يعمل",
       "incidentsTitle": "سجل الأحداث",
       "noIncidents": "لم يُبلَّغ عن أي أحداث. تم إطلاق المنصة بنجاح."
+    }
+  },
+  "doctor": {
+    "unknown": "غير معروف",
+    "dashboard": {
+      "subtitle": "نظرة عامة على عيادة اليوم — {{date}}",
+      "appointmentsToday": "مواعيد اليوم",
+      "upcomingAppointments": "المواعيد القادمة",
+      "viewSchedule": "عرض الجدول",
+      "noUpcoming": "لا توجد مواعيد قادمة.",
+      "recentPatients": "أحدث المرضى",
+      "seeAll": "عرض الكل",
+      "noRecentPatients": "لا يوجد مرضى حديثون.",
+      "dailyTimeline": "الجدول اليومي",
+      "noAppointmentsToday": "لا توجد مواعيد اليوم."
+    },
+    "profile": {
+      "title": "ملفي الشخصي",
+      "subtitle": "معلوماتك الشخصية والمهنية",
+      "editProfile": "تعديل الملف",
+      "about": "نبذة عني",
+      "today": "اليوم",
+      "upcoming": "القادمة",
+      "patients": "المرضى",
+      "personalInfo": "المعلومات الشخصية",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "roleValue": "طبيب",
+      "professionalInfo": "المعلومات المهنية",
+      "doctorId": "رقم الطبيب",
+      "specialization": "التخصص",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "profilePhoto": "صورة الملف الشخصي",
+      "choosePhoto": "اختر صورة",
+      "photoHint": "JPG أو PNG بحد أقصى 5MB",
+      "bio": "نبذة",
+      "bioPlaceholder": "اكتب نبذة مختصرة عن نفسك...",
+      "updateSuccess": "تم تحديث الملف بنجاح!",
+      "updateError": "فشل الحفظ. برجاء المحاولة مرة أخرى.",
+      "cancel": "إلغاء",
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ..."
+    },
+    "schedule": {
+      "title": "الجدول اليومي",
+      "loading": "جارٍ التحميل…",
+      "appointmentRemaining": "موعد متبقٍّ",
+      "appointmentsRemaining": "مواعيد متبقية",
+      "noUpcoming": "لا توجد مواعيد قادمة.",
+      "selectedAppointment": "الموعد المحدد",
+      "scheduledFor": "موعد في",
+      "scheduledForText": "الموعد مجدول ليوم",
+      "appointmentTime": "وقت الموعد",
+      "viewPatientProfile": "عرض ملف المريض",
+      "selectPrompt": "اختر موعداً لعرض تفاصيله",
+      "patientDetails": "تفاصيل المريض",
+      "labelName": "الاسم",
+      "labelPhone": "الهاتف",
+      "labelEmail": "البريد الإلكتروني",
+      "labelGender": "الجنس",
+      "labelDob": "تاريخ الميلاد",
+      "medicalHistory": "التاريخ الطبي",
+      "appointmentHistory": "سجل المواعيد"
+    },
+    "patients": {
+      "tab": "المرضى والمواعيد",
+      "title": "مرضاي",
+      "countSuffix": "مريض",
+      "colPatient": "المريض",
+      "colPhone": "الهاتف",
+      "colEmail": "البريد الإلكتروني",
+      "colGender": "الجنس",
+      "noPatients": "لا يوجد مرضى.",
+      "upcoming": "المواعيد القادمة",
+      "noUpcoming": "لا توجد مواعيد قادمة."
     }
   }
 }
