@@ -155,5 +155,21 @@ namespace SehhaTech.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+        // ─── Monthly Report (تقرير عيادة الأدمن نفسه) ────────────────
+        /// <summary>GET /api/admin/monthly-report?month=6&amp;year=2026</summary>
+        [HttpGet("monthly-report")]
+        public async Task<IActionResult> GetMonthlyReport(int? month, int? year)
+        {
+            var result = await _adminService.GetMonthlyReportAsync(GetTenantId(), month, year);
+            return Ok(result);
+        }
+
+        /// <summary>GET /api/admin/monthly-report/history?monthsBack=12</summary>
+        [HttpGet("monthly-report/history")]
+        public async Task<IActionResult> GetMonthlyReportHistory(int monthsBack = 12)
+        {
+            var result = await _adminService.GetMonthlyReportHistoryAsync(GetTenantId(), monthsBack);
+            return Ok(result);
+        }
     }
 }

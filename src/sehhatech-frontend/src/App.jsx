@@ -4,6 +4,8 @@ import SuperAdminDashboard from "./pages/superadmin/Dashboard";
 import Clinics from "./pages/superadmin/clinics";
 import Reports from "./pages/superadmin/reports";
 import Settings from "./pages/superadmin/settings";
+import MonthlyReports from "./pages/superadmin/MonthlyReports";
+
 
 // Public
 import Landing from "./pages/public/Landing";
@@ -133,6 +135,7 @@ function App() {
                     />
                     <Route path="clinics" element={<Clinics />} />
                     <Route path="reports" element={<Reports />} />
+                    <Route path="monthly-reports" element={<MonthlyReports />} />
                     <Route path="settings" element={<Settings />} />
                 </Route>
 
