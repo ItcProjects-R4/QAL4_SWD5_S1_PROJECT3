@@ -305,5 +305,98 @@ namespace SehhaTech.Infrastructure.Services
 
             await _db.SaveChangesAsync();
         }
+
+        // ─── Monthly Report ────────────────────────────────────────
+        public async Task<MonthlyReportDto> GetMonthlyReportAsync(int tenantId, int? month, int? year)
+        {
+            var targetMonth = month ?? DateTime.UtcNow.Month;
+            var targetYear = year ?? DateTime.UtcNow.Year;
+
+            // 1) جرب تجيب السجل المحفوظ اللي Hangfire ولّده الأول
+            var saved = await _db.MonthlyReports
+                .Where(r => r.TenantId == tenantId && r.Month == targetMonth && r.Year == targetYear)
+                .Select(r => new MonthlyReportDto
+                {
+                    Month = r.Month,
+                    Year = r.Year,
+                    TotalAppointments = r.TotalAppointments,
+                    CompletedAppointments = r.CompletedAppointments,
+                    CancelledAppointments = r.CancelledAppointments,
+                    NoShowAppointments = r.NoShowAppointments,
+                    TotalRevenue = r.TotalRevenue,
+                    PendingRevenue = r.PendingRevenue,
+                    NewPatients = r.NewPatients,
+                    GeneratedAt = r.GeneratedAt,
+                    IsLive = false
+                })
+                .FirstOrDefaultAsync();
+
+            if (saved != null)
+                return saved;
+
+            // 2) لو لسه ما اتعملش (مثلاً الشهر الحالي قبل ما الجوب يشغّل)، احسبه live
+            var startOfMonth = new DateTime(targetYear, targetMonth, 1, 0, 0, 0, DateTimeKind.Utc);
+            var startOfNextMonth = startOfMonth.AddMonths(1);
+
+            var appointmentsQuery = _db.Appointments
+                .Where(a => a.TenantId == tenantId
+                         && a.AppointmentDate >= startOfMonth
+                         && a.AppointmentDate < startOfNextMonth);
+
+            var totalAppointments = await appointmentsQuery.CountAsync();
+            var completed = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.Completed);
+            var cancelled = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.Cancelled);
+            var noShow = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.NoShow);
+
+            // PaymentInvoice فيها TenantId مباشر، فنستخدمها بدون الحاجة لـ join
+            var invoicesQuery = _db.PaymentInvoices
+                .Where(i => i.TenantId == tenantId
+                         && i.CreatedAt >= startOfMonth
+                         && i.CreatedAt < startOfNextMonth);
+
+            var totalRevenue = await invoicesQuery.SumAsync(i => (decimal?)i.PaidAmount) ?? 0;
+            var pendingRevenue = await invoicesQuery.SumAsync(i => (decimal?)i.RemainingAmount) ?? 0;
+
+            var newPatients = await _db.Patients
+                .CountAsync(p => p.TenantId == tenantId
+                              && p.CreatedAt >= startOfMonth
+                              && p.CreatedAt < startOfNextMonth);
+
+            return new MonthlyReportDto
+            {
+                Month = targetMonth,
+                Year = targetYear,
+                TotalAppointments = totalAppointments,
+                CompletedAppointments = completed,
+                CancelledAppointments = cancelled,
+                NoShowAppointments = noShow,
+                TotalRevenue = totalRevenue,
+                PendingRevenue = pendingRevenue,
+                NewPatients = newPatients,
+                GeneratedAt = null,
+                IsLive = true
+            };
+        }
+
+        public async Task<List<MonthlyReportHistoryItemDto>> GetMonthlyReportHistoryAsync(int tenantId, int monthsBack)
+        {
+            var cutoff = DateTime.UtcNow.AddMonths(-monthsBack);
+            var cutoffYear = cutoff.Year;
+            var cutoffMonth = cutoff.Month;
+
+            return await _db.MonthlyReports
+                .Where(r => r.TenantId == tenantId
+                         && (r.Year > cutoffYear || (r.Year == cutoffYear && r.Month >= cutoffMonth)))
+                .OrderBy(r => r.Year).ThenBy(r => r.Month)
+                .Select(r => new MonthlyReportHistoryItemDto
+                {
+                    Month = r.Month,
+                    Year = r.Year,
+                    TotalAppointments = r.TotalAppointments,
+                    TotalRevenue = r.TotalRevenue,
+                    NewPatients = r.NewPatients
+                })
+                .ToListAsync();
+        }
     }
 }

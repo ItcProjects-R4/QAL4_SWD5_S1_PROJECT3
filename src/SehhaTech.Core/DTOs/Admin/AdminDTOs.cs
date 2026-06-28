@@ -90,4 +90,35 @@
         public string Date { get; set; } = string.Empty;
         public int Count { get; set; }
     }
+
+    // ─── Monthly Report ──────────────────────────────────────────
+    public class MonthlyReportDto
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+
+        public int TotalAppointments { get; set; }
+        public int CompletedAppointments { get; set; }
+        public int CancelledAppointments { get; set; }
+        public int NoShowAppointments { get; set; }
+
+        public decimal TotalRevenue { get; set; }
+        public decimal PendingRevenue { get; set; }
+
+        public int NewPatients { get; set; }
+
+        public DateTime? GeneratedAt { get; set; }
+
+        // true لو الداتا متحسوبة live لأن Hangfire لسه ما ولّدش السجل ده
+        public bool IsLive { get; set; }
+    }
+
+    public class MonthlyReportHistoryItemDto
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public int TotalAppointments { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public int NewPatients { get; set; }
+    }
 }

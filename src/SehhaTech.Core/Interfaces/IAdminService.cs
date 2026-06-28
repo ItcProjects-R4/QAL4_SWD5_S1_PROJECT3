@@ -17,5 +17,9 @@ namespace SehhaTech.Core.Interfaces
 
         Task<ClinicSettingsDto> GetSettingsAsync(int tenantId);
         Task UpdateSettingsAsync(int tenantId, UpdateClinicSettingsDto dto);
+
+        // ─── Monthly Report ──────────────────────────────────────
+        Task<MonthlyReportDto> GetMonthlyReportAsync(int tenantId, int? month, int? year);
+        Task<List<MonthlyReportHistoryItemDto>> GetMonthlyReportHistoryAsync(int tenantId, int monthsBack);
     }
 }

@@ -6,6 +6,7 @@ export default function AdminDashboard() {
     const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [error, setError] = useState('');
+    const [monthlyReport, setMonthlyReport] = useState(null);
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
         Scheduled: t('admin.dashboard.statusScheduled'),
     };
 
-    useEffect(() => { loadDashboard(); }, []);
+    useEffect(() => { loadDashboard(); loadMonthlyReport(); }, []);
 
     useEffect(() => {
         if (!data?.activityChart?.length) return;
@@ -65,6 +66,15 @@ export default function AdminDashboard() {
         }
     }
 
+    async function loadMonthlyReport() {
+        try {
+            const res = await api.get('/api/admin/monthly-report');
+            setMonthlyReport(res.data.data ?? res.data);
+        } catch {
+            setMonthlyReport(null);
+        }
+    }
+
     if (error) return <p className="text-red-500 text-sm">{error}</p>;
     if (!data) return <p className="text-slate-400 text-sm">{t('admin.dashboard.loading')}</p>;
 
@@ -97,6 +107,48 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Monthly Report Card */}
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 sm:p-6 mb-6 sm:mb-8">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <h3 className="font-bold text-[#002045]">{t('admin.dashboard.monthlyReportTitle')}</h3>
+                    {monthlyReport?.isLive && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
+                            {t('admin.dashboard.monthlyReportLive')}
+                        </span>
+                    )}
+                </div>
+                {!monthlyReport ? (
+                    <p className="text-slate-400 text-sm">{t('admin.dashboard.loading')}</p>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div>
+                            <div className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                                {Number(monthlyReport.totalRevenue ?? monthlyReport.TotalRevenue ?? 0).toLocaleString()}
+                            </div>
+                            <div className="text-xs text-slate-500">{t('admin.dashboard.monthlyReportRevenue')}</div>
+                        </div>
+                        <div>
+                            <div className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                                {monthlyReport.totalAppointments ?? monthlyReport.TotalAppointments ?? '—'}
+                            </div>
+                            <div className="text-xs text-slate-500">{t('admin.dashboard.monthlyReportAppointments')}</div>
+                        </div>
+                        <div>
+                            <div className="text-xl sm:text-2xl font-extrabold text-emerald-600">
+                                {monthlyReport.completedAppointments ?? monthlyReport.CompletedAppointments ?? '—'}
+                            </div>
+                            <div className="text-xs text-slate-500">{t('admin.dashboard.monthlyReportCompleted')}</div>
+                        </div>
+                        <div>
+                            <div className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                                {monthlyReport.newPatients ?? monthlyReport.NewPatients ?? '—'}
+                            </div>
+                            <div className="text-xs text-slate-500">{t('admin.dashboard.monthlyReportNewPatients')}</div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
