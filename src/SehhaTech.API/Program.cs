@@ -48,6 +48,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<ChatBotService>();
+builder.Services.AddScoped<IChurnPredictionService, ChurnPredictionService>(); // ✅ Churn AI
 
 // JWT Auth
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
