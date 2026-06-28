@@ -136,6 +136,7 @@
       "dashboard": "Dashboard",
       "clinics": "Clinic Management",
       "reports": "Reports",
+      "monthlyReports": "Monthly Reports",
       "settings": "Settings"
     },
     "brand": {
@@ -544,6 +545,46 @@
       "operational": "Operational",
       "incidentsTitle": "Incident History",
       "noIncidents": "No incidents reported. Platform launched successfully."
+    },
+    "monthlyReports": {
+      "title": "Monthly Reports",
+      "subtitle": "Per-clinic monthly performance: revenue, appointments, and new patients.",
+      "currency": "EGP",
+      "statRevenue": "Total Revenue",
+      "statAppointments": "Total Appointments",
+      "statNewPatients": "New Patients",
+      "statClinicsReported": "Clinics Reported",
+      "months": {
+        "jan": "Jan",
+        "feb": "Feb",
+        "mar": "Mar",
+        "apr": "Apr",
+        "may": "May",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Aug",
+        "sep": "Sep",
+        "oct": "Oct",
+        "nov": "Nov",
+        "dec": "Dec"
+      },
+      "table": {
+        "title": "Clinic Breakdown for Selected Month",
+        "loading": "Loading reports...",
+        "empty": "No reports for this month yet",
+        "colClinic": "Clinic",
+        "colAppointments": "Appointments",
+        "colCompleted": "Completed",
+        "colCancelled": "Cancelled",
+        "colNoShow": "No-Show",
+        "colRevenue": "Revenue",
+        "colPending": "Pending",
+        "colNewPatients": "New Patients"
+      },
+      "trend": {
+        "title": "Revenue Trend",
+        "subtitle": "Combined revenue across all clinics over the last 12 months"
+      }
     }
   },
   "doctor": {
@@ -679,7 +720,13 @@
       "noUpcoming": "No upcoming appointments",
       "statusCompleted": "Completed",
       "statusNoShow": "NoShow",
-      "statusScheduled": "Scheduled"
+      "statusScheduled": "Scheduled",
+      "monthlyReportTitle": "Current Month Report",
+      "monthlyReportLive": "Live Estimate",
+      "monthlyReportRevenue": "Revenue",
+      "monthlyReportAppointments": "Total Appointments",
+      "monthlyReportCompleted": "Completed Appointments",
+      "monthlyReportNewPatients": "New Patients"
     },
     "doctors": {
       "title": "Doctors Directory",

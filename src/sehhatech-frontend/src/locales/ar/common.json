@@ -136,6 +136,7 @@
       "dashboard": "لوحة التحكم",
       "clinics": "إدارة العيادات",
       "reports": "التقارير",
+      "monthlyReports": "التقارير الشهرية",
       "settings": "الإعدادات"
     },
     "brand": {
@@ -544,6 +545,46 @@
       "operational": "يعمل بشكل طبيعي",
       "incidentsTitle": "سجل الحوادث",
       "noIncidents": "لا توجد حوادث مُسجَّلة. تم إطلاق المنصة بنجاح."
+    },
+    "monthlyReports": {
+      "title": "التقارير الشهرية",
+      "subtitle": "أداء كل العيادات شهريًا، الإيرادات والمواعيد والمرضى الجدد.",
+      "currency": "ج.م",
+      "statRevenue": "إجمالي الإيرادات",
+      "statAppointments": "إجمالي المواعيد",
+      "statNewPatients": "مرضى جدد",
+      "statClinicsReported": "عيادات لها تقرير",
+      "months": {
+        "jan": "يناير",
+        "feb": "فبراير",
+        "mar": "مارس",
+        "apr": "أبريل",
+        "may": "مايو",
+        "jun": "يونيو",
+        "jul": "يوليو",
+        "aug": "أغسطس",
+        "sep": "سبتمبر",
+        "oct": "أكتوبر",
+        "nov": "نوفمبر",
+        "dec": "ديسمبر"
+      },
+      "table": {
+        "title": "تفاصيل العيادات للشهر المحدد",
+        "loading": "جاري تحميل التقارير...",
+        "empty": "لا يوجد تقارير لهذا الشهر بعد",
+        "colClinic": "العيادة",
+        "colAppointments": "المواعيد",
+        "colCompleted": "مكتملة",
+        "colCancelled": "ملغاة",
+        "colNoShow": "غياب",
+        "colRevenue": "الإيرادات",
+        "colPending": "متبقي",
+        "colNewPatients": "مرضى جدد"
+      },
+      "trend": {
+        "title": "اتجاه الإيرادات",
+        "subtitle": "إجمالي إيرادات كل العيادات خلال آخر 12 شهر"
+      }
     }
   },
   "doctor": {
@@ -679,7 +720,13 @@
       "noUpcoming": "لا توجد مواعيد قادمة",
       "statusCompleted": "مكتمل",
       "statusNoShow": "لم يحضر",
-      "statusScheduled": "مجدول"
+      "statusScheduled": "مجدول",
+      "monthlyReportTitle": "تقرير الشهر الحالي",
+      "monthlyReportLive": "تقدير مباشر",
+      "monthlyReportRevenue": "الإيرادات",
+      "monthlyReportAppointments": "إجمالي المواعيد",
+      "monthlyReportCompleted": "مواعيد مكتملة",
+      "monthlyReportNewPatients": "مرضى جدد"
     },
     "doctors": {
       "title": "دليل الأطباء",

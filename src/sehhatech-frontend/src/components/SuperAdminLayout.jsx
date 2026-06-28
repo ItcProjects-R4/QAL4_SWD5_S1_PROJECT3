@@ -18,12 +18,13 @@ export default function SuperAdminLayout() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  const navItems = [
-    { to: "/superadmin/dashboard", icon: "dashboard",        label: t("superadmin.nav.dashboard") },
-    { to: "/superadmin/clinics",   icon: "medical_services", label: t("superadmin.nav.clinics") },
-    { to: "/superadmin/reports",   icon: "analytics",        label: t("superadmin.nav.reports") },
-    { to: "/superadmin/settings",  icon: "settings",         label: t("superadmin.nav.settings") },
-  ];
+    const navItems = [
+        { to: "/superadmin/dashboard", icon: "dashboard", label: t("superadmin.nav.dashboard") },
+        { to: "/superadmin/clinics", icon: "medical_services", label: t("superadmin.nav.clinics") },
+        { to: "/superadmin/reports", icon: "analytics", label: t("superadmin.nav.reports") },
+        { to: "/superadmin/monthly-reports", icon: "calendar_month", label: t("superadmin.nav.monthlyReports") },
+        { to: "/superadmin/settings", icon: "settings", label: t("superadmin.nav.settings") },
+    ];
 
   useEffect(() => {
     superadmin.getProfile()

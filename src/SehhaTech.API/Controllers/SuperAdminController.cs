@@ -281,5 +281,84 @@ var leaderboard = leaderboardRaw.Select(x => new
                     message = "Password changed successfully"
                 });
             }
+        // ─── Monthly Reports (كل العيادات) ─────────────────────────────
+        // GET /api/SuperAdmin/monthly-reports?month=6&year=2026
+        [HttpGet("monthly-reports")]
+        public async Task<IActionResult> GetMonthlyReports(int? month, int? year)
+        {
+            var targetMonth = month ?? DateTime.UtcNow.Month;
+            var targetYear = year ?? DateTime.UtcNow.Year;
+
+            var reports = await _context.MonthlyReports
+                .Where(r => r.Month == targetMonth && r.Year == targetYear)
+                .Join(_context.Tenants, r => r.TenantId, t => t.Id, (r, t) => new
+                {
+                    r.Id,
+                    r.TenantId,
+                    TenantName = t.Name,
+                    r.Month,
+                    r.Year,
+                    r.TotalAppointments,
+                    r.CompletedAppointments,
+                    r.CancelledAppointments,
+                    r.NoShowAppointments,
+                    r.TotalRevenue,
+                    r.PendingRevenue,
+                    r.NewPatients,
+                    r.GeneratedAt
+                })
+                .OrderByDescending(r => r.TotalRevenue)
+                .ToListAsync();
+
+            // إجماليات عامة للشهر
+            var summary = new
+            {
+                TotalRevenue = reports.Sum(r => r.TotalRevenue),
+                TotalAppointments = reports.Sum(r => r.TotalAppointments),
+                TotalNewPatients = reports.Sum(r => r.NewPatients),
+                ClinicsReported = reports.Count
+            };
+
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    Month = targetMonth,
+                    Year = targetYear,
+                    Summary = summary,
+                    Clinics = reports
+                }
+            });
         }
+
+        // GET /api/SuperAdmin/monthly-reports/history?tenantId=3
+        // تاريخ آخر 12 شهر لعيادة معينة (لو محتاجها للـ chart) أو لكل العيادات مجمعة لو tenantId مش متبعت
+        [HttpGet("monthly-reports/history")]
+        public async Task<IActionResult> GetMonthlyReportsHistory(int? tenantId, int monthsBack = 12)
+        {
+            var cutoff = DateTime.UtcNow.AddMonths(-monthsBack);
+
+            var query = _context.MonthlyReports.AsQueryable();
+
+            if (tenantId.HasValue)
+                query = query.Where(r => r.TenantId == tenantId.Value);
+
+            var history = await query
+                .Where(r => new DateTime(r.Year, r.Month, 1) >= new DateTime(cutoff.Year, cutoff.Month, 1))
+                .GroupBy(r => new { r.Year, r.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    TotalRevenue = g.Sum(r => r.TotalRevenue),
+                    TotalAppointments = g.Sum(r => r.TotalAppointments),
+                    NewPatients = g.Sum(r => r.NewPatients)
+                })
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .ToListAsync();
+
+            return Ok(new { success = true, data = history });
+        }
+    }
     }
