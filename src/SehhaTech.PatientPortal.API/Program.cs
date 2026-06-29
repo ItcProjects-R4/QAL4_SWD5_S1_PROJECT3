@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using SehhaTech.Core.Interfaces;
+using SehhaTech.Infrastructure;
 using SehhaTech.Infrastructure.Data;
 using SehhaTech.Infrastructure.Services.Portal;
-using SehhaTech.Core.Interfaces;
+using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LoggingConfig.ConfigureLogging();
+builder.Host.UseSerilog();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -91,8 +95,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+#region Database Migrate
+using var scope = app.Services.CreateScope();
+
+var services = scope.ServiceProvider;
+
+var _dbContext = services.GetRequiredService<AppDbContext>();
+
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+try
+{
+    await _dbContext.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    var logger = loggerFactory.CreateLogger<Program>();
+    logger.LogError(ex, "An error occurred during migration");
+}
+#endregion
 
 app.Run();

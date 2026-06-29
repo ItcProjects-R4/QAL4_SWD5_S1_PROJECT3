@@ -1,20 +1,22 @@
-using BCrypt.Net;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SehhaTech.Core.Interfaces;
-using SehhaTech.Core.Models;
+using SehhaTech.Infrastructure;
 using SehhaTech.Infrastructure.Data;
 using SehhaTech.Infrastructure.Jobs;
 using SehhaTech.Infrastructure.Services;
 using SehhaTech.Infrastructure.Services.Portal;
+using Serilog;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+LoggingConfig.ConfigureLogging();
+builder.Host.UseSerilog();
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -139,5 +141,25 @@ RecurringJob.AddOrUpdate<MonthlyReportJob>(
     "0 6 1 * *");          // أول كل شهر الساعة 6 صباحاً
 
 app.MapControllers();
+
+#region Database Migrate
+using var scope = app.Services.CreateScope();
+
+var services = scope.ServiceProvider;
+
+var _dbContext = services.GetRequiredService<AppDbContext>();
+
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+try
+{
+    await _dbContext.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    var logger = loggerFactory.CreateLogger<Program>();
+    logger.LogError(ex, "An error occurred during migration");
+}
+#endregion
 
 app.Run();
