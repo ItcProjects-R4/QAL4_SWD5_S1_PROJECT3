@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
+import logo from '../assets/logo.jpeg'
 
 export default function Navbar() {
     const location = useLocation()
@@ -55,12 +56,7 @@ export default function Navbar() {
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
-                    <span
-                        className="material-symbols-outlined text-primary text-[28px]"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                        monitor_heart
-                    </span>
+                    <img src={logo} alt="SehhaTech Logo" className="h-9 w-9 object-contain" />
                     <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                 </Link>
 
