@@ -26,7 +26,40 @@ public class BookingService
         if (existing != null)
             return (true, "Booking already exists.", await MapToResponseAsync(existing));
 
-        // 2. تأكد إن الـ slot مش محجوز
+        // ✅ 2. منع الحجز في وقت فات
+        // ✅ استخدام TimeZoneHelper موحّد (متوافق مع Windows و Linux) بدل
+        // ما نعتمد على "Egypt Standard Time" مباشرة، اللي ممكن يرمي
+        // Exception على Linux ويخلي الفحص يتجاوَز بالغلط.
+        var nowInEgypt = TimeZoneHelper.GetEgyptNow();
+        var slotDateTime = request.SlotDate.Date + request.SlotTime;
+
+        if (slotDateTime <= nowInEgypt)
+            return (false, "This time slot has already passed.", null);
+
+        // ✅ 3. تأكد إن الوقت المطلوب أصلاً جوه أحد الـ SlotTemplates الفعّالة بتاعة الدكتور
+        // ده بيمنع حد يبعت وقت عشوائي مش متعرّف كـ slot أصلاً (مش بس متاح/محجوز)
+        var dayOfWeek = request.SlotDate.DayOfWeek;
+        var templates = await _db.SlotTemplates
+            .Where(s => s.DoctorId == request.DoctorId
+                     && s.TenantId == request.TenantId
+                     && s.DayOfWeek == dayOfWeek
+                     && s.IsActive)
+            .ToListAsync();
+
+        var isValidSlot = templates.Any(t =>
+        {
+            if (request.SlotTime < t.StartTime || request.SlotTime >= t.EndTime)
+                return false;
+
+            // لازم يكون الوقت بالضبط بداية واحدة من فترات الـ slot (مش وقت عشوائي وسط الفترة)
+            var diffMinutes = (request.SlotTime - t.StartTime).TotalMinutes;
+            return diffMinutes % t.SlotDurationMinutes == 0;
+        });
+
+        if (!isValidSlot)
+            return (false, "Invalid or unavailable time slot.", null);
+
+        // 4. تأكد إن الـ slot مش محجوز
         var conflict = await _db.PatientBookings.AnyAsync(b =>
             b.DoctorId == request.DoctorId &&
             b.TenantId == request.TenantId &&
@@ -37,7 +70,19 @@ public class BookingService
         if (conflict)
             return (false, "This slot is already booked.", null);
 
-        // 3. تأكد إن المريض مش عنده أكتر من حد معين من الحجوزات النشطة
+        // ✅ 5. تأكد إن مفيش Appointment يدوي اتعمل بنفس الوقت من النظام الأصلي (Reception/Staff)
+        // عشان نمنع نفس مشكلة الـ double-booking اللي اتعالجت في GetAvailableSlotsAsync
+        var slotStart = request.SlotDate.Date.Add(request.SlotTime);
+        var manualConflict = await _db.Appointments.AnyAsync(a =>
+            a.DoctorId == request.DoctorId &&
+            a.TenantId == request.TenantId &&
+            a.AppointmentDate == slotStart &&
+            a.Status != AppointmentStatus.Cancelled);
+
+        if (manualConflict)
+            return (false, "This slot is already booked.", null);
+
+        // 6. تأكد إن المريض مش عنده أكتر من حد معين من الحجوزات النشطة
         var user = await _db.PortalUsers.FindAsync(portalUserId);
         if (user == null)
             return (false, "User not found.", null);
@@ -45,15 +90,11 @@ public class BookingService
         if (user.Level == VerificationLevel.Unverified)
             return (false, "Phone verification required before booking.", null);
 
-        // ✅ شيلنا قيد "Maximum active bookings" المرتبط بـ Email Verification
-        // لأن الـ email verification feature لسه مش متعمل في النظام، فمكنش منطقي
-        // نطلب من المستخدم خطوة مش موجودة أصلاً عشان يكمل يحجز
-
-        // 4. Begin transaction
+        // 7. Begin transaction
         using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         try
         {
-            // 5. Final conflict check inside transaction
+            // 8. Final conflict check inside transaction
             var finalConflict = await _db.PatientBookings.AnyAsync(b =>
                 b.DoctorId == request.DoctorId &&
                 b.TenantId == request.TenantId &&
@@ -67,7 +108,20 @@ public class BookingService
                 return (false, "This slot was just booked by someone else.", null);
             }
 
-            // 6. إنشاء الحجز
+            // ✅ فحص نهائي كمان للـ manual appointment جوه الـ transaction نفسها
+            var finalManualConflict = await _db.Appointments.AnyAsync(a =>
+                a.DoctorId == request.DoctorId &&
+                a.TenantId == request.TenantId &&
+                a.AppointmentDate == slotStart &&
+                a.Status != AppointmentStatus.Cancelled);
+
+            if (finalManualConflict)
+            {
+                await tx.RollbackAsync();
+                return (false, "This slot was just booked by someone else.", null);
+            }
+
+            // 9. إنشاء الحجز
             var booking = new PatientBooking
             {
                 IdempotencyKey = request.IdempotencyKey,
@@ -85,7 +139,7 @@ public class BookingService
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
 
-            // 7. Integration Bridge
+            // 10. Integration Bridge
             await CreateAppointmentAsync(booking);
 
             return (true, "Booking confirmed successfully.", await MapToResponseAsync(booking));
