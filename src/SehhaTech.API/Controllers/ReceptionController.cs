@@ -658,6 +658,242 @@ public class ReceptionController : ControllerBase
         });
     }
 
+    // ✅ NEW: Reception had no way to ever mark a visit as finished — the queue
+    // would show "CheckedIn" patients forever since nothing ever moved them
+    // to Completed. This is the missing other half of the check-in workflow.
+    [HttpPut("appointments/{id}/complete")]
+    public async Task<IActionResult> CompleteAppointment(int id)
+    {
+        if (id <= 0)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Invalid appointment id"
+            });
+        }
+
+        var tenantId = (int)HttpContext.Items["TenantId"]!;
+
+        var appointment = await _context.Appointments
+            .FirstOrDefaultAsync(a => a.Id == id && a.TenantId == tenantId);
+
+        if (appointment == null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Appointment not found"
+            });
+        }
+
+        if (appointment.Status == AppointmentStatus.Cancelled)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Cannot complete a cancelled appointment"
+            });
+        }
+
+        if (appointment.Status == AppointmentStatus.Completed)
+        {
+            return Conflict(new
+            {
+                success = false,
+                message = "Appointment is already completed"
+            });
+        }
+
+        if (appointment.Status != AppointmentStatus.CheckedIn)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Patient must be checked in before the appointment can be completed"
+            });
+        }
+
+        appointment.Status = AppointmentStatus.Completed;
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Appointment marked as completed",
+            data = new
+            {
+                appointment.Id,
+                status = appointment.Status.ToString()
+            }
+        });
+    }
+
+    // ✅ NEW: The "Reschedule" button in the UI was permanently disabled because
+    // this endpoint never existed. Reuses the exact same working-hours +
+    // conflict validation as booking, excluding the appointment's own current
+    // slot from the conflict check.
+    [HttpPut("appointments/{id}/reschedule")]
+    public async Task<IActionResult> RescheduleAppointment(int id, [FromBody] RescheduleAppointmentRequest request)
+    {
+        if (id <= 0)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Invalid appointment id"
+            });
+        }
+
+        if (request == null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Request body is required"
+            });
+        }
+
+        if (request.AppointmentDate == default)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Appointment date is required"
+            });
+        }
+
+        if (request.AppointmentDate <= DateTime.Now)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Appointment date must be in the future"
+            });
+        }
+
+        var tenantId = (int)HttpContext.Items["TenantId"]!;
+
+        var appointment = await _context.Appointments
+            .FirstOrDefaultAsync(a => a.Id == id && a.TenantId == tenantId);
+
+        if (appointment == null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Appointment not found"
+            });
+        }
+
+        if (appointment.Status == AppointmentStatus.Completed)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Cannot reschedule a completed appointment"
+            });
+        }
+
+        if (appointment.Status == AppointmentStatus.Cancelled)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Cannot reschedule a cancelled appointment"
+            });
+        }
+
+        var duration = request.Duration ?? appointment.Duration;
+
+        if (duration <= TimeSpan.Zero || duration.TotalMinutes < 10 || duration.TotalMinutes > 180)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Appointment duration must be between 10 and 180 minutes"
+            });
+        }
+
+        var appointmentStart = request.AppointmentDate;
+        var appointmentEnd = appointmentStart.Add(duration);
+
+        if (appointmentEnd.Date != appointmentStart.Date)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Appointment time cannot cross midnight. Please choose an earlier start time or shorter duration."
+            });
+        }
+
+        var appointmentDayOfWeek = appointmentStart.DayOfWeek;
+        var appointmentStartTime = appointmentStart.TimeOfDay;
+        var appointmentEndTime = appointmentEnd.TimeOfDay;
+
+        var withinWorkingHours = await _context.SlotTemplates.AnyAsync(s =>
+            s.DoctorId == appointment.DoctorId &&
+            s.TenantId == tenantId &&
+            s.IsActive &&
+            s.DayOfWeek == appointmentDayOfWeek &&
+            s.StartTime <= appointmentStartTime &&
+            s.EndTime >= appointmentEndTime);
+
+        if (!withinWorkingHours)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "This time is outside the doctor's working hours. Please check the doctor's schedule before booking."
+            });
+        }
+
+        var existingAppointments = await _context.Appointments
+            .Where(a =>
+                a.TenantId == tenantId &&
+                a.DoctorId == appointment.DoctorId &&
+                a.Id != appointment.Id &&
+                a.Status != AppointmentStatus.Cancelled &&
+                a.AppointmentDate >= appointmentStart.AddHours(-3) &&
+                a.AppointmentDate <= appointmentEnd.AddHours(3))
+            .Select(a => new { a.AppointmentDate, a.Duration })
+            .ToListAsync();
+
+        var hasConflict = existingAppointments.Any(a =>
+            appointmentStart < a.AppointmentDate.Add(a.Duration) &&
+            appointmentEnd > a.AppointmentDate);
+
+        if (hasConflict)
+        {
+            return Conflict(new
+            {
+                success = false,
+                message = "Doctor already has an appointment during this time"
+            });
+        }
+
+        appointment.AppointmentDate = appointmentStart;
+        appointment.Duration = duration;
+        // ✅ A rescheduled appointment goes back to "Scheduled" — handles the case
+        // where it had been checked in too early by mistake.
+        appointment.Status = AppointmentStatus.Scheduled;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Appointment rescheduled successfully",
+            data = new
+            {
+                appointment.Id,
+                appointment.AppointmentDate,
+                appointment.Duration,
+                status = appointment.Status.ToString()
+            }
+        });
+    }
+
     [HttpGet("queue")]
     public async Task<IActionResult> GetTodayQueue()
     {
