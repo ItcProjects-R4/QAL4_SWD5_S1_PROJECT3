@@ -930,7 +930,8 @@
       "noDoctors": "لا يوجد أطباء متاحون الآن.",
       "active": "نشط",
       "notAvailable": "غير متاح",
-      "general": "عام"
+      "general": "عام",
+      "completeBtn": "إنهاء الزيارة"
     },
     "appointments": {
       "title": "مكتب الاستقبال",
@@ -996,7 +997,12 @@
       "errDuration": "يرجى اختيار مدة الموعد.",
       "errNotesTooLong": "لا يمكن أن تتجاوز الملاحظات 500 حرف.",
       "errDoctorBusy": "لدى هذا الطبيب موعد في هذا الوقت بالفعل. يرجى اختيار وقت آخر.",
-      "errGeneral": "تعذر حجز الموعد. يرجى مراجعة البيانات المُدخلة والمحاولة مرة أخرى."
+      "errGeneral": "تعذر حجز الموعد. يرجى مراجعة البيانات المُدخلة والمحاولة مرة أخرى.",
+      "completeBtn": "إنهاء الزيارة",
+      "completedLabel": "مكتمل",
+      "rescheduleTitle": "إعادة جدولة الموعد",
+      "rescheduleBtn": "تأكيد الموعد الجديد",
+      "rescheduling": "جارٍ إعادة الجدولة..."
     },
     "patients": {
       "title": "إدارة المرضى",
@@ -1075,7 +1081,8 @@
       "profileDOB": "تاريخ الميلاد",
       "waitingStatus": "منتظر",
       "visit": "زيارة",
-      "registered": "مسجل"
+      "registered": "مسجل",
+      "optional": "اختياري"
     },
     "payments": {
       "title": "المدفوعات",

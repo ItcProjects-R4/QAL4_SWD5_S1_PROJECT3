@@ -61,7 +61,13 @@ export const receptionApi = {
   getAppointments(queryString = "") {
     const query = queryString ? `?${queryString}` : "";
     return request(api.get(`/api/Reception/appointments${query}`));
-  },
+    },
+
+    completeAppointment: (appointmentId) =>
+        api.put(`/api/Reception/appointments/${appointmentId}/complete`).then(r => r.data),
+
+    rescheduleAppointment: (appointmentId, payload) =>
+        api.put(`/api/Reception/appointments/${appointmentId}/reschedule`, payload).then(r => r.data),
 
   bookAppointment(payload) {
     return request(
