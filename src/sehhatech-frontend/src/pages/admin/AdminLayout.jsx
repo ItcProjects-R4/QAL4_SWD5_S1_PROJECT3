@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
@@ -6,16 +7,8 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'ar';
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // The sidebar toggle button has been removed, so the sidebar is now
-    // always visible at every screen size — there is no longer a
-    // sidebarOpen state, mobile overlay, or resize listener to manage.
-
-    // AuthContext.login() stores the user's name under the "fullName" key
-    // (see storage.setItem("fullName", data.fullName)) — there is no
-    // "userName" key anywhere in the app, so reading that always returned
-    // null and silently fell back to the placeholder label in every
-    // language. Reading "fullName" fixes that and shows the real name.
     const storedName = localStorage.getItem('fullName');
     const name = storedName || t('admin.layout.defaultUserName');
 
@@ -32,15 +25,32 @@ export default function AdminLayout() {
         window.location.href = '/login';
     }
 
-    // Sidebar is always shown, so it's always translated into view and
-    // the main content/header always carry the fixed offset for it.
-    const sidebarOffsetClass = 'ms-64';
+    // Hide sidebar off-screen on mobile, always visible on md+
+    const sidebarTranslate = sidebarOpen
+        ? 'translate-x-0'
+        : isRTL ? 'translate-x-full' : '-translate-x-full';
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
-            {/* Sidebar */}
+
+            {/* ── Mobile backdrop ── */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-40 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
+
+            {/* ── Sidebar ── */}
             <aside
-                className="fixed top-0 start-0 h-screen w-64 bg-white border-e border-slate-100 flex flex-col py-6 z-50"
+                className={`
+                    fixed top-0 start-0 h-screen w-64
+                    bg-white border-e border-slate-100
+                    flex flex-col py-6 z-50
+                    transition-transform duration-300
+                    ${sidebarTranslate} md:translate-x-0
+                `}
             >
                 {/* Logo */}
                 <div className="px-6 mb-6 flex items-center gap-3">
@@ -61,6 +71,7 @@ export default function AdminLayout() {
                         <NavLink
                             key={item.to}
                             to={item.to}
+                            onClick={() => setSidebarOpen(false)}
                             className={({ isActive }) =>
                                 `flex items-center px-4 py-3 gap-3 rounded-lg text-sm font-medium transition-all ${isActive
                                     ? 'bg-blue-50 text-[#002045] font-semibold'
@@ -86,15 +97,30 @@ export default function AdminLayout() {
                 </div>
             </aside>
 
-            {/* Main */}
-            <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOffsetClass}`}>
+            {/* ── Main area ── */}
+            <div className="flex-1 flex flex-col min-h-screen md:ms-64">
+
                 {/* Header */}
-                <header className={`fixed top-0 start-0 end-0 z-40 h-16 bg-white/80 backdrop-blur border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 transition-all duration-300 ${sidebarOffsetClass}`}>
+                <header className="fixed top-0 start-0 end-0 z-40 h-16 bg-white/80 backdrop-blur border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 md:ms-64">
                     <div className="flex items-center gap-3">
+
+                        {/* Hamburger — mobile only */}
+                        <button
+                            onClick={() => setSidebarOpen(v => !v)}
+                            className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                            aria-label={t('admin.layout.toggleMenu', 'Toggle menu')}
+                            aria-expanded={sidebarOpen}
+                        >
+                            <span className="material-symbols-outlined text-[22px] text-slate-600">
+                                {sidebarOpen ? 'close' : 'menu'}
+                            </span>
+                        </button>
+
                         <h2 className="text-base sm:text-lg font-bold text-[#002045]">
                             {t('admin.layout.adminPanel')}
                         </h2>
                     </div>
+
                     <div className="flex items-center gap-2 sm:gap-3">
                         <LanguageSwitcher />
                         <div className="w-8 h-8 rounded-full bg-[#002045] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
