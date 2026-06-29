@@ -5514,3 +5514,18 @@
         animation: none;
     }
 }
+
+/* ── Mobile Nav Fix: hide register btn in navbar (it's in mobile panel) ── */
+@media (max-width: 767px) {
+    .landing-nav__actions .btn--gradient {
+        display: none;
+    }
+
+    .landing-nav__actions {
+        gap: 0.5rem;
+    }
+
+    .landing-nav__inner {
+        padding: 0 1rem;
+    }
+}
