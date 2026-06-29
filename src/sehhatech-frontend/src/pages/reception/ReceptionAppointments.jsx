@@ -84,8 +84,8 @@ function getAppointmentInputClass(hasError, color = "emerald") {
             : "border-slate-200 focus:border-emerald-600 focus:ring-emerald-600/10";
 
     return `h-12 w-full rounded-2xl border bg-slate-50 pl-12 pr-4 text-sm font-medium text-slate-800 outline-none transition focus:bg-white focus:ring-4 ${hasError
-            ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-            : normalFocus
+        ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+        : normalFocus
         }`;
 }
 
@@ -122,6 +122,16 @@ export default function ReceptionAppointments() {
     const [availableSlots, setAvailableSlots] = useState([]);
     const [loadingSlots, setLoadingSlots] = useState(false);
     const [slotsError, setSlotsError] = useState("");
+
+    const [rescheduleTarget, setRescheduleTarget] = useState(null);
+    const [rescheduleDate, setRescheduleDate] = useState("");
+    const [rescheduleDuration, setRescheduleDuration] = useState("00:30:00");
+    const [rescheduling, setRescheduling] = useState(false);
+    const [rescheduleError, setRescheduleError] = useState("");
+    const [rescheduleSlotDate, setRescheduleSlotDate] = useState(todayISO());
+    const [rescheduleSlots, setRescheduleSlots] = useState([]);
+    const [loadingRescheduleSlots, setLoadingRescheduleSlots] = useState(false);
+    const [rescheduleSlotsError, setRescheduleSlotsError] = useState("");
 
     const [form, setForm] = useState({
         patientId: "",
@@ -247,6 +257,36 @@ export default function ReceptionAppointments() {
         };
     }, [modalOpen, form.doctorId, slotDate, t]);
 
+    useEffect(() => {
+        if (!rescheduleTarget || !rescheduleSlotDate) {
+            setRescheduleSlots([]);
+            setRescheduleSlotsError("");
+            return;
+        }
+
+        let active = true;
+
+        (async () => {
+            setLoadingRescheduleSlots(true);
+            setRescheduleSlotsError("");
+            try {
+                const data = await receptionApi.getDoctorSlots(rescheduleTarget.doctorId, rescheduleSlotDate);
+                if (active) setRescheduleSlots(data.data || []);
+            } catch (err) {
+                if (active) {
+                    setRescheduleSlots([]);
+                    setRescheduleSlotsError(err.message || t("reception.appointments.errSlotsLoad"));
+                }
+            } finally {
+                if (active) setLoadingRescheduleSlots(false);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, [rescheduleTarget, rescheduleSlotDate, t]);
+
     function pickSlot(slot) {
         if (!slot.isAvailable) return;
         setForm((prev) => ({ ...prev, appointmentDate: `${slotDate}T${slot.time}` }));
@@ -343,6 +383,71 @@ export default function ReceptionAppointments() {
             await Promise.all([loadAppointments(), loadStaticData()]);
         } catch (err) {
             showToast(err.message || t("reception.appointments.failedLoad"), "error");
+        }
+    }
+
+    async function completeAppointment(appointmentId) {
+        if (!appointmentId) return;
+
+        try {
+            const result = await receptionApi.completeAppointment(appointmentId);
+            showToast(result?.message || t("reception.appointments.completeBtn"));
+            await Promise.all([loadAppointments(), loadStaticData()]);
+        } catch (err) {
+            showToast(err.message || t("reception.appointments.failedLoad"), "error");
+        }
+    }
+
+    function openRescheduleModal(appointment) {
+        setRescheduleTarget(appointment);
+        setRescheduleDate("");
+        setRescheduleDuration(appointment.duration || "00:30:00");
+        setRescheduleError("");
+        setRescheduleSlotDate(todayISO());
+        setRescheduleSlots([]);
+        setRescheduleSlotsError("");
+    }
+
+    function closeRescheduleModal() {
+        setRescheduleTarget(null);
+        setRescheduleSlots([]);
+        setRescheduleSlotsError("");
+    }
+
+    function pickRescheduleSlot(slot) {
+        if (!slot.isAvailable) return;
+        setRescheduleDate(`${rescheduleSlotDate}T${slot.time}`);
+        setRescheduleError("");
+    }
+
+    async function submitReschedule() {
+        if (!rescheduleTarget) return;
+
+        if (!rescheduleDate) {
+            setRescheduleError(t("reception.appointments.errDateRequired"));
+            return;
+        }
+
+        if (new Date(rescheduleDate) <= new Date()) {
+            setRescheduleError(t("reception.appointments.errDatePast"));
+            return;
+        }
+
+        setRescheduling(true);
+        setRescheduleError("");
+
+        try {
+            const result = await receptionApi.rescheduleAppointment(rescheduleTarget.id, {
+                appointmentDate: rescheduleDate,
+                duration: rescheduleDuration,
+            });
+            showToast(result?.message || t("reception.appointments.rescheduleBtn"));
+            closeRescheduleModal();
+            await Promise.all([loadAppointments(), loadStaticData()]);
+        } catch (err) {
+            setRescheduleError(err.message || t("reception.appointments.errGeneral"));
+        } finally {
+            setRescheduling(false);
         }
     }
 
@@ -566,7 +671,9 @@ export default function ReceptionAppointments() {
                                 !error &&
                                 filteredAppointments.map((a) => {
                                     const status = a.status || "Scheduled";
-                                    const disabled = ["CheckedIn", "Completed", "Cancelled"].includes(status);
+                                    const canReschedule = !["Completed", "Cancelled"].includes(status);
+                                    const canCheckIn = status === "Scheduled";
+                                    const canComplete = status === "CheckedIn";
                                     const patientName = a.patientName || `Patient #${a.patientId || "-"}`;
 
                                     return (
@@ -606,26 +713,48 @@ export default function ReceptionAppointments() {
                                             </div>
 
                                             <div className="flex flex-wrap gap-3 lg:justify-end">
-                                                <button
-                                                    disabled
-                                                    className="px-5 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-bold cursor-not-allowed"
-                                                >
-                                                    {t("reception.appointments.reschedule")}
-                                                </button>
-
-                                                {disabled ? (
+                                                {canReschedule ? (
+                                                    <button
+                                                        onClick={() => openRescheduleModal(a)}
+                                                        className="px-5 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all"
+                                                    >
+                                                        {t("reception.appointments.reschedule")}
+                                                    </button>
+                                                ) : (
                                                     <button
                                                         disabled
                                                         className="px-5 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-bold cursor-not-allowed"
                                                     >
-                                                        {t("reception.appointments.checkIn")}
+                                                        {t("reception.appointments.reschedule")}
                                                     </button>
-                                                ) : (
+                                                )}
+
+                                                {canCheckIn && (
                                                     <button
                                                         onClick={() => checkInAppointment(a.id)}
                                                         className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all"
                                                     >
                                                         {t("reception.appointments.checkIn")}
+                                                    </button>
+                                                )}
+
+                                                {canComplete && (
+                                                    <button
+                                                        onClick={() => completeAppointment(a.id)}
+                                                        className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all"
+                                                    >
+                                                        {t("reception.appointments.completeBtn")}
+                                                    </button>
+                                                )}
+
+                                                {!canCheckIn && !canComplete && (
+                                                    <button
+                                                        disabled
+                                                        className="px-5 py-2 bg-slate-100 text-slate-400 rounded-lg text-sm font-bold cursor-not-allowed"
+                                                    >
+                                                        {status === "Completed"
+                                                            ? t("reception.appointments.completedLabel")
+                                                            : t("reception.appointments.checkIn")}
                                                     </button>
                                                 )}
                                             </div>
@@ -912,13 +1041,12 @@ export default function ReceptionAppointments() {
                                                             type="button"
                                                             disabled={!slot.isAvailable}
                                                             onClick={() => pickSlot(slot)}
-                                                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${
-                                                                !slot.isAvailable
+                                                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${!slot.isAvailable
                                                                     ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed line-through"
                                                                     : isSelected
-                                                                    ? "bg-[#002045] text-white border-[#002045]"
-                                                                    : "bg-white text-slate-700 border-slate-200 hover:border-[#002045] hover:text-[#002045]"
-                                                            }`}
+                                                                        ? "bg-[#002045] text-white border-[#002045]"
+                                                                        : "bg-white text-slate-700 border-slate-200 hover:border-[#002045] hover:text-[#002045]"
+                                                                }`}
                                                         >
                                                             {slot.time}
                                                         </button>
@@ -940,22 +1068,21 @@ export default function ReceptionAppointments() {
 
                                     {form.doctorId ? (
                                         <div
-                                            className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm ${
-                                                appointmentErrors.appointmentDate
+                                            className={`flex items-center gap-2 px-4 py-3 rounded-lg border text-sm ${appointmentErrors.appointmentDate
                                                     ? "border-red-300 bg-red-50"
                                                     : form.appointmentDate
-                                                    ? "border-slate-200 bg-white text-slate-800 font-semibold"
-                                                    : "border-slate-200 bg-slate-50 text-slate-400"
-                                            }`}
+                                                        ? "border-slate-200 bg-white text-slate-800 font-semibold"
+                                                        : "border-slate-200 bg-slate-50 text-slate-400"
+                                                }`}
                                         >
                                             <span className="material-symbols-outlined text-[20px] text-slate-400">
                                                 calendar_month
                                             </span>
                                             {form.appointmentDate
                                                 ? new Date(form.appointmentDate).toLocaleString(
-                                                      i18n.language === "ar" ? "ar-EG" : "en-GB",
-                                                      { dateStyle: "medium", timeStyle: "short" }
-                                                  )
+                                                    i18n.language === "ar" ? "ar-EG" : "en-GB",
+                                                    { dateStyle: "medium", timeStyle: "short" }
+                                                )
                                                 : t("reception.appointments.pickSlotPrompt")}
                                         </div>
                                     ) : (
@@ -1020,8 +1147,8 @@ export default function ReceptionAppointments() {
                                             onChange={(e) => updateAppointmentField("notes", e.target.value)}
                                             placeholder={t("reception.appointments.notesPlaceholder")}
                                             className={`w-full resize-none rounded-2xl border bg-slate-50 py-3 pl-12 pr-4 text-sm font-medium text-slate-800 outline-none transition focus:bg-white focus:ring-4 ${appointmentErrors.notes
-                                                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-                                                    : "border-slate-200 focus:border-emerald-600 focus:ring-emerald-600/10"
+                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                                                : "border-slate-200 focus:border-emerald-600 focus:ring-emerald-600/10"
                                                 }`}
                                         />
                                     </div>
@@ -1050,6 +1177,122 @@ export default function ReceptionAppointments() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {rescheduleTarget && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-7 py-6">
+                            <div>
+                                <h3 className="text-xl font-extrabold tracking-tight text-slate-900">
+                                    {t("reception.appointments.rescheduleTitle")}
+                                </h3>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    {rescheduleTarget.patientName || `Patient #${rescheduleTarget.patientId || "-"}`}
+                                    {" — "}
+                                    {rescheduleTarget.doctorSpecialization || "Doctor"}
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={closeRescheduleModal}
+                                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                            >
+                                <span className="material-symbols-outlined text-[22px]">close</span>
+                            </button>
+                        </div>
+
+                        <div className="px-7 py-6">
+                            {rescheduleError && (
+                                <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                    {rescheduleError}
+                                </div>
+                            )}
+
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                                    <span className="text-sm font-bold text-slate-700">
+                                        {t("reception.appointments.availableSlots")}
+                                    </span>
+
+                                    <input
+                                        type="date"
+                                        value={rescheduleSlotDate}
+                                        min={todayISO()}
+                                        onChange={(e) => setRescheduleSlotDate(e.target.value)}
+                                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#002045] w-full sm:w-auto"
+                                    />
+                                </div>
+
+                                {loadingRescheduleSlots ? (
+                                    <p className="text-sm text-slate-400">{t("reception.appointments.loadingSlots")}</p>
+                                ) : rescheduleSlotsError ? (
+                                    <p className="text-sm text-red-500">{rescheduleSlotsError}</p>
+                                ) : rescheduleSlots.length === 0 ? (
+                                    <p className="text-sm text-slate-400">{t("reception.appointments.noSlotsForDay")}</p>
+                                ) : (
+                                    <div className="flex flex-wrap gap-2">
+                                        {rescheduleSlots.map((slot) => {
+                                            const isSelected = rescheduleDate === `${rescheduleSlotDate}T${slot.time}`;
+                                            return (
+                                                <button
+                                                    key={slot.time}
+                                                    type="button"
+                                                    disabled={!slot.isAvailable}
+                                                    onClick={() => pickRescheduleSlot(slot)}
+                                                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${!slot.isAvailable
+                                                            ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed line-through"
+                                                            : isSelected
+                                                                ? "bg-[#002045] text-white border-[#002045]"
+                                                                : "bg-white text-slate-700 border-slate-200 hover:border-[#002045] hover:text-[#002045]"
+                                                        }`}
+                                                >
+                                                    {slot.time}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <label className="block mb-5">
+                                <span className="mb-2 block text-sm font-bold text-slate-700">
+                                    {t("reception.appointments.duration")}
+                                </span>
+
+                                <select
+                                    value={rescheduleDuration}
+                                    onChange={(e) => setRescheduleDuration(e.target.value)}
+                                    className="w-full h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:bg-white focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600"
+                                >
+                                    <option value="00:30:00">{t("reception.appointments.duration30")}</option>
+                                    <option value="01:00:00">{t("reception.appointments.duration60")}</option>
+                                    <option value="01:30:00">{t("reception.appointments.duration90")}</option>
+                                </select>
+                            </label>
+
+                            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+                                <button
+                                    type="button"
+                                    onClick={closeRescheduleModal}
+                                    className="h-12 rounded-2xl border border-slate-200 px-6 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                                >
+                                    {t("reception.appointments.cancel")}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={submitReschedule}
+                                    disabled={rescheduling}
+                                    className="h-12 rounded-2xl bg-[#002045] px-8 text-sm font-bold text-white shadow-lg shadow-[#002045]/20 transition hover:bg-[#1a365d] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {rescheduling ? t("reception.appointments.rescheduling") : t("reception.appointments.rescheduleBtn")}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
