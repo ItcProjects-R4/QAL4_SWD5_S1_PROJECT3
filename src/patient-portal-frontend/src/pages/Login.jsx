@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import api from '../api/axios'
 import Footer from '../components/Footer'
 
+
 export default function Login() {
     const navigate = useNavigate()
     const canvasRef = useRef(null)
@@ -142,7 +143,6 @@ export default function Login() {
         }
     }
 
-    // RTL-aware: use logical padding (ps/pe) for input icons
     const fieldCls = (key) =>
         `w-full ps-10 pe-3 py-3 border rounded-xl bg-surface-container-lowest text-on-surface text-body-md focus:outline-none focus:ring-1 transition-colors ${errors[key]
             ? 'border-error focus:border-error focus:ring-error'
@@ -156,10 +156,16 @@ export default function Login() {
             {/* Header */}
             <header className="bg-surface/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
                 <div className="flex justify-between items-center w-full px-8 max-w-7xl mx-auto h-16">
+                    {/* ── Logo + Name ── */}
                     <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-primary text-[28px] icon-pop" style={{ fontVariationSettings: "'FILL' 1" }}>monitor_heart</span>
+                        <img
+                            src="/src/assets/logo.jpeg"
+                            alt="SehhaTech Logo"
+                            className="h-9 w-auto object-contain"
+                        />
                         <span className="font-bold text-headline-md text-primary">SehhaTech</span>
                     </Link>
+
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
