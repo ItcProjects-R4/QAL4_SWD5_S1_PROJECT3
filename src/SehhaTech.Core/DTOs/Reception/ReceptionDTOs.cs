@@ -31,4 +31,10 @@ namespace SehhaTech.Core.DTOs.Reception
         public TimeSpan Duration { get; set; }
         public string? Notes { get; set; }
     }
+
+    public class RescheduleAppointmentRequest
+    {
+        public DateTime AppointmentDate { get; set; }
+        public TimeSpan? Duration { get; set; }
+    }
 }

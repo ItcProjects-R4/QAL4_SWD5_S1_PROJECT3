@@ -284,6 +284,43 @@
         "inactive": "Inactive",
         "paused": "Paused",
         "pending": "Pending"
+      },
+      "churn": {
+        "tableTitle": "Churn Risk Monitor",
+        "tableSubtitle": "Clinics most at risk of cancelling their subscription",
+        "colClinic": "Clinic",
+        "colScore": "Churn Score",
+        "colRisk": "Risk Level",
+        "colDetails": "Details",
+        "analyzing": "Analyzing...",
+        "noData": "No data available",
+        "viewAnalysis": "Analyze",
+        "riskLevel": {
+          "Critical": "Critical",
+          "High": "High",
+          "Medium": "Medium",
+          "Low": "Low"
+        },
+        "modal": {
+          "eyebrow": "Churn Risk Analysis",
+          "riskLevelLabel": "Risk Level",
+          "factorsLabel": "Risk Factors",
+          "loading": "Analyzing...",
+          "error": "Failed to load analysis data"
+        },
+        "factors": {
+          "NoRecentAppointments": "No new appointments in the last 14 days",
+          "DecliningAppointmentVolume": "This month's appointment count is lower than last month",
+          "InactiveStaffLogin": "No staff member has logged in for over 21 days",
+          "SubscriptionExpiringSoon": "Subscription will expire within 30 days with no renewal signal",
+          "NoStaffGrowth": "No new staff members added in the last 30 days"
+        },
+        "recommendation": {
+          "Critical": "Immediate contact required — clinic is at high risk of cancelling",
+          "High": "Recommended to reach out this week to understand the drop in activity",
+          "Medium": "Monitor this clinic — may need support or follow-up soon",
+          "Low": "No action required at this time"
+        }
       }
     },
     "settings": {
@@ -893,7 +930,8 @@
       "noDoctors": "No doctors available right now.",
       "active": "Active",
       "notAvailable": "Not Available",
-      "general": "General"
+      "general": "General",
+      "completeBtn": "Complete Visit"
     },
     "appointments": {
       "title": "Reception Desk",
@@ -959,7 +997,12 @@
       "errDuration": "Please select an appointment duration.",
       "errNotesTooLong": "Notes cannot exceed 500 characters.",
       "errDoctorBusy": "This doctor already has an appointment at this time. Please choose a different time.",
-      "errGeneral": "Could not book the appointment. Please review the entered data and try again."
+      "errGeneral": "Could not book the appointment. Please review the entered data and try again.",
+      "completeBtn": "Complete Visit",
+      "completedLabel": "Completed",
+      "rescheduleTitle": "Reschedule Appointment",
+      "rescheduleBtn": "Confirm New Time",
+      "rescheduling": "Rescheduling..."
     },
     "patients": {
       "title": "Patient Management",
@@ -1038,7 +1081,8 @@
       "profileDOB": "Date of Birth",
       "waitingStatus": "Waiting",
       "visit": "Visit",
-      "registered": "Registered"
+      "registered": "Registered",
+      "optional": "optional"
     },
     "payments": {
       "title": "Payments",

@@ -66,7 +66,7 @@
   <!-- Main title -->
   <text x="450" y="103" font-family="Arial Black, Impact, sans-serif" font-size="55" font-weight="900"
     text-anchor="middle" fill="#FFFFFF">
-    QAL4 &middot; SWD5 &middot; S1
+    QAL4 • SWD5 • S1
     <animate attributeName="opacity" values="0.88;1;0.88" dur="4s" repeatCount="indefinite"/>
   </text>
 
@@ -84,7 +84,7 @@
   <!-- Caption -->
   <text x="450" y="193" font-family="Arial, Helvetica, sans-serif" font-size="12"
     text-anchor="middle" fill="#3d6b8a" letter-spacing="2">
-    Projects Repository  —  Team of 5  —  Egypt  —  2025
+    Projects Repository  —  Team of 5  —  Egypt  —  2026
   </text>
 
   <!-- Corner brackets -->
