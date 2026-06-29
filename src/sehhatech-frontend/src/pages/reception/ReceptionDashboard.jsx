@@ -26,6 +26,11 @@ function canCheckIn(status) {
     return s.includes("scheduled");
 }
 
+function canComplete(status) {
+    const s = String(status || "").toLowerCase();
+    return s.includes("checkedin");
+}
+
 function StatCard({ icon, iconBg, iconColor, label, value, badge, badgeBg, badgeText, delay = 0 }) {
     const [visible, setVisible] = useState(false);
     useEffect(() => {
@@ -108,6 +113,17 @@ export default function ReceptionDashboard() {
         try {
             const result = await receptionApi.checkInAppointment(appointmentId);
             showToast(result?.message || t("reception.dashboard.checkIn"));
+            await loadDashboard(true);
+        } catch (err) {
+            showToast(err.message || t("reception.dashboard.failedQueue"), "error");
+        }
+    }
+
+    async function completePatient(appointmentId) {
+        if (!appointmentId) return;
+        try {
+            const result = await receptionApi.completeAppointment(appointmentId);
+            showToast(result?.message || t("reception.dashboard.completeBtn"));
             await loadDashboard(true);
         } catch (err) {
             showToast(err.message || t("reception.dashboard.failedQueue"), "error");
@@ -358,6 +374,13 @@ export default function ReceptionDashboard() {
                                                         className="text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all"
                                                     >
                                                         {t("reception.dashboard.checkIn")}
+                                                    </button>
+                                                ) : canComplete(status) ? (
+                                                    <button
+                                                        onClick={() => completePatient(item.appointmentId)}
+                                                        className="text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all"
+                                                    >
+                                                        {t("reception.dashboard.completeBtn")}
                                                     </button>
                                                 ) : (
                                                     <button disabled className="text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 cursor-not-allowed">

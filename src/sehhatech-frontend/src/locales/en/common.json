@@ -930,7 +930,8 @@
       "noDoctors": "No doctors available right now.",
       "active": "Active",
       "notAvailable": "Not Available",
-      "general": "General"
+      "general": "General",
+      "completeBtn": "Complete Visit"
     },
     "appointments": {
       "title": "Reception Desk",
@@ -996,7 +997,12 @@
       "errDuration": "Please select an appointment duration.",
       "errNotesTooLong": "Notes cannot exceed 500 characters.",
       "errDoctorBusy": "This doctor already has an appointment at this time. Please choose a different time.",
-      "errGeneral": "Could not book the appointment. Please review the entered data and try again."
+      "errGeneral": "Could not book the appointment. Please review the entered data and try again.",
+      "completeBtn": "Complete Visit",
+      "completedLabel": "Completed",
+      "rescheduleTitle": "Reschedule Appointment",
+      "rescheduleBtn": "Confirm New Time",
+      "rescheduling": "Rescheduling..."
     },
     "patients": {
       "title": "Patient Management",
