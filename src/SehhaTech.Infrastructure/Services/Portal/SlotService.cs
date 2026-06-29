@@ -141,6 +141,10 @@ public class SlotService
             .Distinct()
             .ToHashSet();
 
+        // ✅ لو اليوم هو النهارده، خد الوقت الحالي بتوقيت مصر
+        var nowInEgypt = TimeZoneHelper.GetEgyptNow();
+        var isToday = date.Date == nowInEgypt.Date;
+
         var availableSlots = new List<AvailableSlotResponse>();
 
         foreach (var template in templates)
@@ -148,11 +152,14 @@ public class SlotService
             var current = template.StartTime;
             while (current + TimeSpan.FromMinutes(template.SlotDurationMinutes) <= template.EndTime)
             {
+                // ✅ لو النهارده، شيل الـ slots اللي وقتها عدى
+                var isPast = isToday && current <= nowInEgypt.TimeOfDay;
+
                 availableSlots.Add(new AvailableSlotResponse
                 {
                     Date = date.Date,
                     Time = current,
-                    IsAvailable = !allBookedTimes.Contains(current)
+                    IsAvailable = !allBookedTimes.Contains(current) && !isPast
                 });
                 current = current.Add(TimeSpan.FromMinutes(template.SlotDurationMinutes));
             }
