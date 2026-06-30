@@ -69,8 +69,6 @@
 
 <div align="center">
 
-### 🟣 Super Admin Portal
-
 <table>
 <tr>
 <td width="50%">
@@ -82,13 +80,6 @@
 <p align="center"><b>📈 Monthly Reports</b> — Per-clinic revenue & appointment breakdown</p>
 </td>
 </tr>
-</table>
-
-<br/>
-
-### 🔵 Clinic Admin Portal
-
-<table>
 <tr>
 <td width="50%">
 <img src="./assets/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="100%" />
@@ -99,13 +90,6 @@
 <p align="center"><b>👨‍⚕️ Doctors Directory</b> — Manage specialist profiles & availability</p>
 </td>
 </tr>
-</table>
-
-<br/>
-
-### 🟢 Doctor Portal
-
-<table>
 <tr>
 <td width="50%">
 <img src="./assets/screenshots/doctor-dashboard.png" alt="Doctor Dashboard" width="100%" />
@@ -116,46 +100,37 @@
 <p align="center"><b>📅 Daily Schedule</b> — Full appointment timeline</p>
 </td>
 </tr>
-</table>
-
-<br/>
-
-<img src="./assets/screenshots/doctor-profile.png" alt="Doctor Profile" width="90%" />
-<p><b>👤 Doctor Profile</b> — Personal & professional information at a glance</p>
-
-<br/>
-
-### 🟡 Receptionist Portal
-
-<table>
 <tr>
+<td width="50%">
+<img src="./assets/screenshots/doctor-profile.png" alt="Doctor Profile" width="100%" />
+<p align="center"><b>👤 Doctor Profile</b> — Personal & professional information</p>
+</td>
 <td width="50%">
 <img src="./assets/screenshots/reception-dashboard.png" alt="Reception Dashboard" width="100%" />
 <p align="center"><b>🖥️ Reception Desk</b> — Daily queue & quick actions</p>
 </td>
+</tr>
+<tr>
 <td width="50%">
 <img src="./assets/screenshots/reception-patients.png" alt="Patient Management" width="100%" />
 <p align="center"><b>👥 Patient Management</b> — Search, check-in & profiles</p>
 </td>
-</tr>
-<tr>
 <td width="50%">
 <img src="./assets/screenshots/reception-appointments.png" alt="Reception Appointments" width="100%" />
 <p align="center"><b>📅 Daily Schedule</b> — Appointment queue & filters</p>
 </td>
+</tr>
+<tr>
 <td width="50%">
 <img src="./assets/screenshots/reception-payments.png" alt="Reception Payments" width="100%" />
 <p align="center"><b>💳 Payment Queue</b> — Invoices, quick payment & summary</p>
 </td>
+<td width="50%">
+<img src="./assets/screenshots/clinic-register.png" alt="Clinic Registration" width="100%" />
+<p align="center"><b>📝 Clinic Registration</b> — Self-service sign-up</p>
+</td>
 </tr>
 </table>
-
-<br/>
-
-### 🏢 Clinic Onboarding
-
-<img src="./assets/screenshots/clinic-register.png" alt="Clinic Registration" width="60%" />
-<p><b>📝 Clinic Registration</b> — Self-service sign-up with security strength checks</p>
 
 </div>
 
