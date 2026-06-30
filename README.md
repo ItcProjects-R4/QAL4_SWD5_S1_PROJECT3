@@ -69,42 +69,93 @@
 
 <div align="center">
 
-### 🖥️ Clinic Management System
+### 🟣 Super Admin Portal
 
 <table>
 <tr>
 <td width="50%">
-<img src="./assets/screenshots/landing.png" alt="Landing Page" width="100%" />
-<p align="center"><b>🏠 Landing Page</b> — Simple, modern & professional</p>
+<img src="./assets/screenshots/superadmin-dashboard.png" alt="Super Admin Dashboard" width="100%" />
+<p align="center"><b>📊 Executive Overview</b> — Real-time stats across the clinic network</p>
 </td>
 <td width="50%">
-<img src="./assets/screenshots/dashboard.png" alt="Admin Dashboard" width="100%" />
-<p align="center"><b>📊 Admin Dashboard</b> — Real-time clinic insights</p>
-</td>
-</tr>
-<tr>
-<td width="50%">
-<img src="./assets/screenshots/reports.png" alt="Reports & Analytics" width="100%" />
-<p align="center"><b>📈 Reports & Analytics</b> — Data-driven decisions</p>
-</td>
-<td width="50%">
-<img src="./assets/screenshots/mobile.png" alt="Mobile Responsive" width="100%" />
-<p align="center"><b>📱 Mobile Responsive</b> — Works on any device</p>
+<img src="./assets/screenshots/superadmin-monthly-reports.png" alt="Monthly Reports" width="100%" />
+<p align="center"><b>📈 Monthly Reports</b> — Per-clinic revenue & appointment breakdown</p>
 </td>
 </tr>
 </table>
 
 <br/>
 
-<img src="./assets/screenshots/features.png" alt="SehhaTech Features" width="90%" />
-<p><b>✨ Everything you need to run your clinic — smarter</b></p>
+### 🔵 Clinic Admin Portal
+
+<table>
+<tr>
+<td width="50%">
+<img src="./assets/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="100%" />
+<p align="center"><b>🏥 Clinic Dashboard</b> — Doctors, receptionists & today's activity</p>
+</td>
+<td width="50%">
+<img src="./assets/screenshots/admin-doctors.png" alt="Doctors Directory" width="100%" />
+<p align="center"><b>👨‍⚕️ Doctors Directory</b> — Manage specialist profiles & availability</p>
+</td>
+</tr>
+</table>
 
 <br/>
 
-### 🧑‍⚕️ Patient Portal
+### 🟢 Doctor Portal
 
-<img src="./assets/screenshots/patient-portal.png" alt="Patient Portal" width="90%" />
-<p><b>🌐 Patient Portal — <i>"Your health, on your schedule."</i></b></p>
+<table>
+<tr>
+<td width="50%">
+<img src="./assets/screenshots/doctor-dashboard.png" alt="Doctor Dashboard" width="100%" />
+<p align="center"><b>🩺 Daily Overview</b> — Today's appointments & recent patients</p>
+</td>
+<td width="50%">
+<img src="./assets/screenshots/doctor-schedule.png" alt="Doctor Schedule" width="100%" />
+<p align="center"><b>📅 Daily Schedule</b> — Full appointment timeline</p>
+</td>
+</tr>
+</table>
+
+<br/>
+
+<img src="./assets/screenshots/doctor-profile.png" alt="Doctor Profile" width="90%" />
+<p><b>👤 Doctor Profile</b> — Personal & professional information at a glance</p>
+
+<br/>
+
+### 🟡 Receptionist Portal
+
+<table>
+<tr>
+<td width="50%">
+<img src="./assets/screenshots/reception-dashboard.png" alt="Reception Dashboard" width="100%" />
+<p align="center"><b>🖥️ Reception Desk</b> — Daily queue & quick actions</p>
+</td>
+<td width="50%">
+<img src="./assets/screenshots/reception-patients.png" alt="Patient Management" width="100%" />
+<p align="center"><b>👥 Patient Management</b> — Search, check-in & profiles</p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="./assets/screenshots/reception-appointments.png" alt="Reception Appointments" width="100%" />
+<p align="center"><b>📅 Daily Schedule</b> — Appointment queue & filters</p>
+</td>
+<td width="50%">
+<img src="./assets/screenshots/reception-payments.png" alt="Reception Payments" width="100%" />
+<p align="center"><b>💳 Payment Queue</b> — Invoices, quick payment & summary</p>
+</td>
+</tr>
+</table>
+
+<br/>
+
+### 🏢 Clinic Onboarding
+
+<img src="./assets/screenshots/clinic-register.png" alt="Clinic Registration" width="60%" />
+<p><b>📝 Clinic Registration</b> — Self-service sign-up with security strength checks</p>
 
 </div>
 
@@ -331,36 +382,66 @@ A clean, modern platform for patients to **take control of their healthcare jour
 │
 ├── 📁 src/
 │   │
-│   ├── 🔵 SehhaTech.API/                     # Clinic Management REST API
+│   ├── 🔵 SehhaTech.API/                       # Clinic Management REST API
 │   │   ├── 📁 Controllers/
-│   │   │   ├── SuperAdminController.cs
+│   │   │   ├── AdminController.cs
+│   │   │   ├── AuthController.cs
+│   │   │   ├── ChatBotController.cs
 │   │   │   ├── DoctorController.cs
-│   │   │   └── ReceptionController.cs
+│   │   │   ├── ReceptionController.cs
+│   │   │   ├── SubscriptionController.cs
+│   │   │   ├── SuperAdminController.cs
+│   │   │   └── UploadController.cs
+│   │   ├── 📁 Middleware/
+│   │   │   └── TenantMiddleware.cs
+│   │   ├── appsettings.json
 │   │   └── Program.cs
 │   │
-│   ├── 🧠 SehhaTech.Core/                    # Domain Layer (Framework-free)
-│   │   ├── 📁 Entities/                        # Database models
-│   │   ├── 📁 Interfaces/                      # Repository & service contracts
-│   │   └── 📁 DTOs/                            # Data Transfer Objects
+│   ├── 🧠 SehhaTech.Core/                      # Domain Layer (Framework-free)
+│   │   ├── 📁 DTOs/                              # Admin · Auth · ChatBot · Doctor · Portal · Reception
+│   │   ├── 📁 Interfaces/                        # IAdminService · IAuthService · IJwtService · IPaymobService · ICloudinaryService · ISmsService
+│   │   └── 📁 Models/                            # Appointment · Doctor · Patient · PaymentInvoice · Subscription · Tenant · User
+│   │       └── 📁 Portal/                          # OTPRecord · PatientBooking · PortalUser · PortalRefreshToken · SlotTemplate
 │   │
-│   ├── 🏗️ SehhaTech.Infrastructure/          # Infrastructure Layer
-│   │   ├── 📁 Repositories/                    # EF Core implementations
-│   │   ├── 📁 Migrations/                      # Database migrations
-│   │   └── 📁 Services/                        # External & utility services
+│   ├── 🏗️ SehhaTech.Infrastructure/            # Infrastructure Layer
+│   │   ├── 📁 Data/
+│   │   │   ├── AppDbContext.cs
+│   │   │   └── AppDbContextFactory.cs
+│   │   ├── 📁 Migrations/                        # EF Core migrations (SQL Server)
+│   │   └── 📁 Services/
+│   │       ├── AdminService.cs · AuthService.cs · ChatBotService.cs
+│   │       ├── CloudinaryService.cs · JwtService.cs · PaymobService.cs
+│   │       └── 📁 Portal/                          # BookingService · ClinicSearchService · OtpService · PortalAuthService · PortalJwtService · SlotService · SmsService
 │   │
-│   ├── 🏥 SehhaTech.PatientPortal.API/        # Patient Portal REST API
+│   ├── 🏥 SehhaTech.PatientPortal.API/         # Patient Portal REST API
 │   │   ├── 📁 Controllers/
+│   │   │   ├── BookingController.cs
+│   │   │   ├── ClinicController.cs
+│   │   │   ├── PortalAuthController.cs
+│   │   │   └── SlotController.cs
+│   │   ├── appsettings.json
 │   │   └── Program.cs
 │   │
-│   ├── ⚛️  sehhatech-frontend/                # Clinic Management UI
+│   ├── ⚛️  sehhatech-frontend/                  # Clinic Management UI (Admin · Doctor · Reception · SuperAdmin)
 │   │   └── 📁 src/
-│   │       ├── 📁 components/
-│   │       └── 📁 pages/
+│   │       ├── 📁 api/                             # axios.js · portalApi.js · receptionApi.js · superadmin.js
+│   │       ├── 📁 components/                      # Layout · Sidebars · Modals · Toasts · public/
+│   │       ├── 📁 context/                         # AuthContext.jsx
+│   │       ├── 📁 hooks/                           # useDoctorProfile · useToast
+│   │       ├── 📁 pages/
+│   │       │   ├── 📁 admin/
+│   │       │   ├── 📁 doctor/
+│   │       │   ├── 📁 reception/
+│   │       │   ├── 📁 superadmin/
+│   │       │   └── 📁 public/                        # Contact · Payment · Privacy · Security · Status · Terms
+│   │       └── 📁 styles/
 │   │
-│   └── 📱 patient-portal-frontend/             # Patient Booking UI
+│   └── 📱 patient-portal-frontend/               # Patient Booking UI
 │       └── 📁 src/
-│           ├── 📁 components/
-│           └── 📁 pages/
+│           ├── 📁 api/                             # axios.js
+│           ├── 📁 components/                      # Footer · HeartbeatLine · Navbar · ScrollToTop · TermsModal
+│           ├── 📁 hooks/                           # useScrollReveal · useTilt
+│           └── 📁 pages/                           # Landing · Clinics · BookAppointment · Login · Register · MyBookings · VerifyOtp · ...
 │
 ├── 📁 assets/
 │   ├── logo.png
@@ -368,6 +449,7 @@ A clean, modern platform for patients to **take control of their healthcare jour
 ├── 📁 database/
 ├── 📁 docs/
 ├── 📁 presentation/
+├── SehhaTech.slnx
 └── 📄 README.md
 ```
 
