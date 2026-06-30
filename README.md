@@ -99,7 +99,7 @@ A **C# Console Application** connected to SQL Server — our first team project,
 <tr>
 <td width="52%">
 
-A **full-scale, cloud-deployed Healthcare Management Platform** — our main graduation deliverable built with .NET 10, React 18, and PostgreSQL.
+A **full-scale, cloud-deployed Healthcare Management Platform** — our main graduation deliverable built with .NET 10, React 18, and SQL Server (via EF Core).
 
 **🏥 System 1 — Clinic Management (Multi-Tenant SaaS)**
 - 4 Roles: Super Admin · Clinic Admin · Doctor · Receptionist
@@ -116,14 +116,13 @@ A **full-scale, cloud-deployed Healthcare Management Platform** — our main gra
 
 <img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
 <img src="https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" />
 <img src="https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
 
 <br/>
 
-<img src="https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white" />
-<img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" />
-<img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" />
+<img src="https://img.shields.io/badge/MonsterASP.NET-Deployed-2ECC71?style=for-the-badge&logo=windows&logoColor=white" />
+<img src="https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" />
 <img src="https://img.shields.io/badge/Status-Deployed%20🚀-2ECC71?style=for-the-badge" />
 
 <br/><br/>
@@ -172,10 +171,10 @@ A **full-scale, cloud-deployed Healthcare Management Platform** — our main gra
 | **⏱️ Timeline** | Start of Track | End of Track |
 | **🎯 Focus** | Core Fundamentals | Production Software |
 | **🏗️ Type** | Console Application | Full Stack SaaS Platform |
-| **🗄️ Database** | SQL Server + ADO.NET | PostgreSQL + EF Core |
+| **🗄️ Database** | SQL Server + ADO.NET | SQL Server + EF Core |
 | **🖥️ Interface** | Terminal / Console | React 18 + Tailwind CSS |
 | **🔐 Auth** | None | JWT + OTP |
-| **☁️ Deployment** | Local Only | Railway · Render · Vercel |
+| **☁️ Deployment** | Local Only | MonsterASP.NET · Vercel |
 | **👥 Team Style** | Equal Contribution | Specialized Roles |
 | **✅ Status** | ✅ Completed | 🚀 Deployed & Live |
 
