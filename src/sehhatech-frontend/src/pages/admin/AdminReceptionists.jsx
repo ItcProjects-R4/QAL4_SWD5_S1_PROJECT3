@@ -72,13 +72,13 @@ export default function AdminReceptionists() {
                         but the column order never gets silently reversed by the browser's RTL table layout, which is
                         what was pushing the actions column outside the card.
                     */}
-                    <table dir="ltr" className="min-w-[480px] w-full text-start">
+                    <table dir="ltr" className="min-w-[280px] w-full text-start">
                         <thead>
                             <tr className="bg-slate-50">
                                 <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start">
                                     {t('admin.receptionists.colReceptionist')}
                                 </th>
-                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start">
+                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start hidden md:table-cell">
                                     {t('admin.receptionists.colEmail')}
                                 </th>
                                 <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start">
@@ -112,7 +112,7 @@ export default function AdminReceptionists() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 sm:px-6 py-4 text-xs text-slate-500 truncate max-w-[120px] sm:max-w-none text-start" dir="ltr">
+                                            <td className="px-4 sm:px-6 py-4 text-xs text-slate-500 truncate max-w-[120px] sm:max-w-none text-start hidden md:table-cell" dir="ltr">
                                                 {r.email || r.Email || '—'}
                                             </td>
                                             <td className="px-4 sm:px-6 py-4 text-start">

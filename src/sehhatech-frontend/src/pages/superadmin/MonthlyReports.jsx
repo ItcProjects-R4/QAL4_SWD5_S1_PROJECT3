@@ -14,7 +14,7 @@ function MonthPicker({ month, year, onChange }) {
     const years = Array.from({ length: 4 }, (_, i) => now.getFullYear() - i);
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
             <select
                 value={month}
                 onChange={(e) => onChange(Number(e.target.value), year)}
@@ -59,8 +59,14 @@ function ClinicsTable({ rows = [], loading }) {
     const { t } = useTranslation();
 
     const columns = [
-        "colClinic", "colAppointments", "colCompleted",
-        "colCancelled", "colNoShow", "colRevenue", "colPending", "colNewPatients",
+        { key: "colClinic", hideOnMobile: false },
+        { key: "colAppointments", hideOnMobile: true },
+        { key: "colCompleted", hideOnMobile: false },
+        { key: "colCancelled", hideOnMobile: true },
+        { key: "colNoShow", hideOnMobile: true },
+        { key: "colRevenue", hideOnMobile: false },
+        { key: "colPending", hideOnMobile: true },
+        { key: "colNewPatients", hideOnMobile: true },
     ];
 
     return (
@@ -74,8 +80,8 @@ function ClinicsTable({ rows = [], loading }) {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50/50">
                         <tr>
-                            {columns.map((key) => (
-                                <th key={key} className="px-4 sm:px-6 py-4 text-[12px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                            {columns.map(({ key, hideOnMobile }) => (
+                                <th key={key} className={`px-4 sm:px-6 py-4 text-[12px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap ${hideOnMobile ? "hidden md:table-cell" : ""}`}>
                                     {t(`superadmin.monthlyReports.table.${key}`)}
                                 </th>
                             ))}
@@ -94,17 +100,17 @@ function ClinicsTable({ rows = [], loading }) {
                             rows.map((r) => (
                                 <tr key={r.tenantId} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm whitespace-nowrap">{r.tenantName}</td>
-                                    <td className="px-4 sm:px-6 py-4 text-slate-600 text-sm">{r.totalAppointments}</td>
+                                    <td className="px-4 sm:px-6 py-4 text-slate-600 text-sm hidden md:table-cell">{r.totalAppointments}</td>
                                     <td className="px-4 sm:px-6 py-4 text-emerald-600 text-sm font-medium">{r.completedAppointments}</td>
-                                    <td className="px-4 sm:px-6 py-4 text-rose-500 text-sm">{r.cancelledAppointments}</td>
-                                    <td className="px-4 sm:px-6 py-4 text-amber-600 text-sm">{r.noShowAppointments}</td>
+                                    <td className="px-4 sm:px-6 py-4 text-rose-500 text-sm hidden md:table-cell">{r.cancelledAppointments}</td>
+                                    <td className="px-4 sm:px-6 py-4 text-amber-600 text-sm hidden md:table-cell">{r.noShowAppointments}</td>
                                     <td className="px-4 sm:px-6 py-4 text-slate-900 font-semibold text-sm whitespace-nowrap">
                                         {Number(r.totalRevenue).toLocaleString()} {t("superadmin.monthlyReports.currency")}
                                     </td>
-                                    <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
+                                    <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm whitespace-nowrap hidden md:table-cell">
                                         {Number(r.pendingRevenue).toLocaleString()} {t("superadmin.monthlyReports.currency")}
                                     </td>
-                                    <td className="px-4 sm:px-6 py-4 text-slate-600 text-sm">{r.newPatients}</td>
+                                    <td className="px-4 sm:px-6 py-4 text-slate-600 text-sm hidden md:table-cell">{r.newPatients}</td>
                                 </tr>
                             ))
                         )}
@@ -224,7 +230,7 @@ export default function MonthlyReports() {
                 <MonthPicker month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y); }} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {stats.map((s) => <StatCard key={s.label} {...s} />)}
             </div>
 
