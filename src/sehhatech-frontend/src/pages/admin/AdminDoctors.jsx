@@ -67,7 +67,7 @@ export default function AdminDoctors() {
     }
 
     async function toggleDoctor(id) {
-        try { await api.put(`/api/admin/doctors/${id}/toggle`); loadDoctors(); } catch { }
+        try { await api.put(`/api/admin/doctors/${id}/toggle`); loadDoctors(); } catch (_) { /* toggle errors are non-critical */ }
     }
 
     async function confirmDelete() {
@@ -79,35 +79,35 @@ export default function AdminDoctors() {
     }
 
     return (
-        <div>
+        <div className="w-full max-w-full overflow-x-hidden">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 sm:mb-8">
-                <div>
+                <div className="min-w-0">
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002045]">{t('admin.doctors.title')}</h1>
                     <p className="text-slate-500 text-sm mt-1">{t('admin.doctors.subtitle')}</p>
                 </div>
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto shrink-0"
                 >
                     <span className="material-symbols-outlined text-lg">person_add</span>
                     {t('admin.doctors.addBtn')}
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-[580px] w-full text-left">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden w-full">
+                <div className="overflow-x-auto w-full">
+                    <table className="min-w-[320px] w-full text-left">
                         <thead>
                             <tr className="bg-slate-50">
                                 {[
-                                    t('admin.doctors.colDoctor'),
-                                    t('admin.doctors.colSpecialization'),
-                                    t('admin.doctors.colContact'),
-                                    t('admin.doctors.colStatus'),
-                                    '',
-                                ].map((h, idx) => (
-                                    <th key={idx} className={`px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider ${h === '' ? 'text-right' : ''}`}>
-                                        {h}
+                                    { label: t('admin.doctors.colDoctor'), hide: false },
+                                    { label: t('admin.doctors.colSpecialization'), hide: true },
+                                    { label: t('admin.doctors.colContact'), hide: true },
+                                    { label: t('admin.doctors.colStatus'), hide: false },
+                                    { label: '', hide: false },
+                                ].map(({ label, hide }, idx) => (
+                                    <th key={idx} className={`px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap ${label === '' ? 'text-right' : ''} ${hide ? 'hidden md:table-cell' : ''}`}>
+                                        {label}
                                     </th>
                                 ))}
                             </tr>
@@ -136,10 +136,10 @@ export default function AdminDoctors() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-slate-700">{d.specialization || d.Specialization || '—'}</td>
-                                            <td className="px-4 sm:px-6 py-4 text-xs text-slate-500">{d.email || d.Email || '—'}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-slate-700 whitespace-nowrap hidden md:table-cell">{d.specialization || d.Specialization || '—'}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-xs text-slate-500 whitespace-nowrap hidden md:table-cell">{d.email || d.Email || '—'}</td>
                                             <td className="px-4 sm:px-6 py-4">
-                                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+                                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase whitespace-nowrap ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'}`} />
                                                     {isActive ? t('admin.doctors.active') : t('admin.doctors.inactive')}
                                                 </span>

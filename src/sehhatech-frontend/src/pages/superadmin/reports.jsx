@@ -71,7 +71,7 @@ function ScoreRing({ score = 0, size = 48 }) {
                     : "#10b981";
 
     return (
-        <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+        <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
             <svg width={size} height={size} viewBox="0 0 44 44" className="-rotate-90">
                 <circle cx="22" cy="22" r={r} fill="none" stroke="#f1f5f9" strokeWidth="4" />
                 <circle
@@ -111,24 +111,24 @@ function ChurnDetailModal({ clinicId, clinicName, onClose }) {
     return (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
             <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-start justify-between p-6 border-b border-slate-100">
-                    <div>
+                <div className="flex items-start justify-between gap-3 p-4 sm:p-6 border-b border-slate-100">
+                    <div className="min-w-0">
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">
                             {t("superadmin.reports.churn.modal.eyebrow")}
                         </p>
-                        <h3 className="text-xl font-bold text-slate-900">{clinicName}</h3>
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 truncate">{clinicName}</h3>
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
+                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors shrink-0">
                         <span className="material-symbols-outlined text-xl">close</span>
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12 gap-3">
                             <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-700 rounded-full animate-spin" />
@@ -142,17 +142,17 @@ function ChurnDetailModal({ clinicId, clinicName, onClose }) {
                     ) : (
                         <>
                             {/* Score + Risk Level */}
-                            <div className="flex items-center gap-5 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <div className="flex items-center gap-4 sm:gap-5 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
                                 <ScoreRing score={detail.score} size={64} />
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                                         <ChurnBadge level={detail.riskLevel} />
                                         <span className="text-xs text-slate-400 font-medium">
                                             {t("superadmin.reports.churn.modal.riskLevelLabel")}
                                         </span>
                                     </div>
                                     {/* recommendation يترجم محلياً حسب riskLevel، مش النص الخام من الـ backend */}
-                                    <p className="text-sm text-slate-600 leading-snug">
+                                    <p className="text-sm text-slate-600 leading-snug break-words">
                                         {t(`superadmin.reports.churn.recommendation.${detail.riskLevel}`)}
                                     </p>
                                 </div>
@@ -171,18 +171,18 @@ function ChurnDetailModal({ clinicId, clinicName, onClose }) {
                                             : "bg-slate-50 border-slate-100"
                                             }`}
                                     >
-                                        <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
                                             <span
-                                                className={`material-symbols-outlined text-[20px] ${f.isTriggered ? "text-red-500" : "text-slate-300"}`}
+                                                className={`material-symbols-outlined text-[20px] shrink-0 ${f.isTriggered ? "text-red-500" : "text-slate-300"}`}
                                                 style={{ fontVariationSettings: "'FILL' 1" }}
                                             >
                                                 {factorIcons[f.factorName] || "circle"}
                                             </span>
                                             {/* description يترجم محلياً حسب factorName، مش النص الخام من الـ backend */}
-                                            <p className={`text-sm font-semibold flex-1 ${f.isTriggered ? "text-red-700" : "text-slate-500"}`}>
+                                            <p className={`text-sm font-semibold flex-1 min-w-0 break-words ${f.isTriggered ? "text-red-700" : "text-slate-500"}`}>
                                                 {t(`superadmin.reports.churn.factors.${f.factorName}`)}
                                             </p>
-                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${f.isTriggered ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-400"
+                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${f.isTriggered ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-400"
                                                 }`}>
                                                 {f.pointsContributed}/{f.maxPoints}
                                             </span>
@@ -224,15 +224,15 @@ function ChurnRiskTable({ rows = [], loading }) {
 
     return (
         <>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden w-full">
                 {/* Title */}
-                <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
+                <div className="px-4 sm:px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="min-w-0">
                         <h3 className="text-lg sm:text-xl font-semibold text-slate-900 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[22px] text-red-500" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            <span className="material-symbols-outlined text-[22px] text-red-500 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
                                 crisis_alert
                             </span>
-                            {t("superadmin.reports.churn.tableTitle")}
+                            <span className="truncate">{t("superadmin.reports.churn.tableTitle")}</span>
                         </h3>
                         <p className="text-sm text-slate-400 mt-0.5">{t("superadmin.reports.churn.tableSubtitle")}</p>
                     </div>
@@ -248,8 +248,8 @@ function ChurnRiskTable({ rows = [], loading }) {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full min-w-[640px] text-left">
                         <thead className="bg-slate-50/50">
                             <tr>
                                 <th className="px-4 sm:px-6 py-3.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{t("superadmin.reports.churn.colClinic")}</th>
@@ -280,7 +280,7 @@ function ChurnRiskTable({ rows = [], loading }) {
                                                 : "hover:bg-slate-50/50"
                                             }`}
                                     >
-                                        <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">{r.name}</td>
+                                        <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm whitespace-nowrap">{r.name}</td>
                                         <td className="px-4 sm:px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <ScoreRing score={r.churnScore ?? 0} size={40} />
@@ -302,7 +302,7 @@ function ChurnRiskTable({ rows = [], loading }) {
                                         <td className="px-4 sm:px-6 py-4 text-right">
                                             <button
                                                 onClick={() => setSelected(r)}
-                                                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                                                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
                                             >
                                                 <span className="material-symbols-outlined text-[14px]">open_in_new</span>
                                                 {t("superadmin.reports.churn.viewAnalysis")}
@@ -341,15 +341,15 @@ function Leaderboard({ rows = [], loading }) {
     ];
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden w-full">
+            <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
                     {t("superadmin.reports.leaderboard.title")}
                 </h3>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
+            <div className="overflow-x-auto w-full">
+                <table className="w-full min-w-[640px] text-left">
                     <thead className="bg-slate-50/50">
                         <tr>
                             {columns.map(({ key, hideOnMobile }) => (
@@ -380,7 +380,7 @@ function Leaderboard({ rows = [], loading }) {
                         ) : (
                             rows.map((r, i) => (
                                 <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm">{r.name}</td>
+                                    <td className="px-4 sm:px-6 py-4 font-medium text-slate-900 text-sm whitespace-nowrap">{r.name}</td>
                                     <td className="px-4 sm:px-6 py-4 text-slate-500 text-sm hidden md:table-cell">{r.doctors ?? "—"}</td>
                                     <td className="px-4 sm:px-6 py-4 text-sm">
                                         <div className="flex items-center gap-2">
@@ -428,7 +428,7 @@ function GrowthLineChart({ data = [] }) {
     const areaPath = `${linePath} L ${points[points.length - 1][0]} ${H} L ${points[0][0]} ${H} Z`;
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 w-full overflow-hidden">
             <div className="mb-6">
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{t("superadmin.reports.growth.title")}</h3>
                 <p className="text-sm text-slate-500">{t("superadmin.reports.growth.subtitle")}</p>
@@ -449,9 +449,9 @@ function GrowthLineChart({ data = [] }) {
                     {points.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4" fill="#131b2e" />)}
                 </svg>
             </div>
-            <div className="flex justify-between mt-4 text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tighter overflow-hidden">
+            <div className="flex justify-between mt-4 text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tighter overflow-hidden w-full">
                 {data.map((d, i) => (
-                    <span key={i} className="truncate">
+                    <span key={i} className="truncate px-0.5">
                         {t(`superadmin.reports.months.${MONTH_KEYS[(d.month ?? i + 1) - 1]}`)}
                     </span>
                 ))}
@@ -469,7 +469,7 @@ function StatusDonut({ active = 0, inactive = 0 }) {
     const inactiveDash = total ? (inactive / total) * circ : 0;
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 w-full max-w-sm">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 w-full max-w-sm">
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1">{t("superadmin.reports.donut.title")}</h3>
             <p className="text-sm text-slate-500 mb-8">{t("superadmin.reports.donut.subtitle")}</p>
             <div className="flex flex-col items-center">
@@ -556,7 +556,7 @@ export default function Reports() {
     }, []);
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
             <div>
                 <h1 className="text-2xl sm:text-[30px] font-bold text-slate-900">
                     {t("superadmin.reports.title")}
