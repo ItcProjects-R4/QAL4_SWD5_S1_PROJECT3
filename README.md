@@ -22,6 +22,18 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [📦 About This Repository](#-about-this-repository)
+- [🗂️ Projects](#️-projects)
+- [🌐 Live Demo — SehhaTech](#-live-demo--sehhatech)
+- [🏆 GitHub Achievements](#-github-achievements)
+- [📊 Team Contribution Activity](#-team-contribution-activity)
+- [🛤️ Our Journey](#️-our-journey)
+- [👥 Team](#-team)
+
+---
+
 ## 📦 About This Repository
 
 This repository contains all projects submitted by our team as part of the **Digital Egypt Pioneers Initiative (DEPI) — Full Stack .NET Track**.
@@ -142,6 +154,21 @@ A **full-scale, cloud-deployed Healthcare Management Platform** — our main gra
 
 ---
 
+## 🌐 Live Demo — SehhaTech
+
+<div align="center">
+
+| System | Platform | Status | Link |
+|:------:|:--------:|:------:|:----:|
+| 🔵 Clinic Management API | MonsterASP.NET | 🟢 Live | [sehhatech-api.runasp.net](https://sehhatech-api.runasp.net/) |
+| 🏥 Patient Portal API | MonsterASP.NET | 🟢 Live | [sehhatech-patient-api.runasp.net](https://sehhatech-patient-api.runasp.net/) |
+| 🖥️ Clinic Frontend | Vercel | 🟢 Live | [sehhatech.vercel.app](https://sehhatech.vercel.app/) |
+| 📱 Patient Portal | Vercel | 🟢 Live | [patient-sehhatech.vercel.app](https://patient-sehhatech.vercel.app/) |
+
+</div>
+
+---
+
 ## 🏆 GitHub Achievements
 
 <div align="center">
@@ -234,7 +261,17 @@ A **full-scale, cloud-deployed Healthcare Management Platform** — our main gra
 
 ---
 
+## 📄 License
+
+This repository is shared for educational purposes as part of the DEPI Full Stack .NET Track. See each project's own folder/repo for specific licensing details (SehhaTech is MIT-licensed).
+
+---
+
 <div align="center">
+
+### ⭐ If this repo helped you or inspired your own DEPI journey — a star would mean a lot. ⭐
+
+<br/>
 
 **Digital Egypt Pioneers Initiative (DEPI) · Full Stack .NET Track · 2026 · Egypt 🇪🇬**
 
