@@ -82,14 +82,14 @@ export default function AdminDoctorSchedule() {
     }
 
     return (
-        <div>
+        <div className="w-full max-w-full overflow-x-hidden">
             <Link to="/admin/doctors" className="flex items-center gap-1 text-slate-500 hover:text-[#002045] transition-colors text-sm font-medium mb-5 sm:mb-6 w-fit">
                 <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                 {t('admin.doctorSchedule.backToDoctors')}
             </Link>
 
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 sm:mb-8">
-                <div>
+                <div className="min-w-0">
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002045]">
                         {t('admin.doctorSchedule.title')} {doctorName ? `— ${doctorName}` : ''}
                     </h1>
@@ -97,26 +97,26 @@ export default function AdminDoctorSchedule() {
                 </div>
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto shrink-0"
                 >
                     <span className="material-symbols-outlined text-lg">add</span>
                     {t('admin.doctorSchedule.addBtn')}
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-[480px] w-full text-left">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden w-full">
+                <div className="overflow-x-auto w-full">
+                    <table className="min-w-[320px] w-full text-left">
                         <thead>
                             <tr className="bg-slate-50">
                                 {[
-                                    t('admin.doctorSchedule.colDay'),
-                                    t('admin.doctorSchedule.colWorkingHours'),
-                                    t('admin.doctorSchedule.colSlotDuration'),
-                                    t('admin.doctorSchedule.colMaxPerSlot'),
-                                    '',
-                                ].map((h, idx) => (
-                                    <th key={idx} className={`px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider ${h === '' ? 'text-right' : ''}`}>{h}</th>
+                                    { label: t('admin.doctorSchedule.colDay'), hide: false },
+                                    { label: t('admin.doctorSchedule.colWorkingHours'), hide: false },
+                                    { label: t('admin.doctorSchedule.colSlotDuration'), hide: true },
+                                    { label: t('admin.doctorSchedule.colMaxPerSlot'), hide: true },
+                                    { label: '', hide: false },
+                                ].map(({ label, hide }, idx) => (
+                                    <th key={idx} className={`px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap ${label === '' ? 'text-right' : ''} ${hide ? 'hidden md:table-cell' : ''}`}>{label}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -132,10 +132,10 @@ export default function AdminDoctorSchedule() {
                                     const dayLabel = DAYS.find(d => d.value === s.dayOfWeek)?.label || s.dayOfWeek;
                                     return (
                                         <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                                            <td className="px-4 sm:px-6 py-4"><span className="font-bold text-[#002045] text-sm">{dayLabel}</span></td>
-                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-700">{toInputTime(s.startTime)} — {toInputTime(s.endTime)}</td>
-                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-500">{s.slotDurationMinutes} {t('admin.doctorSchedule.minutesSuffix')}</td>
-                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-500">{s.maxPatientsPerSlot}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap"><span className="font-bold text-[#002045] text-sm">{dayLabel}</span></td>
+                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-700 whitespace-nowrap">{toInputTime(s.startTime)} — {toInputTime(s.endTime)}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-500 whitespace-nowrap hidden md:table-cell">{s.slotDurationMinutes} {t('admin.doctorSchedule.minutesSuffix')}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-sm text-slate-500 hidden md:table-cell">{s.maxPatientsPerSlot}</td>
                                             <td className="px-4 sm:px-6 py-4 text-right">
                                                 <button onClick={() => setDeleteTarget({ id: s.id, label: dayLabel })} className="p-1.5 sm:p-2 hover:bg-red-50 hover:text-red-500 rounded-lg text-slate-400 transition-colors">
                                                     <span className="material-symbols-outlined text-lg">delete</span>

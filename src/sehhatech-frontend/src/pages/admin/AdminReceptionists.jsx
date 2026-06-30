@@ -51,20 +51,20 @@ export default function AdminReceptionists() {
     }
 
     return (
-        <div>
+        <div className="w-full max-w-full overflow-x-hidden">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 sm:mb-8">
-                <div>
+                <div className="min-w-0">
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002045]">{t('admin.receptionists.title')}</h1>
                     <p className="text-slate-500 text-sm mt-1">{t('admin.receptionists.subtitle')}</p>
                 </div>
-                <button onClick={() => setAddOpen(true)} className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto">
+                <button onClick={() => setAddOpen(true)} className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#002045] text-white rounded-lg font-bold text-sm hover:bg-[#1a365d] transition-colors shadow self-start sm:self-auto shrink-0">
                     <span className="material-symbols-outlined text-lg">person_add</span>
                     {t('admin.receptionists.addBtn')}
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden w-full">
+                <div className="overflow-x-auto w-full">
                     {/*
                         Table is forced to a fixed logical column order (Receptionist -> Email -> Status -> Actions)
                         regardless of document direction. We do this with `dir="ltr"` on the table itself and then
@@ -75,13 +75,13 @@ export default function AdminReceptionists() {
                     <table dir="ltr" className="min-w-[280px] w-full text-start">
                         <thead>
                             <tr className="bg-slate-50">
-                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start">
+                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start whitespace-nowrap">
                                     {t('admin.receptionists.colReceptionist')}
                                 </th>
-                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start hidden md:table-cell">
+                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start hidden md:table-cell whitespace-nowrap">
                                     {t('admin.receptionists.colEmail')}
                                 </th>
-                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start">
+                                <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-start whitespace-nowrap">
                                     {t('admin.receptionists.colStatus')}
                                 </th>
                                 <th className="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-end">
@@ -101,14 +101,14 @@ export default function AdminReceptionists() {
                                     const photo = r.profileImageUrl || r.ProfileImageUrl || r.photoUrl || r.PhotoUrl;
                                     return (
                                         <tr key={r.id || r.Id} className="hover:bg-slate-50 transition-colors">
-                                            <td dir="auto" className="px-4 sm:px-6 py-4 text-start">
-                                                <div className="flex items-center gap-2 sm:gap-3">
+                                            <td className="px-4 sm:px-6 py-4 text-start">
+                                                <div dir="ltr" className="flex items-center gap-2 sm:gap-3">
                                                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-700 flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
                                                         {photo ? <img src={photo} alt={name} className="w-full h-full object-cover" /> : name.charAt(0)}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="font-bold text-[#002045] text-xs sm:text-sm truncate">{name}</p>
-                                                        <p className="text-xs text-slate-400 truncate">{r.email || r.Email}</p>
+                                                        <p dir="auto" className="font-bold text-[#002045] text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{name}</p>
+                                                        <p dir="ltr" className="text-xs text-slate-400 truncate max-w-[100px] sm:max-w-none">{r.email || r.Email}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -116,7 +116,7 @@ export default function AdminReceptionists() {
                                                 {r.email || r.Email || '—'}
                                             </td>
                                             <td className="px-4 sm:px-6 py-4 text-start">
-                                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+                                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full w-fit text-[10px] font-bold uppercase whitespace-nowrap ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'}`} />
                                                     {isActive ? t('admin.receptionists.active') : t('admin.receptionists.inactive')}
                                                 </span>
