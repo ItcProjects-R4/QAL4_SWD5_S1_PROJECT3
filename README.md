@@ -9,7 +9,7 @@
 <br/><br/>
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=3500&pause=800&color=0077B6&center=true&vCenter=true&width=800&lines=%F0%9F%8F%A5+Multi-Tenant+Clinic+Management+System;%F0%9F%91%A5+Patient+Portal+%26+Online+Appointment+Booking;%F0%9F%94%90+JWT+%2B+OTP+Secure+Authentication;%F0%9F%93%8A+Real-time+Dashboard+%26+Analytics;%F0%9F%9A%80+Deployed+on+Railway+%C2%B7+Render+%C2%B7+Vercel;%F0%9F%8E%93+DEPI+Full+Stack+.NET+Graduation+Project+2026" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=3500&pause=800&color=0077B6&center=true&vCenter=true&width=800&lines=%F0%9F%8F%A5+Multi-Tenant+Clinic+Management+System;%F0%9F%91%A5+Patient+Portal+%26+Online+Appointment+Booking;%F0%9F%94%90+JWT+%2B+OTP+Secure+Authentication;%F0%9F%93%8A+Real-time+Dashboard+%26+Analytics;%F0%9F%9A%80+Deployed+on+MonsterASP+%C2%B7+Vercel;%F0%9F%8E%93+DEPI+Full+Stack+.NET+Graduation+Project+2026" alt="Typing SVG" />
 </a>
 
 <br/><br/>
@@ -18,7 +18,7 @@
 <img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
 <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white" />
 <img src="https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" />
 <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
 <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
 <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
@@ -27,8 +27,7 @@
 <br/>
 
 <!-- ════════ DEPLOYMENT BADGES ════════ -->
-<img src="https://img.shields.io/badge/Railway-Deployed-0B0D0E?style=for-the-badge&logo=railway&logoColor=white" />
-<img src="https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=black" />
+<img src="https://img.shields.io/badge/MonsterASP.NET-Deployed-2ECC71?style=for-the-badge&logo=windows&logoColor=white" />
 <img src="https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white" />
 
 <br/><br/>
@@ -152,8 +151,8 @@ The platform delivers two fully cloud-deployed systems:
 | 🏗️ Deployed Systems | **2** (Clinic Management + Patient Portal) |
 | 📡 REST APIs | **2** (SehhaTech.API + PatientPortal.API) |
 | 🔐 Auth Methods | **2** (JWT for staff · OTP for patients) |
-| 🐘 Database | **PostgreSQL** — shared, isolated per tenant |
-| ☁️ Cloud Deployments | **3** (Railway · Render · Vercel) |
+| 🗄️ Database | **SQL Server** — shared, isolated per tenant |
+| ☁️ Cloud Deployments | **2** (MonsterASP.NET · Vercel) |
 | 📱 Responsive | **Yes** — Desktop · Tablet · Mobile |
 | 🌍 City Coverage | Cairo · Giza · Alexandria + more |
 
@@ -163,7 +162,7 @@ The platform delivers two fully cloud-deployed systems:
 
 ## 🏗️ Architecture
 
-SehhaTech is built on a **clean 3-layer architecture** — two independent APIs sharing one PostgreSQL database, with full tenant isolation enforced at the infrastructure layer.
+SehhaTech is built on a **clean 3-layer architecture** — two independent APIs sharing one SQL Server database, with full tenant isolation enforced at the infrastructure layer.
 
 ```mermaid
 flowchart TB
@@ -186,11 +185,10 @@ flowchart TB
             INFRA("🏗️ SehhaTech.Infrastructure")
         end
 
-        DB[("🐘 PostgreSQL\nDatabase")]
+        DB[("🗄️ SQL Server\nDatabase")]
     end
 
-    RAIL("☁️ Railway\nClinic API")
-    REND("☁️ Render\nPortal API")
+    HOST("☁️ MonsterASP.NET\nBoth APIs")
     VERC("🌐 Vercel\nBoth Frontends")
 
     FE1 -->|HTTPS| API1
@@ -200,8 +198,8 @@ flowchart TB
     CORE --> INFRA
     INFRA -->|EF Core| DB
 
-    API1 -. deployed on .-> RAIL
-    API2 -. deployed on .-> REND
+    API1 -. deployed on .-> HOST
+    API2 -. deployed on .-> HOST
     FE1 -. deployed on .-> VERC
     FE2 -. deployed on .-> VERC
 ```
@@ -312,14 +310,14 @@ A clean, modern platform for patients to **take control of their healthcare jour
 
 | Layer | Technology | Version | Role |
 |:-----:|:----------:|:-------:|:-----|
-| 🔵 API Framework | ASP.NET Core | .NET 10 | REST API · Business Logic · Middleware |
-| 🧠 ORM | Entity Framework Core | 10 | Code-First · Migrations · Repositories |
-| 🐘 Database | PostgreSQL | 16 | Primary Data Store (multi-tenant) |
+| 🔵 API Framework | ASP.NET Core | .NET 8 | REST API · Business Logic · Middleware |
+| 🧠 ORM | Entity Framework Core | 8 | Code-First · Migrations · Repositories |
+| 🗄️ Database | SQL Server | — | Primary Data Store (multi-tenant) |
 | 🔐 Auth — Staff | JWT Bearer Tokens | — | Role-based access per clinic |
 | 🔑 Auth — Patients | OTP via Email | — | Passwordless patient login |
 | ⚛️ Frontend | React + Vite | 18 / 5 | Both Clinic & Patient UIs |
 | 🎨 Styling | Tailwind CSS | 3 | Utility-first responsive design |
-| ☁️ Backend Hosting | Railway + Render | — | Cloud-managed APIs |
+| ☁️ Backend Hosting | MonsterASP.NET | — | Cloud-managed APIs (Windows / IIS) |
 | 🌐 Frontend Hosting | Vercel | — | CDN-optimized static sites |
 
 </div>
@@ -381,9 +379,9 @@ A clean, modern platform for patients to **take control of their healthcare jour
 
 | Tool | Version | Link |
 |:----:|:-------:|:----:|
-| .NET SDK | 10.0+ | [↗ Download](https://dotnet.microsoft.com/download) |
+| .NET SDK | 8.0+ | [↗ Download](https://dotnet.microsoft.com/download) |
 | Node.js | 18.0+ | [↗ Download](https://nodejs.org/) |
-| PostgreSQL | 16+ | [↗ Download](https://www.postgresql.org/download/) |
+| SQL Server | 2019+ | [↗ Download](https://www.microsoft.com/sql-server) |
 | Git | Latest | [↗ Download](https://git-scm.com/) |
 
 ---
@@ -403,9 +401,9 @@ cd Final-Project-DEPI
 cd src/SehhaTech.API
 dotnet restore
 
-# Edit appsettings.json → update your PostgreSQL connection string:
+# Edit appsettings.json → update your SQL Server connection string:
 # "ConnectionStrings": {
-#   "DefaultConnection": "Host=localhost;Database=SehhaTech;Username=postgres;Password=YOUR_PASSWORD"
+#   "DefaultConnection": "Server=.;Database=SehhaTechDB;Trusted_Connection=True;TrustServerCertificate=True"
 # }
 
 dotnet ef database update
@@ -451,12 +449,10 @@ npm run dev   # → http://localhost:5174
 
 | System | Platform | Status | Link |
 |:------:|:--------:|:------:|:----:|
-| 🔵 Clinic Management API | Railway | 🟡 Coming Soon | — |
-| 🏥 Patient Portal API | Render | 🟡 Coming Soon | — |
-| 🖥️ Clinic Frontend | Vercel | 🟡 Coming Soon | — |
-| 📱 Patient Portal | Vercel | 🟡 Coming Soon | — |
-
-> 🚀 *Links will be updated upon deployment. **Star the repo** to get notified!* ⭐
+| 🔵 Clinic Management API | MonsterASP.NET | 🟢 Live | [sehhatech-api.runasp.net](https://sehhatech-api.runasp.net/) |
+| 🏥 Patient Portal API | MonsterASP.NET | 🟢 Live | [sehhatech-patient-api.runasp.net](https://sehhatech-patient-api.runasp.net/) |
+| 🖥️ Clinic Frontend | Vercel | 🟢 Live | [sehhatech.vercel.app](https://sehhatech.vercel.app/) |
+| 📱 Patient Portal | Vercel | 🟢 Live | [patient-sehhatech.vercel.app](https://patient-sehhatech.vercel.app/) |
 
 </div>
 
