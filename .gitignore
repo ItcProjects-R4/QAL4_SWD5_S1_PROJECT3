@@ -37,3 +37,7 @@ src/node_modules/
 **/node_modules/
 
 src/SehhaTech.API/appsettings.Production.json
+src/SehhaTech.API/appsettings.json
+src/SehhaTech.PatientPortal.API/appsettings.json
+
+src_backup_before_filter/
